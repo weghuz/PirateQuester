@@ -1,0 +1,64 @@
+﻿@page "/login"
+@using Utils
+@inject IJSRuntime JS
+@inject AccountManager accounts
+@inject NavigationManager NM
+
+<RadzenCard class="mt-2">
+    <EditForm Model="@model" OnSubmit="@SubmitPassword">
+
+        <RadzenText TextStyle="TextStyle.H5">Login</RadzenText>
+        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Accounts</RadzenText>
+        <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+        @bind-Value=@model.accountNames Multiple="true" Placeholder="Select..." Data="GetLoggedOutAccountNames()" TextProperty="" ValueProperty="" Class="w-100" />
+
+        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Password</RadzenText>
+        <RadzenPassword @bind-Value="model.Password" Class="w-100 mb-2" />
+
+        <RadzenButton Text="Submit" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success"></RadzenButton>
+    </EditForm>
+</RadzenCard>
+
+@code {
+    List<string> accountNames = new();
+    List<string> GetLoggedOutAccountNames()
+    {
+        return accountNames.Where(acc => accounts.Accounts.Keys.Any(key => key == acc) is false).ToList();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        accountNames = await accounts.GetAccountNames(JS);
+        if (GetLoggedOutAccountNames().Count == 0)
+        {
+            NM.NavigateTo("Account");
+        }
+    }
+    public class LoginModel
+    {
+        public string Password { get; set; }
+        public List<string> accountNames { get; set; } = new();
+    }
+    LoginModel model = new();
+
+    async Task SubmitPassword()
+    {
+        if(model.Password.Length < 8)
+        {
+            await JS.InvokeVoidAsync("alert", "Password needs to be at least 8 characters");
+        }
+        try
+        {
+            foreach(string name in model.accountNames)
+            {
+                string json = await JS.InvokeAsync<string>("localStorage.getItem", name);
+                accounts.Accounts.Add(name, Encrypt.GetAccount(model.Password, json));
+            }
+            NM.NavigateTo("Account");
+        }
+        catch (Exception e)
+        {
+            var k = e;
+            await JS.InvokeVoidAsync("alert", $"Login attempt failed.");
+        }
+    }
+}

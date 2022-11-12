@@ -1,0 +1,108 @@
+﻿@page "/CreateAccount"
+@using System.ComponentModel.DataAnnotations;
+@using Utils;
+@using Newtonsoft.Json
+@inject AccountManager accounts
+@inject IJSRuntime JS
+@inject NavigationManager NM
+
+<RadzenCard class="mt-2">
+    <EditForm OnValidSubmit="@Create" Model="@input">
+        @if(accountNames.Count == 0)
+        {
+            <div class="rz-background-color-danger p-3 rounded m-3">
+            <RadzenText TextStyle="TextStyle.H6">
+                You need to create an account to use most features on Pirate Quester.
+            </RadzenText>
+            </div>
+        }
+        <RadzenText TextStyle="TextStyle.H5">Create Account</RadzenText>
+        <div class="p-2">
+            <RadzenLabel Text="Generate Account" Component="GenerateAccount" class="font-weight-bold" />
+            <RadzenCheckBox @bind-Value="input.generateAccount" Name="GenerateAccount" TValue="bool" />
+        </div>
+        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Account Name</RadzenText>
+        <RadzenTextBox @bind-Value="input.name" Class="w-100 mb-2" />
+        @if (input.generateAccount is false)
+        {
+            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">
+                Private Key
+            </RadzenText>
+            <RadzenPassword @bind-Value="input.privateKey" Name="PrivateKey" Class="w-100 mb-2" />
+        }
+
+        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Password</RadzenText>
+        <RadzenPassword @bind-Value="input.password" Class="w-100 mb-2" />
+
+        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Re-type Password</RadzenText>
+        <RadzenPassword @bind-Value="input.recheckPassword" Class="w-100 mb-2" />
+
+        <RadzenButton ButtonStyle="ButtonStyle.Success" ButtonType="ButtonType.Submit">
+            Create
+        </RadzenButton>
+    </EditForm>
+</RadzenCard>
+@code {
+    List<string> accountNames = new();
+    protected override async Task OnInitializedAsync()
+    {
+        accountNames = await accounts.GetAccountNames(JS);
+    }
+    public class AccountModel
+    {
+        public string name = "";
+        public string privateKey = "";
+        public string password = "";
+        public string recheckPassword = "";
+        public bool generateAccount = false;
+    }
+    AccountModel input = new();
+    async Task Create()
+    {
+        string name = input.name;
+        string privateKey = input.privateKey;
+        string password = input.password;
+        string recheckPassword = input.recheckPassword;
+        bool generateAccount = input.generateAccount;
+        if (password.Length < 8 || recheckPassword.Length < 8)
+        {
+            await JS.InvokeVoidAsync("alert", "Password needs to have 8 or more characters.");
+            return;
+        }
+        if (password != recheckPassword)
+        {
+            await JS.InvokeVoidAsync("alert", "The passwords don't match.");
+            return;
+        }
+        if (!generateAccount && privateKey is not null && privateKey.Length != 32)
+        {
+            await JS.InvokeVoidAsync("alert", "The private key is in and incorrect format.");
+            return;
+        }
+        if (name == "")
+        {
+            await JS.InvokeVoidAsync("alert", "Accounts need to have names.");
+            return;
+        }
+        if (accountNames.Any(acc => acc == name))
+        {
+            await JS.InvokeVoidAsync("alert", "You already have an account with that name!");
+            return;
+        }
+        accountNames.Add(name);
+        await JS.InvokeAsync<string>("localStorage.setItem", new string[] { "AccountNames", JsonConvert.SerializeObject(accountNames) });
+        string json;
+        if (generateAccount)
+        {
+            json = Encrypt.GenerateAccount(password);
+            await JS.InvokeVoidAsync("localStorage.setItem", new string[] { name, json });
+        }
+        else
+        {
+            json = Encrypt.CreateAccount(privateKey, password);
+            await JS.InvokeVoidAsync("localStorage.setItem", new string[] { name, json });
+        }
+        accounts.Accounts.Add(name, Encrypt.GetAccount(password, json));
+        NM.NavigateTo("Account");
+    }
+}

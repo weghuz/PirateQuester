@@ -1,0 +1,62 @@
+﻿@using Nethereum.Web3.Accounts;
+@using Utils
+@inject AccountManager accounts
+@inject IJSRuntime JS
+@inject NavigationManager NM
+@page "/Account"
+
+@if (accounts.Accounts.Count > 0)
+{
+	<div>
+		<h3>Account</h3>
+		<div>
+			Accounts: @string.Join(", ", accountNames)
+			@foreach(KeyValuePair<string, Account> kvp in accounts.Accounts)
+			{
+				Account acc = kvp.Value;
+				<RadzenCard class="my-3 overflow-auto text-wrap">
+					<RadzenText>
+						@kvp.Key
+					</RadzenText>
+					<RadzenText TextStyle="TextStyle.H6">
+						Address
+					</RadzenText>
+					<RadzenText>
+						@acc.Address
+					</RadzenText>
+					<RadzenText TextStyle="TextStyle.H6">
+						Public Key
+					</RadzenText>
+					<RadzenText>
+						@acc.PublicKey
+					</RadzenText>
+					<RadzenText TextStyle="TextStyle.H6">
+						Private Key
+					</RadzenText>
+					<RadzenText>
+						@acc.PrivateKey
+					</RadzenText>
+				</RadzenCard>
+			}
+		</div>
+	</div>
+}
+
+@code {
+	List<string> accountNames = new();
+	protected override async Task OnInitializedAsync()
+	{
+		accountNames = await accounts.GetAccountNames(JS);
+		if(accounts.Accounts.Count == 0)
+		{
+			if (accountNames.Count > 0)
+			{
+				NM.NavigateTo("Login");
+			}
+			else
+			{
+				NM.NavigateTo("CreateAccount");
+			}
+		}
+	}
+}

@@ -1,0 +1,64 @@
+﻿@page "/Options"
+@inject IJSRuntime JS
+<h3>Options</h3>
+
+<RadzenCard>
+    <div class="col-md-6">
+        <RadzenButton Click="ToggleDarkMode" Text="Dark Mode" ButtonStyle="ButtonStyle.Secondary" />
+    </div>
+</RadzenCard>
+<RadzenCard class="mt-3">
+    <div class="col-md-6">
+        <RadzenText class="pb-2">
+            (Remove all Accounts from memory)
+        </RadzenText>
+        <RadzenButton Click="ClearLocalStorage" Text="Clear Local Storage" ButtonStyle="ButtonStyle.Secondary" />
+    </div>
+</RadzenCard>
+
+@code{
+    async Task ClearLocalStorage()
+    {
+        if(await JS.InvokeAsync<bool>("confirm", "This will delete ALL your local accounts. Are you sure?"))
+        {
+            await JS.InvokeVoidAsync("localStorage.clear");
+        }
+        await JS.InvokeVoidAsync("location.reload");
+    }
+    async Task ToggleDarkMode()
+    {
+        Console.WriteLine("Toggling dark mode");
+        string darkMode = await JS.InvokeAsync<string>("localStorage.getItem", "darkMode");
+        if (bool.TryParse(darkMode, out bool darkModeBool))
+        {
+            Console.WriteLine("Toggled");
+            await JS.InvokeVoidAsync("localStorage.setItem", "darkMode", !darkModeBool);
+        }
+        else
+        {
+            Console.WriteLine("Set to false");
+            await JS.InvokeVoidAsync("localStorage.setItem", "darkMode", false);
+        }
+        Console.WriteLine(darkMode);
+        await LoadDarkMode();
+    }
+    async Task LoadDarkMode()
+    {
+        string darkMode = await JS.InvokeAsync<string>("localStorage.getItem", "darkMode");
+        if (bool.TryParse(darkMode, out bool darkModeBool))
+        {
+            if (darkModeBool)
+            {
+                await JS.InvokeAsync<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
+            }
+            else
+            {
+                await JS.InvokeAsync<string>("SetStylesheet", "_content/Radzen.Blazor/css/standard.css");
+            }
+        }
+        else
+        {
+            await JS.InvokeAsync<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
+        }
+    }
+}

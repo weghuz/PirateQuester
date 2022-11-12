@@ -1,0 +1,121 @@
+﻿@page "/"
+@using DFK
+@using System.Reflection
+@using Utils;
+@inject AccountManager accounts
+@inject NavigationManager NM
+@inject IJSRuntime JS
+
+<PageTitle>PQ - Home</PageTitle>
+<RadzenText class="text-center mt-2" TextStyle="TextStyle.H5">List Account Heroes</RadzenText>
+<RadzenDropDown 
+	AllowClear="true" 
+	AllowFiltering="true" 
+	FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+	@bind-Value=@owner 
+	Multiple="false"
+	Placeholder="Select..." 
+	Data="@accounts.Accounts.Keys" 
+	TextProperty="" 
+	ValueProperty="" 
+	Change="@LoadHeroes"
+	Class="w-100 my-3 py-3" />
+@if(Loading)
+{
+	<RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" ProgressBarStyle="ProgressBarStyle.Secondary" />
+}
+<RadzenDataGrid 
+	Data="@Heroes" 
+	TItem="Hero" 
+	AllowPaging="true" 
+	AllowSorting="true" 
+	AllowColumnReorder="true"
+	AllowColumnResize="true" 
+	AllowFiltering="true"
+	ShowPagingSummary="true"
+	ColumnWidth="100px"
+	PagerHorizontalAlign="HorizontalAlign.Center"
+	PageSize="50"
+	Style="max-height:800px;"
+	PagingSummaryFormat="@pagingSummaryFormat">
+	<Columns>
+		<RadzenDataGridColumn TItem="Hero" Property="" Title="Row" Filterable="false" Reorderable="false">
+			<Template Context="data">
+				@(Heroes.IndexOf(data)+1)
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="Hero" Property="FullName" Title="Name" Width="200px">
+			<Template Context="data">
+				@data.FullName()
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="Hero" Property="salePrice" Title="Cost">
+				<Template Context="data">
+					@if(data.salePrice is not null)
+					{
+							@data.SalePrice(2)
+					}
+					else{
+						<span>
+							Not for Sale
+						</span>
+					}
+				</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="Hero" Property="id" Title="Id" />
+		<RadzenDataGridColumn TItem="Hero" Property="GetRarity" Title="Rarity">
+			<Template Context="data">
+				@data.GetRarity()
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="Hero" Property="mainClass" Title="Class" />
+		<RadzenDataGridColumn TItem="Hero" Property="subClass" Title="Subclass"/>
+		<RadzenDataGridColumn TItem="Hero" Property="level" Title="Level"/>
+		<RadzenDataGridColumn TItem="Hero" Property="generation" Title="Generation"/>
+		<RadzenDataGridColumn TItem="Hero" Property="statBoost1" Title="Statboost 1" />
+		<RadzenDataGridColumn TItem="Hero" Property="statBoost2" Title="Statboost 2" />
+		<RadzenDataGridColumn TItem="Hero" Property="profession" Title="Profession" />
+		<RadzenDataGridColumn TItem="Hero" Property="strength" Title="Strength" />
+		<RadzenDataGridColumn TItem="Hero" Property="dexterity" Title="Dexterity" />
+		<RadzenDataGridColumn TItem="Hero" Property="agility" Title="Agility" />
+		<RadzenDataGridColumn TItem="Hero" Property="vitality" Title="Vitality" />
+		<RadzenDataGridColumn TItem="Hero" Property="endurance" Title="Endurance" />
+		<RadzenDataGridColumn TItem="Hero" Property="intelligence" Title="Intelligence" />
+		<RadzenDataGridColumn TItem="Hero" Property="wisdom" Title="Wisdom" />
+		<RadzenDataGridColumn TItem="Hero" Property="luck" Title="Luck" />
+	</Columns>
+</RadzenDataGrid>
+
+@code{
+	string pagingSummaryFormat = "Displaying page {0} of {1} (total {2} records)";
+	bool Loading = false;
+	string owner = "";
+	protected override async Task OnInitializedAsync()
+	{
+		if(accounts.Accounts.Count > 0)
+		{
+			return;
+		}
+		if ((await accounts.GetAccountNames(JS)).Count > 0)
+		{
+			NM.NavigateTo("Login");
+		}
+		else
+		{
+			NM.NavigateTo("CreateAccount");
+		}
+	}
+
+	private async Task LoadHeroes()
+	{
+		Loading = true;
+		Dictionary<HeroesArgument, string> args = new();
+		args.Add(HeroesArgument.owner, owner);
+		string request = API.HeroesRequestBuilder(args);
+		Heroes = (await API.GetHeroes(request)).ToList();
+		Console.WriteLine(Heroes);
+		Loading = false;
+	}
+	public List<Hero> Heroes { get; set; }
+
+}

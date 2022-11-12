@@ -1,0 +1,105 @@
+﻿@using Utils;
+@inherits LayoutComponentBase
+@inject AccountManager accounts
+@inject IJSRuntime JS
+@inject NavigationManager NM
+@code{
+    bool sidebarExpanded = false;
+}
+<div class="page">
+    <main style="width:100%;">
+        <RadzenLayout class="">
+            <RadzenHeader>
+                <div class="d-flex align-items-center">
+                    <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
+                    <RadzenText Text="Pirate Quester 🏴‍☠️" />
+                    
+                    <div class="d-inline-block ml-auto mr-5">
+                        @if (accounts.Accounts.Count == 1)
+                        {
+                            <RadzenButton Click="@(() => NM.NavigateTo("Account"))">
+                                Logged in as @accounts.Accounts.FirstOrDefault().Value.Address
+                            </RadzenButton>
+                        }
+                        else if (accounts.Accounts.Count > 1)
+                        {
+                            <RadzenButton Click="@(() => NM.NavigateTo("Account"))">
+                                Logged in with @accounts.Accounts.Count accounts
+                            </RadzenButton>
+                        }
+                        else if (accountNames.Count > 0)
+                        {
+                            <RadzenLink Path="Login" Text="Login" />
+                        }
+                        else
+                        {
+                            <RadzenLink Path="CreateAccount" Text="Create Account" />
+                        }
+                    </div>
+                </div>
+            </RadzenHeader>
+            <RadzenSidebar @bind-Expanded="@sidebarExpanded">
+                <RadzenPanelMenu>
+                    <RadzenPanelMenuItem Text="Home" Icon="home" Path="/" />
+                    @if (accountNames.Count > 0)
+                    {
+                        if(accounts.Accounts.Count > 0)
+                        {
+                            <RadzenPanelMenuItem Text="Accounts" Path="/Account" Icon="account_circle"></RadzenPanelMenuItem>
+                        }
+                        else if (GetLoggedOutAccountNames().Count > 0)
+                        {
+                            <RadzenPanelMenuItem Text="Login" Path="/Login" Icon="account_circle"></RadzenPanelMenuItem>
+                        }
+                    }
+                    <RadzenPanelMenuItem Text="Create Account" Path="/CreateAccount" Icon="account_box"></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Path="Options" Text="Options" Icon="wrench" />
+                </RadzenPanelMenu>
+                <div class="p-2">
+                </div>
+            </RadzenSidebar>
+            <RadzenBody>
+                @Body
+            </RadzenBody>
+            @*<RadzenFooter>
+                Footer
+            </RadzenFooter>*@
+        </RadzenLayout>
+    </main>
+</div>
+@code{
+    List<string> accountNames = new();
+
+    List<string> GetLoggedOutAccountNames()
+    {
+        return accountNames.Where(acc => accounts.Accounts.Keys.Any(key => key == acc) is false).ToList();
+    }
+    async Task LoadDarkMode()
+    {
+        string darkMode = await JS.InvokeAsync<string>("localStorage.getItem", "darkMode");
+        if (bool.TryParse(darkMode, out bool darkModeBool))
+        {
+            if (darkModeBool)
+            {
+                await JS.InvokeAsync<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
+            }
+            else
+            {
+                await JS.InvokeAsync<string>("SetStylesheet", "_content/Radzen.Blazor/css/standard.css");
+            }
+        }
+        else
+        {
+            await JS.InvokeAsync<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        accountNames = await accounts.GetAccountNames(JS);
+        //Don't know why but I have to toggle the sidebar expand twice to actually have it not expanded by default.
+        sidebarExpanded = !sidebarExpanded;
+        await LoadDarkMode();
+        sidebarExpanded = !sidebarExpanded;
+    }
+}
