@@ -19,6 +19,7 @@ public static class Encrypt
         return keyStoreService.SerializeKeyStoreToJson(keyStore);
     }
 
+
     public static string CreateAccount(string privateKey, string password)
     {
         var keyStoreService = new KeyStoreScryptService();
