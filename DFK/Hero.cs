@@ -1,3 +1,4 @@
+using Microsoft.JSInterop;
 using Newtonsoft.Json;
 namespace DFK;
 public class Hero
@@ -20,7 +21,6 @@ public class Hero
     {
         return gender == "male" ? HeroData.MaleFirstNames[firstName] : HeroData.FemaleFirstNames[firstName];
     }
-
 
 	public string GetCurrentQuestName()
 	{
@@ -68,10 +68,8 @@ public class Hero
 		{
 			return "Gold mining";
 		}
-        Console.WriteLine($"{currentQuest}, {Contracts.FISHING}");
 		if (currentQuest == Contracts.FISHING)
 		{
-			Console.WriteLine("Same!");
 			return "Fishing";
 		}
 		if (Contracts.GARDENING_CONTRACTS.Any(gc => gc.Contract == currentQuest))
@@ -107,16 +105,18 @@ public class Hero
         return JsonConvert.SerializeObject(this);
     }
 
-    public int StaminaCurrent()
+    public int StaminaCurrent(IJSInProcessRuntime js)
     {
-        long now = DateTimeOffset.Now.ToUnixTimeSeconds();
+        long now = js.Invoke<long>("GetTime", "") / 1000;
+		now += 3600;
 		if (now >= staminaFullAt)
         {
             return stamina;
         }
         else
         {
-            decimal staminaLeft = (staminaFullAt - now) / 1200;
+			decimal staminaLeft = (staminaFullAt - now) / 1200 ;
+            Console.WriteLine(staminaLeft);
             return (int)Math.Round(staminaLeft, 0);
         }
     }

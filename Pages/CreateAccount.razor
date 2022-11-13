@@ -3,7 +3,7 @@
 @using Utils;
 @using Newtonsoft.Json
 @inject AccountManager accounts
-@inject IJSRuntime JS
+@inject IJSInProcessRuntime JS
 @inject NavigationManager NM
 
 <RadzenCard class="mt-2">
@@ -46,7 +46,7 @@
     List<string> accountNames = new();
     protected override async Task OnInitializedAsync()
     {
-        accountNames = await accounts.GetAccountNames(JS);
+        accountNames = await accounts.GetAccountNames();
     }
     public class AccountModel
     {
@@ -66,43 +66,43 @@
         bool generateAccount = input.generateAccount;
         if (password.Length < 8 || recheckPassword.Length < 8)
         {
-            await JS.InvokeVoidAsync("alert", "Password needs to have 8 or more characters.");
+            JS.InvokeVoid("alert", "Password needs to have 8 or more characters.");
             return;
         }
         if (password != recheckPassword)
         {
-            await JS.InvokeVoidAsync("alert", "The passwords don't match.");
+            JS.InvokeVoid("alert", "The passwords don't match.");
             return;
         }
-        if (!generateAccount && privateKey is not null && privateKey.Length != 32)
-        {
-            await JS.InvokeVoidAsync("alert", "The private key is in and incorrect format.");
-            return;
-        }
+        //if (!generateAccount && privateKey is not null && privateKey.Length != 64)
+        //{
+        //    JS.InvokeVoid("alert", "The private key is in and incorrect format.");
+        //    return;
+        //}
         if (name == "")
         {
-            await JS.InvokeVoidAsync("alert", "Accounts need to have names.");
+            JS.InvokeVoid("alert", "Accounts need to have names.");
             return;
         }
         if (accountNames.Any(acc => acc == name))
         {
-            await JS.InvokeVoidAsync("alert", "You already have an account with that name!");
+            JS.InvokeVoid("alert", "You already have an account with that name!");
             return;
         }
         accountNames.Add(name);
-        await JS.InvokeAsync<string>("localStorage.setItem", new string[] { "AccountNames", JsonConvert.SerializeObject(accountNames) });
+        JS.Invoke<string>("localStorage.setItem", new string[] { "AccountNames", JsonConvert.SerializeObject(accountNames) });
         string json;
         if (generateAccount)
         {
             json = Encrypt.GenerateAccount(password);
-            await JS.InvokeVoidAsync("localStorage.setItem", new string[] { name, json });
+            JS.InvokeVoid("localStorage.setItem", new string[] { name, json });
         }
         else
         {
             json = Encrypt.CreateAccount(privateKey, password);
-            await JS.InvokeVoidAsync("localStorage.setItem", new string[] { name, json });
+            JS.InvokeVoid("localStorage.setItem", new string[] { name, json });
         }
-        accounts.Accounts.Add(name, Encrypt.GetAccount(password, json));
-        NM.NavigateTo("Account");
+        await accounts.AddAccount(name, Encrypt.GetAccount(password, json));
+        NM.NavigateTo("Accounts");
     }
 }

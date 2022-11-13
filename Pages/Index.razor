@@ -1,53 +1,94 @@
 ﻿@page "/"
-@using DFK
-@using System.Reflection
-@using Utils;
+@using DFKContracts.HeroCore;
+@using DFKContracts.QuestCore.ContractDefinition;
+@using Nethereum.RPC.Eth.DTOs;
+@using Nethereum.Web3;
 @inject AccountManager accounts
 @inject NavigationManager NM
-@inject IJSRuntime JS
+@inject DialogService DS
+@inject GlobalState GS
+@inject HeroCoreService HC
+@inject QuestCoreService quest
+@inject IJSInProcessRuntime JS
 
 <PageTitle>PQ - Home</PageTitle>
 <RadzenText class="text-center mt-2" TextStyle="TextStyle.H5">List Account Heroes</RadzenText>
+<RadzenTextArea @bind-Value=@ownerInput
+	Placeholder="Additional addresses"
+	Change="@LoadHeroes"
+	Class="w-100 my-3 py-3" />
 @if(accounts.Accounts.Count > 0)
 {
 	<RadzenDropDown AllowClear="true"
 		AllowFiltering="true"
 		FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-	@bind-Value=@owners
+		@bind-Value=@GS.LoadedOwnersHomescreen
 		Multiple="true"
 		Placeholder="Select..."
-		Data="@accounts.Accounts.Keys"
+		Data="@accounts.Accounts.Select(acc => acc.Account.Address).ToList()"
 		TextProperty=""
 		ValueProperty=""
+		Chips="true"
 		Change="@LoadHeroes"
 		Class="w-100 my-3 py-3" />
+	<RadzenCard class="my-2">
+		<RadzenButton ButtonStyle="StartQuestStyle" Disabled="StartQuestButtonDisabled" Click="@StartFishing">
+			Start Fishing!
+		</RadzenButton>
+	</RadzenCard>
 }
-<RadzenTextArea @bind-Value=@ownerInput
-	Placeholder="Additional addresses"
-	Change="@LoadHeroes"
-	Class="w-100 my-3 py-3" />
 @if(Loading)
 {
 	<RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" ProgressBarStyle="ProgressBarStyle.Secondary" />
 }
 <RadzenDataGrid
-	Data="@Heroes"
+	Data="@GS.LoadedHeroesHomeScreen"
 	TItem="Hero"
+	SelectionMode="DataGridSelectionMode.Multiple" 
+	@ref="heroes"
+	@bind-Value=@SelectedHeroes
+	AllowRowSelectOnRowClick="true"
 	AllowPaging="true"
 	AllowSorting="true"
 	AllowColumnReorder="true"
-	AllowColumnResize="true" 
+	AllowColumnResize="true"
 	AllowFiltering="true"
 	ShowPagingSummary="true"
 	ColumnWidth="100px"
 	PagerHorizontalAlign="HorizontalAlign.Center"
-	PageSize="50"
-	Style="max-height:800px;"
+	PageSize="15"
+	Style="max-height:700px;"
 	PagingSummaryFormat="@pagingSummaryFormat">
 	<Columns>
-		<RadzenDataGridColumn TItem="Hero" Property="FullName" Title="Name" Width="200px">
+		<RadzenDataGridColumn TItem="Hero" Property="owner" Title="Owner" Width="150px">
 			<Template Context="data">
-				@data.FullName()
+				@if(data.owner is not null)
+				{
+					@data.owner.Name
+				}
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="Hero" Property="owner" Title="Owner Address" Width="150px">
+			<Template Context="data">
+				@if (data.owner is not null)
+				{
+					@data.owner.Id
+				}
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="Hero" Property="id" Title="Id">
+			<Template Context="data">
+				@(ulong.Parse(data.id) > 1000000000000 ? $"CV-{ulong.Parse(data.id) - 1000000000000}" : ulong.Parse(data.id))
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="Hero" Property="currentQuest" Title="Current Quest" Width="200px">
+			<Template Context="data">
+				@data.GetCurrentQuestName()
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="Hero" Property="stamina" Title="Stamina">
+			<Template Context="data">
+				@data.StaminaCurrent(JS)/@data.stamina
 			</Template>
 		</RadzenDataGridColumn>
 		<RadzenDataGridColumn TItem="Hero" Property="salePrice" Title="Cost">
@@ -63,26 +104,16 @@
 					}
 				</Template>
 		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="Hero" Property="id" Title="Id">
-			<Template Context="data">
-				@(ulong.Parse(data.id) > 1000000000000 ? $"CV-{ulong.Parse(data.id) - 1000000000000}" : ulong.Parse(data.id))
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="Hero" Property="currentQuest" Title="Current Quest">
-			<Template Context="data">
-				@data.GetCurrentQuestName()
-			</Template>
-		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="Hero" Property="mainClass" Title="Class" />
+		<RadzenDataGridColumn TItem="Hero" Property="subClass" Title="Subclass" />
 		<RadzenDataGridColumn TItem="Hero" Property="GetRarity" Title="Rarity">
 			<Template Context="data">
 				@data.GetRarity()
 			</Template>
 		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="Hero" Property="mainClass" Title="Class" />
-		<RadzenDataGridColumn TItem="Hero" Property="subClass" Title="Subclass" />
-		<RadzenDataGridColumn TItem="Hero" Property="stamina" Title="Stamina">
+		<RadzenDataGridColumn TItem="Hero" Property="FullName" Title="Name" Width="200px">
 			<Template Context="data">
-				@data.StaminaCurrent()/@data.stamina
+				@data.FullName()
 			</Template>
 		</RadzenDataGridColumn>
 		<RadzenDataGridColumn TItem="Hero" Property="level" Title="Level"/>
@@ -105,24 +136,92 @@
 	string pagingSummaryFormat = "Displaying page {0} of {1} (total {2} records)";
 	bool Loading = false;
 	string ownerInput = "";
-	List<string> owners = new();
-	//protected override async Task OnInitializedAsync()
-	//{
+	private IList<Hero> selectedHeroes;
+	IList<Hero> SelectedHeroes { get { return selectedHeroes; } set { UpdateSelection(value); } }
+	RadzenDataGrid<Hero> heroes;
+	ButtonStyle StartQuestStyle = ButtonStyle.Secondary;
+	bool StartQuestButtonDisabled = true;
 
-	//}
+	private async Task StartFishing()
+	{
+		StringBuilder output = new();
+		DFKAccount acc = accounts.Accounts.FirstOrDefault();
+		TransactionReceipt receipt;
+		foreach(Hero h in SelectedHeroes)
+		{
+			try
+			{
+				bool isApproved = await HC.IsApprovedForAllQueryAsync(acc.Account.Address, Contracts.FISHING);
+				Console.WriteLine($"Is approved: {isApproved}");
+
+				var signer = new Web3(acc.Account, "https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc");
+				var heroSigner = new HeroCoreService(signer, "0xEb9B61B145D6489Be575D3603F4a704810e143dF");
+				var questSigner = new QuestCoreService(signer, "0xE9AbfBC143d7cef74b5b793ec5907fa62ca53154");
+				if(isApproved is false)
+				{
+					var approveReceipt = await heroSigner.SetApprovalForAllRequestAndWaitForReceiptAsync(Contracts.FISHING, true);
+					Console.WriteLine($"Set Approved for {nameof(Contracts.FISHING)}: {approveReceipt.BlockNumber}");
+				}
+				receipt = await questSigner.StartQuestRequestAndWaitForReceiptAsync(new StartQuestFunction()
+				{
+					HeroIds = new() { new(ulong.Parse(h.id)) },
+					QuestAddress = Contracts.FISHING,
+					Attempts = 1,
+					Level = 0
+				});
+				Console.WriteLine($"Started Fishing at contract {nameof(Contracts.FISHING)} Block: {receipt.BlockNumber}");
+			}
+			catch(Exception e)
+			{
+				Console.WriteLine($"{e.Source} - {e.Message} - {e.InnerException?.Message}");
+				output.AppendLine(e.Message);
+			}
+		}
+		DS.Open("Transaction", txn =>
+			@<div>
+				<div>
+					@output
+				</div>
+			</div>,
+		new DialogOptions() { Width = "700px", Height = "512px", Resizable = true, Draggable = true, CloseDialogOnEsc = true, ShowClose = true });
+	}
+
+	private void UpdateSelection(IList<Hero> heroes)
+	{
+		selectedHeroes = heroes;
+		if(heroes.Count > 0)
+		{
+			StartQuestButtonDisabled = false;
+			StartQuestStyle = ButtonStyle.Success;
+		}
+		else
+		{
+			StartQuestButtonDisabled = true;
+			StartQuestStyle = ButtonStyle.Warning;
+		}
+	}
+	protected override void OnInitialized()
+	{
+		if (GS.LoadedHeroesHomeScreen.Count == 0)
+		{
+			GS.LoadedHeroesHomeScreen = accounts.Accounts.SelectMany(acc => acc.Heroes).ToList();
+			GS.LoadedOwnersHomescreen = accounts.Accounts.Select(acc => acc.Account.Address).ToList();
+		}
+	}
+
 	private async Task LoadHeroes()
 	{
-		if(owners is null)
+		if (GS.LoadedOwnersHomescreen is null)
 		{
 			return;
 		}
-		List<string> ownerArg = owners;
+		List<string> ownerArg = GS.LoadedOwnersHomescreen;
 		if (ownerInput != "")
 		{
-			string[] inputOwners = ownerInput.Split(new string[] { ",","\r\n" ,"\n", "\r"}, StringSplitOptions.TrimEntries);
+			string[] inputOwners = ownerInput.Split(new string[] { ",", "\r\n", "\n", "\r" }, StringSplitOptions.TrimEntries);
 			foreach (string o in inputOwners)
 			{
-				if(o.Length == 42 && o.StartsWith("0x"))
+				if (o.Length == 42 && o.StartsWith("0x"))
 				{
 					ownerArg.Add(o);
 				}
@@ -134,11 +233,10 @@
 			Dictionary<HeroesArgument, string> args = new();
 			args.Add(HeroesArgument.owner_in, $@"[""{string.Join(@""",""", ownerArg)}""]");
 			string request = API.HeroesRequestBuilder(args);
-			Heroes = (await API.GetHeroes(request)).ToList();
-			Console.WriteLine(Heroes);
+			GS.LoadedHeroesHomeScreen = (await API.GetHeroes(request)).ToList();
+			Console.WriteLine(GS.LoadedHeroesHomeScreen);
 			Loading = false;
 		}
 	}
-	public List<Hero> Heroes { get; set; }
 
 }

@@ -1,41 +1,46 @@
 ﻿@using Utils;
 @inherits LayoutComponentBase
 @inject AccountManager accounts
-@inject IJSRuntime JS
+@inject IJSInProcessRuntime JS
 @inject NavigationManager NM
 @code{
     bool sidebarExpanded = false;
 }
+
+<RadzenDialog />
 <div class="page">
     <main style="width:100%;">
         <RadzenLayout class="">
             <RadzenHeader>
                 <div class="d-flex align-items-center">
                     <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
-                    <RadzenText Text="Pirate Quester 🏴‍☠️" />
-                    
-                    <div class="d-inline-block ml-auto mr-5">
-                        @if (accounts.Accounts.Count == 1)
-                        {
-                            <RadzenButton Click="@(() => NM.NavigateTo("Accounts"))">
-                                Logged in as @accounts.Accounts.FirstOrDefault().Value.Address
-                            </RadzenButton>
-                        }
-                        else if (accounts.Accounts.Count > 1)
-                        {
-                            <RadzenButton Click="@(() => NM.NavigateTo("Accounts"))">
-                                Logged in with @accounts.Accounts.Count accounts
-                            </RadzenButton>
-                        }
-                        else if (accountNames.Count > 0)
-                        {
-                            <RadzenLink Path="Login" Text="Login" />
-                        }
-                        else
-                        {
-                            <RadzenLink Path="CreateAccount" Text="Create Account" />
-                        }
+                    <div class="overflow-auto" style="white-space:nowrap;">
+                        <div class="d-inline-block">
+                            @if (accounts.Accounts.Count == 1)
+                            {
+                                <RadzenButton Click="@(() => NM.NavigateTo("Accounts"))" Style="white-space:nowrap;">
+                                    Logged in as @accounts.Accounts.FirstOrDefault().Account.Address
+                                </RadzenButton>
+                            }
+                            else if (accounts.Accounts.Count > 1)
+                            {
+                                <RadzenButton Click="@(() => NM.NavigateTo("Accounts"))" Style="white-space:nowrap;">
+                                    Logged in with @accounts.Accounts.Count accounts
+                                </RadzenButton>
+                            }
+                            else if (accountNames.Count > 0)
+                            {
+                                <br />
+                                <RadzenLink Path="Login" Text="Login" Style="white-space:nowrap;" />
+                            }
+                            else
+                            {
+                                <RadzenLink Path="CreateAccount" Text="Create Account" Style="white-space:nowrap;" />
+                            }
+                        </div>
+                        <RadzenText Text="Pirate Quester 🏴‍☠️" Style="white-space:nowrap;" class="d-inline-block mx-5" />
                     </div>
+                    
                 </div>
             </RadzenHeader>
             <RadzenSidebar @bind-Expanded="@sidebarExpanded">
@@ -56,6 +61,8 @@
                     <RadzenPanelMenuItem Path="Options" Text="Options" Icon="wrench" />
                 </RadzenPanelMenu>
                 <div class="p-2">
+                    <RadzenText Text="Notepad" />
+                    <RadzenTextArea @bind-Value="@notePad" Change="@SaveNotepad" class="w-100" Rows="30" />
                 </div>
             </RadzenSidebar>
             <RadzenBody>
@@ -69,37 +76,43 @@
 </div>
 @code{
     List<string> accountNames = new();
+    string notePad = "";
+    void SaveNotepad()
+    {
+        JS.InvokeVoid("localStorage.setItem", new string[] { "notePad", notePad });
+    }
 
     List<string> GetLoggedOutAccountNames()
     {
-        return accountNames.Where(acc => accounts.Accounts.Keys.Any(key => key == acc) is false).ToList();
+        return accountNames.Where(acc => accounts.Accounts.Select(acc => acc.Name).Any(key => key == acc) is false).ToList();
     }
-    async Task LoadDarkMode()
+    void LoadDarkMode()
     {
-        string darkMode = await JS.InvokeAsync<string>("localStorage.getItem", "darkMode");
+        string darkMode = JS.Invoke<string>("localStorage.getItem", "darkMode");
         if (bool.TryParse(darkMode, out bool darkModeBool))
         {
             if (darkModeBool)
             {
-                await JS.InvokeAsync<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
+                JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
             }
             else
             {
-                await JS.InvokeAsync<string>("SetStylesheet", "_content/Radzen.Blazor/css/standard.css");
+                JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/standard.css");
             }
         }
         else
         {
-            await JS.InvokeAsync<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
+            JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
-        accountNames = await accounts.GetAccountNames(JS);
+        notePad = JS.Invoke<string>("localStorage.getItem", "notePad");
+        accountNames = await accounts.GetAccountNames();
         //Don't know why but I have to toggle the sidebar expand twice to actually have it not expanded by default.
         sidebarExpanded = !sidebarExpanded;
-        await LoadDarkMode();
+        LoadDarkMode();
         sidebarExpanded = !sidebarExpanded;
     }
 }

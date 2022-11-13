@@ -23,11 +23,11 @@
     List<string> accountNames = new();
     List<string> GetLoggedOutAccountNames()
     {
-        return accountNames.Where(acc => accounts.Accounts.Keys.Any(key => key == acc) is false).ToList();
+        return accountNames.Where(accName => accounts.Accounts.Select(a => a.Name).Any(name => name == accName) is false).ToList();
     }
     protected override async Task OnInitializedAsync()
     {
-        accountNames = await accounts.GetAccountNames(JS);
+        accountNames = await accounts.GetAccountNames();
         if (GetLoggedOutAccountNames().Count == 0)
         {
             NM.NavigateTo("Accounts");
@@ -51,7 +51,7 @@
             foreach(string name in model.accountNames)
             {
                 string json = await JS.InvokeAsync<string>("localStorage.getItem", name);
-                accounts.Accounts.Add(name, Encrypt.GetAccount(model.Password, json));
+                await accounts.AddAccount(name, Encrypt.GetAccount(model.Password, json));
             }
             NM.NavigateTo("Accounts");
         }

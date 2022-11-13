@@ -13,36 +13,35 @@
 		<div class="p-2">
 		</div>
 		<div>
-			@foreach(KeyValuePair<string, Account> kvp in accounts.Accounts)
+			@foreach(DFKAccount acc in accounts.Accounts)
 			{
-				Account acc = kvp.Value;
 				<RadzenCard class="my-3 overflow-auto text-wrap">
 					<RadzenText TextStyle="TextStyle.H4">
-						@kvp.Key
+						@acc.Name
 					</RadzenText>
 					<RadzenText TextStyle="TextStyle.H6">
 						Address
 					</RadzenText>
 					<RadzenText>
-						@acc.Address
+						@acc.Account.Address
 					</RadzenText>
 					<RadzenText TextStyle="TextStyle.H6">
 						Public Key
 					</RadzenText>
 					<RadzenText>
-						@acc.PublicKey
+						@acc.Account.PublicKey
 					</RadzenText>
 					<RadzenLabel Text="Show Private Key" Component="ShowPrivateKey" class="font-weight-bold" />
 					@if (Initialized)
 					{
-						<RadzenCheckBox @bind-Value="ShowPrivateKey[kvp.Key]" Name="ShowPrivateKey" TValue="bool" />
-						@if (ShowPrivateKey[kvp.Key])
+						<RadzenCheckBox @bind-Value="ShowPrivateKey[acc.Name]" Name="ShowPrivateKey" TValue="bool" />
+						@if (ShowPrivateKey[acc.Name])
 						{
 							<RadzenText TextStyle="TextStyle.H6">
 								Private Key
 							</RadzenText>
 							<RadzenText>
-								@acc.PrivateKey
+								@acc.Account.PrivateKey
 							</RadzenText>
 						}
 					}
@@ -56,9 +55,10 @@
 	List<string> accountNames = new();
 	Dictionary<string, bool> ShowPrivateKey = new();
 	bool Initialized = false;
+
 	protected override async Task OnInitializedAsync()
 	{
-		accountNames = await accounts.GetAccountNames(JS);
+		accountNames = await accounts.GetAccountNames();
 		if(accounts.Accounts.Count == 0)
 		{
 			if (accountNames.Count > 0)
