@@ -17,13 +17,13 @@
                     <div class="d-inline-block ml-auto mr-5">
                         @if (accounts.Accounts.Count == 1)
                         {
-                            <RadzenButton Click="@(() => NM.NavigateTo("Account"))">
+                            <RadzenButton Click="@(() => NM.NavigateTo("Accounts"))">
                                 Logged in as @accounts.Accounts.FirstOrDefault().Value.Address
                             </RadzenButton>
                         }
                         else if (accounts.Accounts.Count > 1)
                         {
-                            <RadzenButton Click="@(() => NM.NavigateTo("Account"))">
+                            <RadzenButton Click="@(() => NM.NavigateTo("Accounts"))">
                                 Logged in with @accounts.Accounts.Count accounts
                             </RadzenButton>
                         }
@@ -45,7 +45,7 @@
                     {
                         if(accounts.Accounts.Count > 0)
                         {
-                            <RadzenPanelMenuItem Text="Accounts" Path="/Account" Icon="account_circle"></RadzenPanelMenuItem>
+                            <RadzenPanelMenuItem Text="Accounts" Path="/Accounts" Icon="account_circle"></RadzenPanelMenuItem>
                         }
                         else if (GetLoggedOutAccountNames().Count > 0)
                         {

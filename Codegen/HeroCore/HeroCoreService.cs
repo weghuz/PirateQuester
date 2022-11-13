@@ -577,7 +577,6 @@ namespace DFKContracts.HeroCore
             return ContractHandler.QueryAsync<SupportsInterfaceFunction, bool>(supportsInterfaceFunction, blockParameter);
         }
 
-        
         public Task<bool> SupportsInterfaceQueryAsync(byte[] interfaceId, BlockParameter blockParameter = null)
         {
             var supportsInterfaceFunction = new SupportsInterfaceFunction();
@@ -591,7 +590,6 @@ namespace DFKContracts.HeroCore
             return ContractHandler.QueryAsync<SymbolFunction, string>(symbolFunction, blockParameter);
         }
 
-        
         public Task<string> SymbolQueryAsync(BlockParameter blockParameter = null)
         {
             return ContractHandler.QueryAsync<SymbolFunction, string>(null, blockParameter);
@@ -602,7 +600,6 @@ namespace DFKContracts.HeroCore
             return ContractHandler.QueryAsync<TokenByIndexFunction, BigInteger>(tokenByIndexFunction, blockParameter);
         }
 
-        
         public Task<BigInteger> TokenByIndexQueryAsync(BigInteger index, BlockParameter blockParameter = null)
         {
             var tokenByIndexFunction = new TokenByIndexFunction();
@@ -616,7 +613,6 @@ namespace DFKContracts.HeroCore
             return ContractHandler.QueryAsync<TokenOfOwnerByIndexFunction, BigInteger>(tokenOfOwnerByIndexFunction, blockParameter);
         }
 
-        
         public Task<BigInteger> TokenOfOwnerByIndexQueryAsync(string owner, BigInteger index, BlockParameter blockParameter = null)
         {
             var tokenOfOwnerByIndexFunction = new TokenOfOwnerByIndexFunction();

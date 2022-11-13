@@ -55,6 +55,10 @@ public static class API
         KeyValuePair<HeroesArgument, string> pair = args.FirstOrDefault(pair => pair.Key == key);
         if (pair.Value is not null)
         {
+            if(Enum.GetName(typeof(HeroesArgument), pair.Key).EndsWith("_in"))
+			{
+				return $"{Enum.GetName(typeof(HeroesArgument), pair.Key)}:{pair.Value}, ";
+			}
             return $"{Enum.GetName(typeof(HeroesArgument), pair.Key)}:\"{pair.Value}\", ";
         }
         return "";
@@ -66,31 +70,35 @@ public static class API
         request.Append("{heroes(");
         request.Append(GetArgument(HeroesArgument.first, args));
         request.Append(GetArgument(HeroesArgument.orderBy, args));
-        request.Append(GetArgument(HeroesArgument.first, args));
-        request.Append("where: { ");
-        request.Append(GetArgument(HeroesArgument.owner, args));
-        request.Append(GetArgument(HeroesArgument.background, args));
-        request.Append(GetArgument(HeroesArgument.profession, args));
-        request.Append(GetArgument(HeroesArgument.pjStatus, args));
-        request.Append(GetArgument(HeroesArgument.rarity, args));
-        request.Append(GetArgument(HeroesArgument.active1, args));
-        request.Append(GetArgument(HeroesArgument.active2, args));
-        request.Append(GetArgument(HeroesArgument.passive1, args));
-        request.Append(GetArgument(HeroesArgument.passive2, args));
-        request.Append(GetArgument(HeroesArgument.strength, args));
-        request.Append(GetArgument(HeroesArgument.dexterity, args));
-        request.Append(GetArgument(HeroesArgument.agility, args));
-        request.Append(GetArgument(HeroesArgument.vitality, args));
-        request.Append(GetArgument(HeroesArgument.endurance, args));
-        request.Append(GetArgument(HeroesArgument.intelligence, args));
-        request.Append(GetArgument(HeroesArgument.wisdom, args));
-        request.Append(GetArgument(HeroesArgument.luck, args));
-        request.Append(GetArgument(HeroesArgument.mining, args));
-        request.Append(GetArgument(HeroesArgument.gardening, args));
-        request.Append(GetArgument(HeroesArgument.fishing, args));
-        request.Append(GetArgument(HeroesArgument.foraging, args));
-        request.Append("}) ");
-        request.Append($"{{{(heroFields is not null ? heroFields : HeroFields)}}}}}");
+        if (args.Select(arg => arg.Key).Where(arg => new HeroesArgument[] { HeroesArgument.first, HeroesArgument.orderBy }.All(allowedArg => allowedArg != arg)).Count() > 0)
+        {
+            request.Append("where: { ");
+            request.Append(GetArgument(HeroesArgument.saleprice_not, args));
+            request.Append(GetArgument(HeroesArgument.owner, args));
+            request.Append(GetArgument(HeroesArgument.owner_in, args));
+            request.Append(GetArgument(HeroesArgument.background, args));
+            request.Append(GetArgument(HeroesArgument.profession, args));
+            request.Append(GetArgument(HeroesArgument.pjStatus, args));
+            request.Append(GetArgument(HeroesArgument.rarity, args));
+            request.Append(GetArgument(HeroesArgument.active1, args));
+            request.Append(GetArgument(HeroesArgument.active2, args));
+            request.Append(GetArgument(HeroesArgument.passive1, args));
+            request.Append(GetArgument(HeroesArgument.passive2, args));
+            request.Append(GetArgument(HeroesArgument.strength, args));
+            request.Append(GetArgument(HeroesArgument.dexterity, args));
+            request.Append(GetArgument(HeroesArgument.agility, args));
+            request.Append(GetArgument(HeroesArgument.vitality, args));
+            request.Append(GetArgument(HeroesArgument.endurance, args));
+            request.Append(GetArgument(HeroesArgument.intelligence, args));
+            request.Append(GetArgument(HeroesArgument.wisdom, args));
+            request.Append(GetArgument(HeroesArgument.luck, args));
+            request.Append(GetArgument(HeroesArgument.mining, args));
+            request.Append(GetArgument(HeroesArgument.gardening, args));
+            request.Append(GetArgument(HeroesArgument.fishing, args));
+            request.Append(GetArgument(HeroesArgument.foraging, args));
+            request.Append("}");
+        }
+        request.Append($"){{{(heroFields is not null ? heroFields : HeroFields)}}}}}");
         // cmd.W(request.ToString());
         return JsonConvert.SerializeObject(
             new

@@ -30,7 +30,7 @@
         accountNames = await accounts.GetAccountNames(JS);
         if (GetLoggedOutAccountNames().Count == 0)
         {
-            NM.NavigateTo("Account");
+            NM.NavigateTo("Accounts");
         }
     }
     public class LoginModel
@@ -53,7 +53,7 @@
                 string json = await JS.InvokeAsync<string>("localStorage.getItem", name);
                 accounts.Accounts.Add(name, Encrypt.GetAccount(model.Password, json));
             }
-            NM.NavigateTo("Account");
+            NM.NavigateTo("Accounts");
         }
         catch (Exception e)
         {

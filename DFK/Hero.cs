@@ -21,7 +21,67 @@ public class Hero
         return gender == "male" ? HeroData.MaleFirstNames[firstName] : HeroData.FemaleFirstNames[firstName];
     }
 
-    public Rarity GetRarity()
+
+	public string GetCurrentQuestName()
+	{
+		if (currentQuest == Contracts.TRAINING_STRENGTH)
+		{
+			return "Tug of War (Strength)";
+		}
+		if (currentQuest == Contracts.TRAINING_DEXTERITY)
+		{
+			return "Stick and Ball (Dexterity)";
+		}
+		if (currentQuest == Contracts.TRAINING_AGILITY)
+		{
+			return "Log Rolling (Agility)";
+		}
+		if (currentQuest == Contracts.TRAINING_VITALITY)
+		{
+			return "Polar Plunge (Vitality)";
+		}
+		if (currentQuest == Contracts.TRAINING_ENDURANCE)
+		{
+			return "Hunting Party (Endurance)";
+		}
+		if (currentQuest == Contracts.TRAINING_WISDOM)
+		{
+			return "Animal Handling (Wisdom)";
+		}
+		if (currentQuest == Contracts.TRAINING_INTELLIGENCE)
+		{
+			return "Tafl Match (Intelligence)";
+		}
+		if (currentQuest == Contracts.TRAINING_LUCK)
+		{
+			return "Catching Emberlings (Luck)";
+		}
+		if (currentQuest == Contracts.FORAGING)
+		{
+			return "Foraging";
+		}
+		if (currentQuest == Contracts.CRYSTAL_MINING)
+		{
+			return "Crystal Mining";
+		}
+		if (currentQuest == Contracts.GOLD_MINING)
+		{
+			return "Gold mining";
+		}
+        Console.WriteLine($"{currentQuest}, {Contracts.FISHING}");
+		if (currentQuest == Contracts.FISHING)
+		{
+			Console.WriteLine("Same!");
+			return "Fishing";
+		}
+		if (Contracts.GARDENING_CONTRACTS.Any(gc => gc.Contract == currentQuest))
+		{
+			return Contracts.GARDENING_CONTRACTS.First(gc => gc.Contract == currentQuest).Pair;
+		}
+        return "";
+	}
+
+	public Rarity GetRarity()
     {
         return (Rarity)rarity;
     }
@@ -49,14 +109,14 @@ public class Hero
 
     public int StaminaCurrent()
     {
-        long now = DateTime.Now.Ticks / 100000000;
-        if (now >= staminaFullAt)
+        long now = DateTimeOffset.Now.ToUnixTimeSeconds();
+		if (now >= staminaFullAt)
         {
             return stamina;
         }
         else
         {
-            decimal staminaLeft = (int)(staminaFullAt - now) / 1200;
+            decimal staminaLeft = (staminaFullAt - now) / 1200;
             return (int)Math.Round(staminaLeft, 0);
         }
     }
@@ -82,7 +142,7 @@ public class Hero
     public Hero assistantId { get; set; }
     public int summons { get; set; }
     public int maxSummons { get; set; }
-    public int staminaFullAt { get; set; }
+    public long staminaFullAt { get; set; }
     public int hpFullAt { get; set; }
     public int mpFullAt { get; set; }
     public int level { get; set; }

@@ -3,19 +3,21 @@
 @inject AccountManager accounts
 @inject IJSRuntime JS
 @inject NavigationManager NM
-@page "/Account"
+@page "/Accounts"
 
 @if (accounts.Accounts.Count > 0)
 {
 	<div>
-		<h3>Account</h3>
+		<h3>Accounts</h3>
+
+		<div class="p-2">
+		</div>
 		<div>
-			Accounts: @string.Join(", ", accountNames)
 			@foreach(KeyValuePair<string, Account> kvp in accounts.Accounts)
 			{
 				Account acc = kvp.Value;
 				<RadzenCard class="my-3 overflow-auto text-wrap">
-					<RadzenText>
+					<RadzenText TextStyle="TextStyle.H4">
 						@kvp.Key
 					</RadzenText>
 					<RadzenText TextStyle="TextStyle.H6">
@@ -30,12 +32,20 @@
 					<RadzenText>
 						@acc.PublicKey
 					</RadzenText>
-					<RadzenText TextStyle="TextStyle.H6">
-						Private Key
-					</RadzenText>
-					<RadzenText>
-						@acc.PrivateKey
-					</RadzenText>
+					<RadzenLabel Text="Show Private Key" Component="ShowPrivateKey" class="font-weight-bold" />
+					@if (Initialized)
+					{
+						<RadzenCheckBox @bind-Value="ShowPrivateKey[kvp.Key]" Name="ShowPrivateKey" TValue="bool" />
+						@if (ShowPrivateKey[kvp.Key])
+						{
+							<RadzenText TextStyle="TextStyle.H6">
+								Private Key
+							</RadzenText>
+							<RadzenText>
+								@acc.PrivateKey
+							</RadzenText>
+						}
+					}
 				</RadzenCard>
 			}
 		</div>
@@ -44,6 +54,8 @@
 
 @code {
 	List<string> accountNames = new();
+	Dictionary<string, bool> ShowPrivateKey = new();
+	bool Initialized = false;
 	protected override async Task OnInitializedAsync()
 	{
 		accountNames = await accounts.GetAccountNames(JS);
@@ -58,5 +70,10 @@
 				NM.NavigateTo("CreateAccount");
 			}
 		}
+		foreach(string name in accountNames)
+		{
+			ShowPrivateKey.Add(name, false);
+		}
+		Initialized = true;
 	}
 }
