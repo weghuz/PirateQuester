@@ -1,5 +1,7 @@
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
+using PirateQuester.DFK.Contracts;
+
 namespace DFK;
 public class Hero
 {
@@ -24,58 +26,11 @@ public class Hero
 
 	public string GetCurrentQuestName()
 	{
-		if (currentQuest == Contracts.TRAINING_STRENGTH)
-		{
-			return "Tug of War (Strength)";
-		}
-		if (currentQuest == Contracts.TRAINING_DEXTERITY)
-		{
-			return "Stick and Ball (Dexterity)";
-		}
-		if (currentQuest == Contracts.TRAINING_AGILITY)
-		{
-			return "Log Rolling (Agility)";
-		}
-		if (currentQuest == Contracts.TRAINING_VITALITY)
-		{
-			return "Polar Plunge (Vitality)";
-		}
-		if (currentQuest == Contracts.TRAINING_ENDURANCE)
-		{
-			return "Hunting Party (Endurance)";
-		}
-		if (currentQuest == Contracts.TRAINING_WISDOM)
-		{
-			return "Animal Handling (Wisdom)";
-		}
-		if (currentQuest == Contracts.TRAINING_INTELLIGENCE)
-		{
-			return "Tafl Match (Intelligence)";
-		}
-		if (currentQuest == Contracts.TRAINING_LUCK)
-		{
-			return "Catching Emberlings (Luck)";
-		}
-		if (currentQuest == Contracts.FORAGING)
-		{
-			return "Foraging";
-		}
-		if (currentQuest == Contracts.CRYSTAL_MINING)
-		{
-			return "Crystal Mining";
-		}
-		if (currentQuest == Contracts.GOLD_MINING)
-		{
-			return "Gold mining";
-		}
-		if (currentQuest == Contracts.FISHING)
-		{
-			return "Fishing";
-		}
-		if (Contracts.GARDENING_CONTRACTS.Any(gc => gc.Contract == currentQuest))
-		{
-			return Contracts.GARDENING_CONTRACTS.First(gc => gc.Contract == currentQuest).Pair;
-		}
+        QuestContract quest = ContractDefinitions.DFKQuestContracts.FirstOrDefault(quest => quest.Address == currentQuest);
+        if (quest is not null)
+        {
+            return $"{quest.Category}{(quest.Subcategory != quest.Category ? $":{quest.Subcategory}" : "")}";
+        }
         return "";
 	}
 

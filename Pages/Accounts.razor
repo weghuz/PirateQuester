@@ -52,16 +52,14 @@
 }
 
 @code {
-	List<string> accountNames = new();
 	Dictionary<string, bool> ShowPrivateKey = new();
 	bool Initialized = false;
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
-		accountNames = await accounts.GetAccountNames();
 		if(accounts.Accounts.Count == 0)
 		{
-			if (accountNames.Count > 0)
+			if (accounts.AccountNames.Count > 0)
 			{
 				NM.NavigateTo("Login");
 			}
@@ -70,7 +68,7 @@
 				NM.NavigateTo("CreateAccount");
 			}
 		}
-		foreach(string name in accountNames)
+		foreach(string name in accounts.AccountNames)
 		{
 			ShowPrivateKey.Add(name, false);
 		}

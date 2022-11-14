@@ -1,16 +1,18 @@
 ﻿@page "/login"
+@using PirateQuester.ViewModels;
+@using global::Utils;
 @using Utils
-@inject IJSRuntime JS
+@inject IJSInProcessRuntime JS
 @inject AccountManager accounts
 @inject NavigationManager NM
 
 <RadzenCard class="mt-2">
-    <EditForm Model="@model" OnSubmit="@SubmitPassword">
+    <EditForm Model="@model" OnSubmit="@LoginAccount">
 
         <RadzenText TextStyle="TextStyle.H5">Login</RadzenText>
         <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Accounts</RadzenText>
         <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-        @bind-Value=@model.accountNames Multiple="true" Placeholder="Select..." Data="GetLoggedOutAccountNames()" TextProperty="" ValueProperty="" Class="w-100" />
+        @bind-Value=@model.SelectedAccounts Multiple="true" Placeholder="Select..." Data="GetLoggedOutAccountNames()" TextProperty="" ValueProperty="" Class="w-100" />
 
         <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Password</RadzenText>
         <RadzenPassword @bind-Value="model.Password" Class="w-100 mb-2" />
@@ -20,45 +22,29 @@
 </RadzenCard>
 
 @code {
-    List<string> accountNames = new();
+    LoginViewModel model = new();
+
+    async Task LoginAccount()
+    {
+        if (model.Password.Length < 8)
+        {
+            JS.InvokeVoid("alert", "Password needs to be at least 8 characters");
+        }
+        if(await accounts.Login(model))
+        {
+            NM.NavigateTo("Accounts");
+        }
+    }
+
     List<string> GetLoggedOutAccountNames()
     {
-        return accountNames.Where(accName => accounts.Accounts.Select(a => a.Name).Any(name => name == accName) is false).ToList();
+        return accounts.AccountNames.Where(accName => accounts.Accounts.Select(a => a.Name).Any(name => name == accName) is false).ToList();
     }
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        accountNames = await accounts.GetAccountNames();
         if (GetLoggedOutAccountNames().Count == 0)
         {
             NM.NavigateTo("Accounts");
-        }
-    }
-    public class LoginModel
-    {
-        public string Password { get; set; }
-        public List<string> accountNames { get; set; } = new();
-    }
-    LoginModel model = new();
-
-    async Task SubmitPassword()
-    {
-        if(model.Password.Length < 8)
-        {
-            await JS.InvokeVoidAsync("alert", "Password needs to be at least 8 characters");
-        }
-        try
-        {
-            foreach(string name in model.accountNames)
-            {
-                string json = await JS.InvokeAsync<string>("localStorage.getItem", name);
-                await accounts.AddAccount(name, Encrypt.GetAccount(model.Password, json));
-            }
-            NM.NavigateTo("Accounts");
-        }
-        catch (Exception e)
-        {
-            var k = e;
-            await JS.InvokeVoidAsync("alert", $"Login attempt failed.");
         }
     }
 }

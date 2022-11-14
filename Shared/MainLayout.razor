@@ -5,6 +5,13 @@
 @inject NavigationManager NM
 @code{
     bool sidebarExpanded = false;
+
+    protected override void OnInitialized()
+    {
+        notePad = JS.Invoke<string>("localStorage.getItem", "notePad");
+        //Don't know why but I have to toggle the sidebar expand twice to actually have it not expanded by default.
+        LoadDarkMode();
+    }
 }
 
 <RadzenDialog />
@@ -28,7 +35,7 @@
                                     Logged in with @accounts.Accounts.Count accounts
                                 </RadzenButton>
                             }
-                            else if (accountNames.Count > 0)
+                            else if (accounts.AccountNames.Count > 0)
                             {
                                 <br />
                                 <RadzenLink Path="Login" Text="Login" Style="white-space:nowrap;" />
@@ -46,16 +53,13 @@
             <RadzenSidebar @bind-Expanded="@sidebarExpanded">
                 <RadzenPanelMenu>
                     <RadzenPanelMenuItem Text="Home" Icon="home" Path="/" />
-                    @if (accountNames.Count > 0)
+                    @if (accounts.AccountNames.Count > 0)
                     {
                         if(accounts.Accounts.Count > 0)
                         {
                             <RadzenPanelMenuItem Text="Accounts" Path="/Accounts" Icon="account_circle"></RadzenPanelMenuItem>
                         }
-                        else if (GetLoggedOutAccountNames().Count > 0)
-                        {
-                            <RadzenPanelMenuItem Text="Login" Path="/Login" Icon="account_circle"></RadzenPanelMenuItem>
-                        }
+                        <RadzenPanelMenuItem Text="Login" Path="/Login" Icon="account_circle"></RadzenPanelMenuItem>
                     }
                     <RadzenPanelMenuItem Text="Create Account" Path="/CreateAccount" Icon="account_box"></RadzenPanelMenuItem>
                     <RadzenPanelMenuItem Path="Options" Text="Options" Icon="wrench" />
@@ -75,7 +79,6 @@
     </main>
 </div>
 @code{
-    List<string> accountNames = new();
     string notePad = "";
     void SaveNotepad()
     {
@@ -84,7 +87,7 @@
 
     List<string> GetLoggedOutAccountNames()
     {
-        return accountNames.Where(acc => accounts.Accounts.Select(acc => acc.Name).Any(key => key == acc) is false).ToList();
+        return accounts.AccountNames.Where(acc => accounts.Accounts.Select(acc => acc.Name).Any(key => key == acc) is false).ToList();
     }
     void LoadDarkMode()
     {
@@ -104,15 +107,5 @@
         {
             JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
         }
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        notePad = JS.Invoke<string>("localStorage.getItem", "notePad");
-        accountNames = await accounts.GetAccountNames();
-        //Don't know why but I have to toggle the sidebar expand twice to actually have it not expanded by default.
-        sidebarExpanded = !sidebarExpanded;
-        LoadDarkMode();
-        sidebarExpanded = !sidebarExpanded;
     }
 }
