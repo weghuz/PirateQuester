@@ -15,6 +15,11 @@ public partial class Login
 	public IJSInProcessRuntime JS { get; set; }
 	private LoginViewModel Model { get; set; } = new();
 
+    protected override void OnInitialized()
+    {
+
+    }
+
     async Task LoginAccount()
 	{
 		if (Model.Password.Length < 8)
@@ -30,12 +35,5 @@ public partial class Login
 	List<string> GetLoggedOutAccountNames()
 	{
 		return Acc.AccountNames.Where(accName => Acc.Accounts.Select(a => a.Name).Any(name => name == accName) is false).ToList();
-	}
-	protected override void OnInitialized()
-	{
-		if (GetLoggedOutAccountNames().Count == 0)
-		{
-			Nav.NavigateTo("Accounts");
-		}
 	}
 }

@@ -2,12 +2,20 @@ namespace PirateQuester.DFK.Contracts;
 
 public static class ContractDefinitions
 {
-    public static QuestContract GetQuestContract(QuestType questContract)
-    {
-        return DFKQuestContracts.First(quest => quest.Id == (int)questContract);
-    }
+	public static QuestContract GetQuestContract(int questContractId)
+	{
+		return DFKQuestContracts.FirstOrDefault(quest => quest.Id == questContractId);
+	}
+	public static QuestContract GetQuestContract(QuestType questContract)
+	{
+		return DFKQuestContracts.FirstOrDefault(quest => quest.Id == (int)questContract);
+	}
+	public static QuestContract GetQuestContract(string questContractName)
+	{
+		return DFKQuestContracts.FirstOrDefault(quest => quest.Name == questContractName);
+	}
 
-    public static readonly List<QuestContract> DFKQuestContracts = new()
+	public static readonly List<QuestContract> DFKQuestContracts = new()
     {
         new QuestContract
         {
@@ -16,7 +24,7 @@ public static class ContractDefinitions
             Name = "TRAINING_STRENGTH",
             Category = "Training",
             Subcategory = "Strength",
-            Level = 0
+            Level = 1
         },
         new QuestContract
         {
@@ -25,7 +33,7 @@ public static class ContractDefinitions
             Name = "TRAINING_DEXTERITY",
             Category = "Training",
             Subcategory = "Dexterity",
-            Level = 0
+            Level = 1
         },
         new QuestContract
         {
@@ -34,7 +42,7 @@ public static class ContractDefinitions
             Name = "TRAINING_AGILITY",
             Category = "Training",
             Subcategory = "Agility",
-            Level = 0
+            Level = 1
         },
         new QuestContract
         {
@@ -43,7 +51,7 @@ public static class ContractDefinitions
             Name = "TRAINING_VITALITY",
             Category = "Training",
             Subcategory = "Vitality",
-            Level = 0
+            Level = 1
         },
         new QuestContract
         {
@@ -52,7 +60,7 @@ public static class ContractDefinitions
             Name = "TRAINING_ENDURANCE",
             Category = "Training",
             Subcategory = "Endurance",
-            Level = 0
+            Level = 1
         },
         new QuestContract
         {
@@ -61,7 +69,7 @@ public static class ContractDefinitions
             Name = "TRAINING_WISDOM",
             Category = "Training",
             Subcategory = "Wisdom",
-            Level = 0
+            Level = 1
         },
         new QuestContract
         {
@@ -70,7 +78,7 @@ public static class ContractDefinitions
             Name = "TRAINING_INTELLIGENCE",
             Category = "Training",
             Subcategory = "Intelligence",
-            Level = 0
+            Level = 1
         },
         new QuestContract
         {
@@ -79,7 +87,7 @@ public static class ContractDefinitions
             Name = "TRAINING_LUCK",
             Category = "Training",
             Subcategory = "Luck",
-            Level = 0
+            Level = 1
         },
         new QuestContract
         {

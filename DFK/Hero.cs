@@ -71,7 +71,7 @@ public class Hero
         else
         {
 			decimal staminaLeft = (staminaFullAt - now)/1200;
-            return stamina - (int)Math.Round(staminaLeft, 0);
+            return stamina - (int)Math.Floor(staminaLeft);
         }
     }
 

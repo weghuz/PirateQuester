@@ -1,6 +1,16 @@
-﻿@using Utils;
+﻿@using PirateQuester.Pages;
+@using Utils;
+@using global::Utils;
 @inherits LayoutComponentBase
 <RadzenDialog />
+@code{
+    public void OpenTransactionWindow()
+    {
+        Dialog.Open<TransactionsWindow>("Transaction",
+        new(),
+        new DialogOptions() { Width = "700px", Height = "512px", Resizable = true, Draggable = true, CloseDialogOnEsc = true, AutoFocusFirstElement = true });
+    }
+}
 <div class="page">
     <main style="width:100%;">
         <RadzenLayout class="">
@@ -32,8 +42,10 @@
                             }
                         </div>
                         <RadzenText Text="Pirate Quester 🏴‍☠️" Style="white-space:nowrap;" class="d-inline-block mx-5" />
+                        <RadzenButton class="d-inline-block" Click="@OpenTransactionWindow">
+                            @Transaction.PendingTransactions.Count Pending Transactions
+                        </RadzenButton>
                     </div>
-                    
                 </div>
             </RadzenHeader>
             <RadzenSidebar @bind-Expanded="@SidebarExpanded">
@@ -58,9 +70,6 @@
             <RadzenBody>
                 @Body
             </RadzenBody>
-            @*<RadzenFooter>
-                Footer
-            </RadzenFooter>*@
         </RadzenLayout>
     </main>
 </div>

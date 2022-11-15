@@ -9,8 +9,6 @@ public partial class Accounts
 	[Inject]
 	AccountManager Acc { get; set; }
 	[Inject]
-	IJSInProcessRuntime JSRuntime { get; set; }
-	[Inject]
 	NavigationManager Nav { get; set; }
 
 	Dictionary<string, bool> ShowPrivateKey = new();

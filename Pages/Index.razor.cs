@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Utils;
+using System.Numerics;
 
 namespace PirateQuester.Pages;
 
@@ -21,67 +22,93 @@ public partial class Index
 	public IJSInProcessRuntime JS { get; set; }
 	[Inject]
 	public DialogService Dialog { get; set; }
-	[Inject]
-	public GlobalState Global { get; set; }
-	[Inject]
-	public TransactionManager Transact { get; set; }
-
 
     public List<string> SelectedOwners { get; set; } = new();
     public List<Hero> TableHeroes { get; set; } = new();
 
+    public List<string> SelectedQuestName { get; set; }
+
     string pagingSummaryFormat = "Displaying page {0} of {1} (total {2} records)";
 	bool Loading = false;
 	string ownerInput = "";
-	IList<Hero> SelectedHeroes;
+	IList<Hero> SelectedHeroes = new List<Hero>();
 	RadzenDataGrid<Hero> heroes;
+
+
 	ButtonStyle StartQuestStyle = ButtonStyle.Secondary;
 	bool StartQuestButtonDisabled = true;
 	string Attempts = "1";
 
-	private async Task CompleteQuest()
+	private void ChangeQuestSelection()
 	{
-		StringBuilder output = new();
-		DFKAccount acc = Acc.Accounts.FirstOrDefault();
-		try
-		{
-			int skip = 0;
-			while (skip <= SelectedHeroes.Count)
-			{
-				List<Hero> heroes = SelectedHeroes.ToList().Skip(skip).Take(6).ToList();
-				var transactionReceipt = await Transact.CompleteQuest(Acc.Accounts.FirstOrDefault(), heroes.ToList());
-				Console.WriteLine($"{transactionReceipt.Status}: {string.Join(", ", transactionReceipt.Logs)}");
-				output.AppendLine($"Completed fishing for: {string.Join(", ", heroes)}");
-			}
-		}
-		catch (Exception e)
-		{
-			Console.WriteLine($"{e.Source} - {e.Message} - {e.InnerException?.Message}");
-			output.AppendLine(e.Message);
-		}
+		SelectedQuestName = SelectedQuestName.Take(1).ToList();
 	}
 
-	private async Task StartFishing()
+	private async Task UpdateHeroes()
 	{
+		foreach(DFKAccount acc in  Acc.Accounts)
+		{
+			await acc.UpdateHeroes();
+		}
+		await LoadHeroes();
+	}
+
+	private async Task CompleteQuest()
+	{
+		DialogWindow("Completing Quest...");
+		StringBuilder output = new();
+		DFKAccount acc = Acc.Accounts.FirstOrDefault();
+		if(SelectedHeroes.Count <= 0)
+		{
+			Console.WriteLine($"Select Heroes!");
+            DialogWindow("Select Heroes!");
+            return;
+		}
+		try
+		{
+			string okMessage = await new Transaction().CompleteQuest(Acc.Accounts.FirstOrDefault(), SelectedHeroes.FirstOrDefault());
+			Console.WriteLine($"{okMessage}");
+			output.AppendLine($"Completed Quest: {okMessage}");
+		}
+		catch (Exception e)
+		{
+			Console.WriteLine($"{e.Message}");
+			output.AppendLine(e.Message);
+		}
+		Dialog.Close();
+		DialogWindow("Completed Quest", output.ToString());
+	}
+
+	private async Task StartQuest()
+	{
+		QuestContract SelectedQuest = ContractDefinitions.GetQuestContract(SelectedQuestName.FirstOrDefault());
+		if (SelectedQuest is null)
+		{
+			DialogWindow($"Select a quest!");
+			return;
+		}
+		DialogWindow($"Starting {SelectedQuest.Name}...");
 		StringBuilder output = new();
 		DFKAccount acc = Acc.Accounts.FirstOrDefault();
 		try
 		{
-			int skip = 0;
-			while (skip <= SelectedHeroes.Count)
+			List<Hero> heroes = SelectedHeroes.ToList();
+			Console.WriteLine(SelectedHeroes.ToString());
+			string okMessage = await new Transaction().StartQuest(acc, heroes.ConvertAll<BigInteger>(h => long.Parse(h.id)), (QuestType)SelectedQuest.Id, int.Parse(Attempts));
+			foreach(Hero h in heroes)
 			{
-				List<Hero> heroes = SelectedHeroes.ToList().Skip(skip).Take(6).ToList();
-				var transactionReceipt = await Transact.StartQuest(acc, heroes, QuestType.FISHING, int.Parse(Attempts));
-				Console.WriteLine($"{transactionReceipt.Status}: {string.Join(", ", transactionReceipt.Logs)}");
-				output.AppendLine($"Started fishing for: {string.Join(", ", heroes)}");
+				h.staminaFullAt -= 1200 * int.Parse(Attempts);
 			}
+			Console.WriteLine($"{okMessage}");
+			output.AppendLine($"Started {SelectedQuest.Name}: {okMessage}");
 		}
 		catch (Exception e)
 		{
-			Console.WriteLine($"{e.Source} - {e.Message} - {e.InnerException?.Message}");
+			Console.WriteLine($"{e.Message}");
 			output.AppendLine(e.Message);
 		}
-		OpenDialog(output.ToString());
+		Dialog.Close();
+		DialogWindow($"Started {SelectedQuest.Name}", output.ToString());
 	}
 
 	private void UpdateSelection()
@@ -106,6 +133,7 @@ public partial class Index
 
 	private async Task LoadHeroes()
 	{
+		SelectedHeroes = new List<Hero>();
 		if (SelectedOwners is null)
 		{
 			return;
@@ -129,7 +157,6 @@ public partial class Index
 			args.Add(HeroesArgument.owner_in, $@"[""{string.Join(@""",""", ownerArg)}""]");
 			string request = API.HeroesRequestBuilder(args);
 			TableHeroes = (await API.GetHeroes(request)).ToList();
-			Console.WriteLine(TableHeroes);
 			Loading = false;
 		}
 	}

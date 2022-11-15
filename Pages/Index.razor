@@ -13,6 +13,42 @@
 	Placeholder="Additional addresses"
 	Change="@LoadHeroes"
 	Class="w-100 my-3 py-3" />
+
+@code {
+	private void DialogWindow(string message)
+	{
+		Dialog.Open("",
+		x =>
+	@<div>
+		@message
+	</div>,
+	new DialogOptions() { ShowTitle = true,
+	CloseDialogOnEsc = true,
+	ShowClose = true,
+	Resizable = true,
+	Draggable = true,
+	CloseDialogOnOverlayClick = true,
+	AutoFocusFirstElement = true});
+	}
+	private void DialogWindow(string title, string message)
+	{
+		Dialog.Open(title,
+			x =>
+		@<div>
+			@message
+		</div>,
+		new DialogOptions() { 
+			ShowTitle = true, 
+			CloseDialogOnEsc = true, 
+			ShowClose = true, 
+			Resizable = true, 
+			Draggable = true,
+			CloseDialogOnOverlayClick = true,
+			AutoFocusFirstElement = true
+		});
+	}
+}
+
 @if(Acc.Accounts.Count > 0)
 {
 	<RadzenDropDown AllowClear="true"
@@ -21,20 +57,32 @@
 		@bind-Value=@SelectedOwners
 		Multiple="true"
 		Placeholder="Select..."
+		TValue="List<string>"
 		Data="@Acc.Accounts.Select(acc => acc.Account.Address).ToList()"
-		TextProperty=""
-		ValueProperty=""
 		Chips="true"
 		Change="@LoadHeroes"
 		Class="w-100 my-3 py-3" />
 	<RadzenCard class="my-2">
 		<RadzenTextBox @bind-Value=@Attempts>
 		</RadzenTextBox>
-		<RadzenButton ButtonStyle="StartQuestStyle" Disabled="StartQuestButtonDisabled" Click="@StartFishing">
-			Start Fishing!
+		<RadzenDropDown 
+		 AllowClear="true"
+		 AllowFiltering="true"
+		 Multiple="true"
+		 Chips="true"
+		 Change=@(e => ChangeQuestSelection())
+		 TValue="List<string>"
+		@bind-Value=@SelectedQuestName
+		 Data="@ContractDefinitions.DFKQuestContracts.Select(quest => quest.Name)"
+		 Class="w-100 my-3 py-3" />
+		<RadzenButton ButtonStyle="StartQuestStyle" Disabled="StartQuestButtonDisabled" Click="@StartQuest">
+			Start Quest!
 		</RadzenButton>
 		<RadzenButton ButtonStyle="StartQuestStyle" Disabled="StartQuestButtonDisabled" Click="@CompleteQuest">
 			Complete Quests
+		</RadzenButton>
+		<RadzenButton ButtonStyle="ButtonStyle.Primary" Click="@UpdateHeroes">
+			Update Heroes
 		</RadzenButton>
 	</RadzenCard>
 }
@@ -45,7 +93,7 @@
 <RadzenDataGrid
 	Data="@TableHeroes"
 	TItem="Hero"
-	SelectionMode="DataGridSelectionMode.Multiple" 
+	SelectionMode="DataGridSelectionMode.Multiple"
 	@ref="heroes"
 	@bind-Value=@SelectedHeroes
 	RowClick="@UpdateSelection"
@@ -133,17 +181,3 @@
 		<RadzenDataGridColumn TItem="Hero" Property="luck" Title="Luck" />
 	</Columns>
 </RadzenDataGrid>
-@code{
-	public void OpenDialog(string text)
-	{
-		Dialog.Open("Transaction", txn =>
-			@<div>
-				<div>
-					@text
-				</div>
-			</div>
-		,
-		new DialogOptions() { Width = "700px", Height = "512px", Resizable = true, Draggable = true, CloseDialogOnEsc = true, ShowClose = true });
-	}
-
-}
