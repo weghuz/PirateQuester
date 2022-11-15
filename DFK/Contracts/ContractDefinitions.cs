@@ -9,7 +9,6 @@ public static class ContractDefinitions
 
     public static readonly List<QuestContract> DFKQuestContracts = new()
     {
-
         new QuestContract
         {
             Id = 1,

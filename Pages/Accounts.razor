@@ -1,11 +1,8 @@
 ﻿@using Nethereum.Web3.Accounts;
 @using Utils
-@inject AccountManager accounts
-@inject IJSRuntime JS
-@inject NavigationManager NM
 @page "/Accounts"
 
-@if (accounts.Accounts.Count > 0)
+@if (Acc.Accounts.Count > 0)
 {
 	<div>
 		<h3>Accounts</h3>
@@ -13,7 +10,7 @@
 		<div class="p-2">
 		</div>
 		<div>
-			@foreach(DFKAccount acc in accounts.Accounts)
+			@foreach(DFKAccount acc in Acc.Accounts)
 			{
 				<RadzenCard class="my-3 overflow-auto text-wrap">
 					<RadzenText TextStyle="TextStyle.H4">
@@ -49,29 +46,4 @@
 			}
 		</div>
 	</div>
-}
-
-@code {
-	Dictionary<string, bool> ShowPrivateKey = new();
-	bool Initialized = false;
-
-	protected override void OnInitialized()
-	{
-		if(accounts.Accounts.Count == 0)
-		{
-			if (accounts.AccountNames.Count > 0)
-			{
-				NM.NavigateTo("Login");
-			}
-			else
-			{
-				NM.NavigateTo("CreateAccount");
-			}
-		}
-		foreach(string name in accounts.AccountNames)
-		{
-			ShowPrivateKey.Add(name, false);
-		}
-		Initialized = true;
-	}
 }

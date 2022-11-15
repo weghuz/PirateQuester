@@ -2,49 +2,18 @@
 @using PirateQuester.ViewModels;
 @using global::Utils;
 @using Utils
-@inject IJSInProcessRuntime JS
-@inject AccountManager accounts
-@inject NavigationManager NM
 
 <RadzenCard class="mt-2">
-    <EditForm Model="@model" OnSubmit="@LoginAccount">
+    <EditForm Model="@Model" OnSubmit="@LoginAccount">
 
         <RadzenText TextStyle="TextStyle.H5">Login</RadzenText>
         <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Accounts</RadzenText>
         <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-        @bind-Value=@model.SelectedAccounts Multiple="true" Placeholder="Select..." Data="GetLoggedOutAccountNames()" TextProperty="" ValueProperty="" Class="w-100" />
+        @bind-Value=@Model.SelectedAccounts Multiple="true" Placeholder="Select..." Data="GetLoggedOutAccountNames()" TextProperty="" ValueProperty="" Class="w-100" />
 
         <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Password</RadzenText>
-        <RadzenPassword @bind-Value="model.Password" Class="w-100 mb-2" />
+        <RadzenPassword @bind-Value="Model.Password" Class="w-100 mb-2" />
 
         <RadzenButton Text="Submit" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success"></RadzenButton>
     </EditForm>
 </RadzenCard>
-
-@code {
-    LoginViewModel model = new();
-
-    async Task LoginAccount()
-    {
-        if (model.Password.Length < 8)
-        {
-            JS.InvokeVoid("alert", "Password needs to be at least 8 characters");
-        }
-        if(await accounts.Login(model))
-        {
-            NM.NavigateTo("Accounts");
-        }
-    }
-
-    List<string> GetLoggedOutAccountNames()
-    {
-        return accounts.AccountNames.Where(accName => accounts.Accounts.Select(a => a.Name).Any(name => name == accName) is false).ToList();
-    }
-    protected override void OnInitialized()
-    {
-        if (GetLoggedOutAccountNames().Count == 0)
-        {
-            NM.NavigateTo("Accounts");
-        }
-    }
-}

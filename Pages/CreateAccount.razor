@@ -3,21 +3,18 @@
 @using System.ComponentModel.DataAnnotations;
 @using Utils;
 @using Newtonsoft.Json
-@inject AccountManager accounts
-@inject IJSInProcessRuntime JS
-@inject NavigationManager NM
 @code{
     AccountViewModel model = new();
 }
-@*Check ACcountNames == 0*@
-@*@if(accounts.Accounts.Count == 0)
+Check ACcountNames == 0
+@if(Acc.Accounts.Count == 0)
 {
-<div class="rz-background-color-danger p-3 rounded m-3">
-    <RadzenText TextStyle="TextStyle.H6">
-        You need to create an account to use most features on Pirate Quester.
-    </RadzenText>
-</div>
-}*@
+    <div class="rz-background-color-danger p-3 rounded m-3">
+        <RadzenText TextStyle="TextStyle.H6">
+            You need to create an account to use most features on Pirate Quester.
+        </RadzenText>
+    </div>
+}
 <RadzenCard class="mt-2">
     <EditForm OnValidSubmit="@(() => Create())" Model="@model">
         <RadzenText TextStyle="TextStyle.H5">Create Account</RadzenText>
@@ -46,10 +43,3 @@
         </RadzenButton>
     </EditForm>
 </RadzenCard>
-@code {
-    async Task Create()
-    {
-        await accounts.Create(model);
-        NM.NavigateTo("Accounts");
-    }
-}

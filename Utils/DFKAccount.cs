@@ -7,15 +7,30 @@ namespace PirateQuester.Utils
 {
     public class DFKAccount
 	{
-		public async Task<Hero[]> LoadHeroes()
+		public async Task LoadHeroes()
 		{
 			Dictionary<HeroesArgument, string> args = new()
-		{
-			{ HeroesArgument.owner, Account.Address }
-		};
+			{
+				{ HeroesArgument.owner, Account.Address }
+			};
 			string request = API.HeroesRequestBuilder(args, "id owner {id name} rarity generation firstName lastName mainClass subClass staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina profession statBoost1 statBoost2 salePrice");
-			return await API.GetHeroes(request);
+			Heroes = (await API.GetHeroes(request)).ToList();
+			foreach(Hero h in Heroes)
+			{
+				h.DFKAccount = this;
+			}
 		}
+
+		public async Task UpdateHeroes()
+		{
+            Dictionary<HeroesArgument, string> args = new()
+            {
+                { HeroesArgument.owner, Account.Address }
+            };
+            string request = API.HeroesRequestBuilder(args, "staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina salePrice");
+            Heroes = (await API.GetHeroes(request)).ToList();
+        }
+
 		public DFKAccount(string name, Account account) 
         {
             Name = name;

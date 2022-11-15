@@ -1,6 +1,7 @@
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using PirateQuester.DFK.Contracts;
+using PirateQuester.Utils;
 
 namespace DFK;
 public class Hero
@@ -62,19 +63,19 @@ public class Hero
 
     public int StaminaCurrent(IJSInProcessRuntime js)
     {
-        long now = js.Invoke<long>("GetTime", "") / 1000;
-		now += 3600;
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 		if (now >= staminaFullAt)
         {
             return stamina;
         }
         else
         {
-			decimal staminaLeft = (staminaFullAt - now) / 1200 ;
-            Console.WriteLine(staminaLeft);
-            return (int)Math.Round(staminaLeft, 0);
+			decimal staminaLeft = (staminaFullAt - now)/1200;
+            return stamina - (int)Math.Round(staminaLeft, 0);
         }
     }
+
+    public DFKAccount DFKAccount { get; set; }
 
     public string id { get; set; }
     public string numberId { get; set; }
