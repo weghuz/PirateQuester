@@ -12,9 +12,12 @@ public class DFKBot
 {
     public static List<DFKBotLogMessage> DFKBotLog = new();
 
-    public delegate void AddBotLog();
+	public delegate void AddBotLog();
+	public delegate void UpdatedHeroes();
 
-    public static event AddBotLog BotLogAdded;
+    public static event UpdatedHeroes HeroesUpdated;
+
+	public static event AddBotLog BotLogAdded;
     public List<DFKAccount> Accounts { get; set; }
     public DFKBotSettings Settings { get; set; }
     public bool Exit {get;set;} = false;
@@ -44,7 +47,9 @@ public class DFKBot
         {
             await acc.UpdateHeroes();
         }
-    }
+        HeroesUpdated?.Invoke();
+
+	}
 
     public async Task StartBot()
     {

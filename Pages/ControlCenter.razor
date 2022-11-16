@@ -98,7 +98,7 @@
 				@hero.SuggestedQuest?.Name
 			</Template>
 		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="profession" Title="Profession" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.profession" Title="Profession" />
 		<RadzenDataGridColumn TItem="DFKBotHero" Title="Owner Address" Width="150px">
 			<Template Context="hero">
 				@hero.Hero.owner?.Id
@@ -106,8 +106,16 @@
 		</RadzenDataGridColumn>
 		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.id" Title="Id">
 		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.currentQuest" Title="Current Quest" Width="200px" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.stamina" Title="Stamina" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.currentQuest" Title="Current Quest" Width="200px">
+			<Template Context="hero">
+				@ContractDefinitions.GetQuestContract(hero.Hero.currentQuest)?.Name
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.stamina" Title="Stamina">
+			<Template Context="hero">
+				@hero.Hero.StaminaCurrent()/@hero.Hero.stamina
+			</Template>
+		</RadzenDataGridColumn>
 		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.salePrice" Title="Cost" />
 		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.mainClass" Title="Class" />
 		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.subClass" Title="Subclass" />

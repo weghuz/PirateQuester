@@ -42,7 +42,12 @@ public partial class ControlCenter
 		{
 			Nav.NavigateTo("CreateAccount");
 		}
+		DFKBot.HeroesUpdated += () =>
+		{
+			StateHasChanged();
+		};
 	}
+
 	public void SetQuestPreference()
 	{
 		foreach(DFKBotHero h in SelectedHeroes)
