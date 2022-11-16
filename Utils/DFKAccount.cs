@@ -3,6 +3,7 @@ using DFKContracts.HeroCore;
 using DFKContracts.QuestCore;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
+using PirateQuester.Bot;
 
 namespace PirateQuester.Utils
 {
@@ -16,6 +17,7 @@ namespace PirateQuester.Utils
 			};
 			string request = API.HeroesRequestBuilder(args, "id owner {id name} rarity generation firstName lastName mainClass subClass staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina profession statBoost1 statBoost2 salePrice");
 			Heroes = (await API.GetHeroes(request)).ToList();
+			BotHeroes = Heroes.Select(h => new DFKBotHero(h)).ToList();
 			foreach(Hero h in Heroes)
 			{
 				h.DFKAccount = this;
@@ -33,22 +35,12 @@ namespace PirateQuester.Utils
 			foreach(Hero h in updates)
 			{
 				Hero target = Heroes.FirstOrDefault(hero => hero.id == h.id);
+				DFKBotHero botHero = BotHeroes.FirstOrDefault(hero => hero.Hero.id == h.id);
 				if(target is not null)
 				{
-					target.staminaFullAt = h.staminaFullAt;
-					target.level = h.level;
-					target.currentQuest = h.currentQuest;
-					target.strength = h.strength;
-					target.dexterity = h.dexterity;
-					target.agility = h.agility;
-					target.vitality = h.vitality;
-					target.endurance = h.endurance;
-					target.wisdom = h.wisdom;
-					target.intelligence = h.intelligence;
-					target.luck = h.luck;
-					target.salePrice = h.salePrice;
-					target.stamina = h.stamina;
-				}
+					target.UpdateHeroValues(h);
+					botHero.Hero.UpdateHeroValues(h);
+                }
 			}
         }
 
@@ -68,5 +60,6 @@ namespace PirateQuester.Utils
 		public Account Account { get; set; }
         public string Name { get; set; }
         public List<Hero> Heroes { get; set; }
+		public List<DFKBotHero> BotHeroes { get; set; }
     }
 }

@@ -14,7 +14,7 @@ public static class ContractDefinitions
 	{
 		return DFKQuestContracts.FirstOrDefault(quest => quest.Name == questContractName);
 	}
-
+    public static readonly string NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 	public static readonly List<QuestContract> DFKQuestContracts = new()
     {
         new QuestContract
@@ -24,7 +24,8 @@ public static class ContractDefinitions
             Name = "TRAINING_STRENGTH",
             Category = "Training",
             Subcategory = "Strength",
-            Level = 1
+            Level = 1,
+            StaminaDrain = 5,
         },
         new QuestContract
         {
@@ -33,8 +34,9 @@ public static class ContractDefinitions
             Name = "TRAINING_DEXTERITY",
             Category = "Training",
             Subcategory = "Dexterity",
-            Level = 1
-        },
+            Level = 1,
+			StaminaDrain = 5,
+		},
         new QuestContract
         {
             Id = 3,
@@ -42,8 +44,9 @@ public static class ContractDefinitions
             Name = "TRAINING_AGILITY",
             Category = "Training",
             Subcategory = "Agility",
-            Level = 1
-        },
+            Level = 1,
+			StaminaDrain = 5,
+		},
         new QuestContract
         {
             Id = 4,
@@ -51,8 +54,9 @@ public static class ContractDefinitions
             Name = "TRAINING_VITALITY",
             Category = "Training",
             Subcategory = "Vitality",
-            Level = 1
-        },
+            Level = 1,
+			StaminaDrain = 5,
+		},
         new QuestContract
         {
             Id = 5,
@@ -60,8 +64,9 @@ public static class ContractDefinitions
             Name = "TRAINING_ENDURANCE",
             Category = "Training",
             Subcategory = "Endurance",
-            Level = 1
-        },
+            Level = 1,
+			StaminaDrain = 5,
+		},
         new QuestContract
         {
             Id = 6,
@@ -69,8 +74,9 @@ public static class ContractDefinitions
             Name = "TRAINING_WISDOM",
             Category = "Training",
             Subcategory = "Wisdom",
-            Level = 1
-        },
+            Level = 1,
+			StaminaDrain = 5,
+		},
         new QuestContract
         {
             Id = 7,
@@ -78,8 +84,9 @@ public static class ContractDefinitions
             Name = "TRAINING_INTELLIGENCE",
             Category = "Training",
             Subcategory = "Intelligence",
-            Level = 1
-        },
+            Level = 1,
+			StaminaDrain = 5,
+		},
         new QuestContract
         {
             Id = 8,
@@ -87,8 +94,9 @@ public static class ContractDefinitions
             Name = "TRAINING_LUCK",
             Category = "Training",
             Subcategory = "Luck",
-            Level = 1
-        },
+            Level = 1,
+			StaminaDrain = 5,
+		},
         new QuestContract
         {
             Id = 9,
@@ -96,8 +104,9 @@ public static class ContractDefinitions
             Name = "GOLD_MINING",
             Category = "Mining",
             Subcategory = "Gold",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 1,
+		},
         new QuestContract
         {
             Id = 10,
@@ -105,8 +114,9 @@ public static class ContractDefinitions
             Name = "CRYSTAL_MINING",
             Category = "Mining",
             Subcategory = "Crystal",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 1,
+		},
         new QuestContract
         {
             Id = 11,
@@ -114,8 +124,9 @@ public static class ContractDefinitions
             Name = "FISHING",
             Category = "Fishing",
             Subcategory = "Fishing",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 5,
+		},
         new QuestContract
         {
             Id = 12,
@@ -123,8 +134,9 @@ public static class ContractDefinitions
             Name = "FORAGING",
             Category = "Foraging",
             Subcategory = "Foraging",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 5,
+		},
         new QuestContract
         {
             Id = 13,
@@ -132,8 +144,9 @@ public static class ContractDefinitions
             Name = "GARDENING_CRYSTAL-AVAX",
             Category = "Gardening",
             Subcategory = "Crystal-Avax",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 1,
+		},
         new QuestContract
         {
             Id = 14,
@@ -141,8 +154,9 @@ public static class ContractDefinitions
             Name = "GARDENING_CRYSTAL-wJEWEL",
             Category = "Gardening",
             Subcategory = "Crystal-wJewel",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 1,
+		},
         new QuestContract
         {
             Id = 15,
@@ -150,8 +164,9 @@ public static class ContractDefinitions
             Name = "GARDENING_CRYSTAL-USDC",
             Category = "Gardening",
             Subcategory = "Crystal-USDC",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 1,
+		},
         new QuestContract
         {
             Id = 16,
@@ -159,8 +174,9 @@ public static class ContractDefinitions
             Name = "GARDENING_ETH-USDC",
             Category = "Gardening",
             Subcategory = "Eth-USDC",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 1,
+		},
         new QuestContract
         {
             Id = 17,
@@ -168,8 +184,9 @@ public static class ContractDefinitions
             Name = "GARDENING_wJEWEL-USDC",
             Category = "Gardening",
             Subcategory = "wJewel-USDC",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 1,
+		},
         new QuestContract
         {
             Id = 17,
@@ -177,8 +194,9 @@ public static class ContractDefinitions
             Name = "GARDENING_CRYSTAL-ETH",
             Category = "Gardening",
             Subcategory = "Crystal-Eth",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 1,
+		},
         new QuestContract
         {
             Id = 18,
@@ -186,8 +204,9 @@ public static class ContractDefinitions
             Name = "GARDENING_CRYSTAL-BTC.b",
             Category = "Gardening",
             Subcategory = "Crystal-Btc.b",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 1,
+		},
         new QuestContract
         {
             Id = 19,
@@ -195,8 +214,9 @@ public static class ContractDefinitions
             Name = "GARDENING_CRYSTAL-KLAY",
             Category = "Gardening",
             Subcategory = "Crystal-Klay",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 1,
+		},
         new QuestContract
         {
             Id = 20,
@@ -204,8 +224,9 @@ public static class ContractDefinitions
             Name = "GARDENING_JEWEL-KLAY",
             Category = "Gardening",
             Subcategory = "Jewel-Klay",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 1,
+		},
         new QuestContract
         {
             Id = 21,
@@ -213,8 +234,9 @@ public static class ContractDefinitions
             Name = "GARDENING_JEWEL-AVAX",
             Category = "Gardening",
             Subcategory = "Jewel-Avax",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 1,
+		},
         new QuestContract
         {
             Id = 22,
@@ -222,8 +244,9 @@ public static class ContractDefinitions
             Name = "GARDENING_JEWEL-BTC.b",
             Category = "Gardening",
             Subcategory = "Jewel-Btc.b",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 1,
+		},
         new QuestContract
         {
             Id = 22,
@@ -231,8 +254,9 @@ public static class ContractDefinitions
             Name = "GARDENING_JEWEL-ETH",
             Category = "Gardening",
             Subcategory = "Jewel-Eth",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 1,
+		},
         new QuestContract
         {
             Id = 23,
@@ -240,7 +264,8 @@ public static class ContractDefinitions
             Name = "GARDENING_BTC.b-USDC",
             Category = "Gardening",
             Subcategory = "Btc.b-USDC",
-            Level = 0
-        },
+            Level = 0,
+			StaminaDrain = 1,
+		},
     };
 }

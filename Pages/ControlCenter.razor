@@ -1,0 +1,142 @@
+﻿@page "/ControlCenter"
+@using DFKContracts.HeroCore;
+@using DFKContracts.QuestCore.ContractDefinition;
+@using Nethereum.RPC.Eth.DTOs;
+@using Nethereum.Web3;
+@using PirateQuester.Bot;
+@using PirateQuester.DFK.Contracts;
+@using global::DFK;
+@using global::Utils;
+
+<PageTitle>PQ - Control Center</PageTitle>
+@code {
+	private void DialogWindow(string message)
+	{
+		Dialog.Open("",
+	x =>
+	@<div>
+		@message
+	</div>,
+		new DialogOptions()
+		{
+			ShowTitle = true,
+			CloseDialogOnEsc = true,
+			ShowClose = true,
+			Resizable = true,
+			Draggable = true,
+			CloseDialogOnOverlayClick = true,
+			AutoFocusFirstElement = true
+		});
+	}
+	private void DialogWindow(string title, string message)
+	{
+		Dialog.Open(title,
+		x =>
+	@<div>
+		@message
+	</div>,
+		new DialogOptions()
+		{
+			ShowTitle = true,
+			CloseDialogOnEsc = true,
+			ShowClose = true,
+			Resizable = true,
+			Draggable = true,
+			CloseDialogOnOverlayClick = true,
+			AutoFocusFirstElement = true
+		});
+	}
+}
+
+@if (Acc.Accounts.Count > 0)
+{
+	<RadzenCard class="my-2">
+		<RadzenTextBox @bind-Value=@Attempts>
+		</RadzenTextBox>
+		<RadzenDropDownDataGrid PageSize="10"
+		   TValue="string"
+		   AllowClear="true"
+		   AllowFiltering="true"
+		@bind-Value=@SelectedQuestName
+		   Data="@ContractDefinitions.DFKQuestContracts.Select(q => q.Name).AsQueryable()"
+		   Class="w-100 my-2" />
+		<RadzenButton ButtonStyle="StartQuestStyle" Disabled="StartQuestButtonDisabled" Click="@SetQuestPreference">
+			Set quest preference
+		</RadzenButton>
+	</RadzenCard>
+}
+@if (Loading)
+{
+	<RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" ProgressBarStyle="ProgressBarStyle.Secondary" />
+}
+<RadzenDataGrid Data="@Acc.Accounts.SelectMany(a => a.BotHeroes).ToList()"
+	TItem="DFKBotHero"
+	SelectionMode="DataGridSelectionMode.Multiple"
+	@ref="heroes"
+	@bind-Value=@SelectedHeroes
+	RowClick="@UpdateSelection"
+	AllowRowSelectOnRowClick="true"
+	AllowPaging="true"
+	AllowSorting="true"
+	AllowColumnReorder="true"
+	AllowColumnResize="true"
+	AllowFiltering="true"
+	ShowPagingSummary="true"
+	ColumnWidth="100px"
+	PagerHorizontalAlign="HorizontalAlign.Center"
+	PageSize="15"
+	Style="max-height:700px;"
+	PagingSummaryFormat="@pagingSummaryFormat">
+	<Columns>
+		<RadzenDataGridColumn TItem="DFKBotHero" Title="Prefer Quest" Width="150px">
+			<Template Context="hero">
+				@hero.Quest?.Name
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="DFKBotHero" Title="Bot Suggested Quest" Width="150px">
+			<Template Context="hero">
+				@hero.SuggestedQuest?.Name
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="profession" Title="Profession" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Title="Owner Address" Width="150px">
+			<Template Context="hero">
+				@hero.Hero.owner?.Id
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.id" Title="Id">
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.currentQuest" Title="Current Quest" Width="200px" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.stamina" Title="Stamina" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.salePrice" Title="Cost" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.mainClass" Title="Class" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.subClass" Title="Subclass" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="GetRarity" Title="Rarity">
+			<Template Context="hero">
+				@hero.Hero.GetRarity()
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="FullName" Title="Name" Width="200px">
+			<Template Context="hero">
+				@hero.Hero.FullName()
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.level" Title="Level" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.generation" Title="Generation" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.statBoost1" Title="Statboost 1" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.statBoost2" Title="Statboost 2" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.strength" Title="Strength" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.dexterity" Title="Dexterity" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.agility" Title="Agility" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.vitality" Title="Vitality" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.endurance" Title="Endurance" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.intelligence" Title="Intelligence" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.wisdom" Title="Wisdom" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.luck" Title="Luck" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Title="Owner" Width="150px">
+			<Template Context="hero">
+				@hero.Hero.owner?.Name
+			</Template>
+		</RadzenDataGridColumn>
+	</Columns>
+</RadzenDataGrid>

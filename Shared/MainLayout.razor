@@ -50,21 +50,23 @@
             </RadzenHeader>
             <RadzenSidebar @bind-Expanded="@SidebarExpanded">
                 <RadzenPanelMenu>
-                    <RadzenPanelMenuItem Text="Home" Icon="home" Path="/" />
+                    <RadzenPanelMenuItem Text="Home" Icon="house" Path="/" />
                     @if (Acc.AccountNames.Count > 0)
                     {
                         if(Acc.Accounts.Count > 0)
                         {
+                            <RadzenPanelMenuItem Text="Control Center" Icon="dashboard" Path="/ControlCenter" />
+                            <RadzenPanelMenuItem Text="Bot" Icon="android" Path="/Bot" />
                             <RadzenPanelMenuItem Text="Accounts" Path="/Accounts" Icon="account_circle"></RadzenPanelMenuItem>
                         }
                         <RadzenPanelMenuItem Text="Login" Path="/Login" Icon="account_circle"></RadzenPanelMenuItem>
                     }
                     <RadzenPanelMenuItem Text="Create Account" Path="/CreateAccount" Icon="account_box"></RadzenPanelMenuItem>
-                    <RadzenPanelMenuItem Path="Options" Text="Options" Icon="wrench" />
+                    <RadzenPanelMenuItem Path="Options" Text="Options" Icon="build" />
                 </RadzenPanelMenu>
                 <div class="p-2">
                     <RadzenText Text="Notepad" />
-                    <RadzenTextArea @bind-Value="@NotePad" Change="@SaveNotepad" class="w-100" Rows="30" />
+                    <RadzenTextArea @bind-Value="@NotePad" Change="@SaveNotepad" class="w-100" Rows="20" />
                 </div>
             </RadzenSidebar>
             <RadzenBody>

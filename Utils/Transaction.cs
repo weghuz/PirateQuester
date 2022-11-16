@@ -77,9 +77,8 @@ public class Transaction
         }
 	}
 
-	public async Task<string> StartQuest(DFKAccount account, List<BigInteger> selectedHeroes, QuestType questType, int attempts)
+	public async Task<string> StartQuest(DFKAccount account, List<BigInteger> selectedHeroes, QuestContract quest, int attempts)
 	{
-        var quest = ContractDefinitions.GetQuestContract(questType);
         var pendingTxn = new PendingTransaction()
         {
             Name = $"Start Quest: {quest.Name}",

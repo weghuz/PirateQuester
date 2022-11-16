@@ -6,6 +6,23 @@ using PirateQuester.Utils;
 namespace DFK;
 public class Hero
 {
+    public void UpdateHeroValues(Hero h)
+    {
+        staminaFullAt = h.staminaFullAt;
+        level = h.level;
+        currentQuest = h.currentQuest;
+        strength = h.strength;
+        dexterity = h.dexterity;
+        agility = h.agility;
+        vitality = h.vitality;
+        endurance = h.endurance;
+        wisdom = h.wisdom;
+        intelligence = h.intelligence;
+        luck = h.luck;
+        salePrice = h.salePrice;
+        stamina = h.stamina;
+    }
+
     public enum Rarity
     {
         Common,
@@ -61,7 +78,7 @@ public class Hero
         return JsonConvert.SerializeObject(this);
     }
 
-    public int StaminaCurrent(IJSInProcessRuntime js)
+    public int StaminaCurrent()
     {
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 		if (now >= staminaFullAt)

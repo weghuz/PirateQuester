@@ -1,183 +1,39 @@
 ﻿@page "/"
-@using DFKContracts.HeroCore;
-@using DFKContracts.QuestCore.ContractDefinition;
-@using Nethereum.RPC.Eth.DTOs;
-@using Nethereum.Web3;
-@using PirateQuester.DFK.Contracts;
-@using global::DFK;
-@using global::Utils;
-
 <PageTitle>PQ - Home</PageTitle>
-<RadzenText class="text-center mt-2" TextStyle="TextStyle.H5">List Account Heroes</RadzenText>
-<RadzenTextArea @bind-Value=@ownerInput
-	Placeholder="Additional addresses"
-	Change="@LoadHeroes"
-	Class="w-100 my-3 py-3" />
-
+<h2 class="text-center">Welcome to Pirate Quester!</h2>
+<RadzenCard class="my-1">
+	<p>
+		Pirate quester is a place where you can get the every day clicking out of the way and start managing you DFK Heroes.
+	</p>
+	<p>
+		Build to give you the control over your heroes. Bring back your control and get Managing!
+	</p>
+</RadzenCard>
+<RadzenCard class="my-1 ra-background-color-warning" Style="background-color:var(--rz-warning);color:var(--rz-black);">
+	<h4>Warning!</h4>
+	<p>
+		Use this software at your own risk. For feedback/suggestions visit the <a href="https://discord.com/invite/kuy5tSrH9C" target="_blank">DFKAnalytics/Piratequester Discord</a>.
+	</p>
+	<p>
+		Pirate Quester requires full control of your account to run.
+	</p>
+	<p>
+		The advantages are that you can lean back and let the program do the work for you.
+	</p>
+	<p>
+		Pirate Quester is built to be run on your computer or a virtual private server.
+	</p>
+	<p>
+		It's not connected to any central server outside of DFKs API.
+	</p>
+	<p>
+		Built with decentralisation in mind and codebase available on github: <a target="_blank" href="https://github.com/weghuz/PirateQuester">Piratequester GitHub</a>.
+	</p>
+</RadzenCard>
+<RadzenCard class="my-1">
+	<h4>In collaboration with <a href="https://dfkanalytics.com">DFKAnalytics</a> and <a target="_blank" href="https://discord.gg/4zGWeRXjnx">Perilous Pirates guild</a>.</h4>
+	<h5>Made by WegHuZ with love.</h5>
+</RadzenCard>
 @code {
-	private void DialogWindow(string message)
-	{
-		Dialog.Open("",
-		x =>
-	@<div>
-		@message
-	</div>,
-	new DialogOptions() { ShowTitle = true,
-	CloseDialogOnEsc = true,
-	ShowClose = true,
-	Resizable = true,
-	Draggable = true,
-	CloseDialogOnOverlayClick = true,
-	AutoFocusFirstElement = true});
-	}
-	private void DialogWindow(string title, string message)
-	{
-		Dialog.Open(title,
-			x =>
-		@<div>
-			@message
-		</div>,
-		new DialogOptions() { 
-			ShowTitle = true, 
-			CloseDialogOnEsc = true, 
-			ShowClose = true, 
-			Resizable = true, 
-			Draggable = true,
-			CloseDialogOnOverlayClick = true,
-			AutoFocusFirstElement = true
-		});
-	}
-}
 
-@if(Acc.Accounts.Count > 0)
-{
-	<RadzenDropDown AllowClear="true"
-		AllowFiltering="true"
-		FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-		@bind-Value=@SelectedOwners
-		Multiple="true"
-		Placeholder="Select..."
-		TValue="List<string>"
-		Data="@Acc.Accounts.Select(acc => acc.Account.Address).ToList()"
-		Chips="true"
-		Change="@LoadHeroes"
-		Class="w-100 my-3 py-3" />
-	<RadzenCard class="my-2">
-		<RadzenTextBox @bind-Value=@Attempts>
-		</RadzenTextBox>
-		<RadzenDropDown 
-		 AllowClear="true"
-		 AllowFiltering="true"
-		 Multiple="true"
-		 Chips="true"
-		 Change=@(e => ChangeQuestSelection())
-		 TValue="List<string>"
-		@bind-Value=@SelectedQuestName
-		 Data="@ContractDefinitions.DFKQuestContracts.Select(quest => quest.Name)"
-		 Class="w-100 my-3 py-3" />
-		<RadzenButton ButtonStyle="StartQuestStyle" Disabled="StartQuestButtonDisabled" Click="@StartQuest">
-			Start Quest!
-		</RadzenButton>
-		<RadzenButton ButtonStyle="StartQuestStyle" Disabled="StartQuestButtonDisabled" Click="@CompleteQuest">
-			Complete Quests
-		</RadzenButton>
-		<RadzenButton ButtonStyle="ButtonStyle.Primary" Click="@UpdateHeroes">
-			Update Heroes
-		</RadzenButton>
-	</RadzenCard>
 }
-@if(Loading)
-{
-	<RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" ProgressBarStyle="ProgressBarStyle.Secondary" />
-}
-<RadzenDataGrid
-	Data="@TableHeroes"
-	TItem="Hero"
-	SelectionMode="DataGridSelectionMode.Multiple"
-	@ref="heroes"
-	@bind-Value=@SelectedHeroes
-	RowClick="@UpdateSelection"
-	AllowRowSelectOnRowClick="true"
-	AllowPaging="true"
-	AllowSorting="true"
-	AllowColumnReorder="true"
-	AllowColumnResize="true"
-	AllowFiltering="true"
-	ShowPagingSummary="true"
-	ColumnWidth="100px"
-	PagerHorizontalAlign="HorizontalAlign.Center"
-	PageSize="15"
-	Style="max-height:700px;"
-	PagingSummaryFormat="@pagingSummaryFormat">
-	<Columns>
-		<RadzenDataGridColumn TItem="Hero" Property="owner" Title="Owner" Width="150px">
-			<Template Context="data">
-				@if(data.owner is not null)
-				{
-					@data.owner.Name
-				}
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="Hero" Property="owner" Title="Owner Address" Width="150px">
-			<Template Context="data">
-				@if (data.owner is not null)
-				{
-					@data.owner.Id
-				}
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="Hero" Property="id" Title="Id">
-			<Template Context="data">
-				@(ulong.Parse(data.id) > 1000000000000 ? $"CV-{ulong.Parse(data.id) - 1000000000000}" : ulong.Parse(data.id))
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="Hero" Property="currentQuest" Title="Current Quest" Width="200px">
-			<Template Context="data">
-				@data.GetCurrentQuestName()
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="Hero" Property="stamina" Title="Stamina">
-			<Template Context="data">
-				@data.StaminaCurrent(JS)/@data.stamina
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="Hero" Property="salePrice" Title="Cost">
-				<Template Context="data">
-					@if(data.salePrice is not null)
-					{
-							@data.SalePrice(2)
-					}
-					else{
-						<span>
-							Not for Sale
-						</span>
-					}
-				</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="Hero" Property="mainClass" Title="Class" />
-		<RadzenDataGridColumn TItem="Hero" Property="subClass" Title="Subclass" />
-		<RadzenDataGridColumn TItem="Hero" Property="GetRarity" Title="Rarity">
-			<Template Context="data">
-				@data.GetRarity()
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="Hero" Property="FullName" Title="Name" Width="200px">
-			<Template Context="data">
-				@data.FullName()
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="Hero" Property="level" Title="Level"/>
-		<RadzenDataGridColumn TItem="Hero" Property="generation" Title="Generation"/>
-		<RadzenDataGridColumn TItem="Hero" Property="statBoost1" Title="Statboost 1" />
-		<RadzenDataGridColumn TItem="Hero" Property="statBoost2" Title="Statboost 2" />
-		<RadzenDataGridColumn TItem="Hero" Property="profession" Title="Profession" />
-		<RadzenDataGridColumn TItem="Hero" Property="strength" Title="Strength" />
-		<RadzenDataGridColumn TItem="Hero" Property="dexterity" Title="Dexterity" />
-		<RadzenDataGridColumn TItem="Hero" Property="agility" Title="Agility" />
-		<RadzenDataGridColumn TItem="Hero" Property="vitality" Title="Vitality" />
-		<RadzenDataGridColumn TItem="Hero" Property="endurance" Title="Endurance" />
-		<RadzenDataGridColumn TItem="Hero" Property="intelligence" Title="Intelligence" />
-		<RadzenDataGridColumn TItem="Hero" Property="wisdom" Title="Wisdom" />
-		<RadzenDataGridColumn TItem="Hero" Property="luck" Title="Luck" />
-	</Columns>
-</RadzenDataGrid>

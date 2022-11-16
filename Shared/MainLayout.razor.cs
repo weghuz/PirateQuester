@@ -30,7 +30,6 @@ public partial class MainLayout : LayoutComponentBase
 			SidebarExpanded = false;
 		}
 		Transaction.TransactionAdded += OnTransactionAdded;
-
     }
 
 	public void OnTransactionAdded()

@@ -34,9 +34,9 @@ public class AccountManager
 			}
             return true;
         }
-        catch
+        catch (Exception e)
         {
-            _js.InvokeVoid("alert", $"Login attempt failed.");
+            _js.InvokeVoid("alert", $"{e.Message}.");
         }
         return false;
     }

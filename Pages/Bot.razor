@@ -1,0 +1,49 @@
+﻿@page "/Bot"
+@using PirateQuester.Bot;
+<PageTitle>PQ - Bot</PageTitle>
+<RadzenCard class=" my-1" Style="background-color:var(--rz-black);color:var(--rz-success);">
+	@if(RunningBot is null)
+	{
+		<span>No running bot</span>
+	}
+	else
+	{
+		foreach (DFKBotLogMessage msg in DFKBot.DFKBotLog)
+		{
+			<span class="mr-2">@msg.TimeStamp</span>
+			<span>@msg.Message</span>
+			<br />
+		}
+	}
+</RadzenCard>
+<RadzenCard class="my-1">
+	<EditForm Model="Settings" OnValidSubmit="@RunBot">
+		<RadzenLabel Text="Update Frequency (Seconds)" Component="UpdateInterval" />
+		<RadzenNumeric  Name="UpdateInterval" class="w-100 my-1"  @bind-Value=@Settings.UpdateInterval />
+		<RadzenLabel Text="Min Stamina to Quest" Component="MinStamina" />
+		<RadzenNumeric Name="MinStamina" class="w-100 my-1" @bind-Value="@Settings.MinStamina" />
+		<div class="my-1">
+			<RadzenButton Text="Run Bot" ButtonType="ButtonType.Submit" />
+		</div>
+	</EditForm>
+</RadzenCard>
+@code {
+	private void DialogWindow(string message)
+	{
+		Dialog.Open("",
+	x =>
+	@<div>
+		@message
+	</div>,
+	new DialogOptions()
+	{
+		ShowTitle = true,
+		CloseDialogOnEsc = true,
+		ShowClose = true,
+		Resizable = true,
+		Draggable = true,
+		CloseDialogOnOverlayClick = true,
+		AutoFocusFirstElement = true
+	});
+	}
+}

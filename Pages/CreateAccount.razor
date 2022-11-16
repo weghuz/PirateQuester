@@ -7,7 +7,8 @@
     AccountViewModel model = new();
 }
 
-@if(Acc.Accounts.Count == 0)
+<PageTitle>PQ - Create Account</PageTitle>
+@if(Acc.AccountNames.Count == 0)
 {
     <div class="rz-background-color-danger p-3 rounded m-3">
         <RadzenText TextStyle="TextStyle.H6">
