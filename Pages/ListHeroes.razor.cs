@@ -34,9 +34,6 @@ public partial class ListHeroes
 	IList<Hero> SelectedHeroes = new List<Hero>();
 	RadzenDataGrid<Hero> heroes;
 
-
-	ButtonStyle StartQuestStyle = ButtonStyle.Secondary;
-	bool StartQuestButtonDisabled = true;
 	string Attempts = "1";
 
 	private async Task UpdateHeroes()
@@ -46,78 +43,6 @@ public partial class ListHeroes
 			await acc.UpdateHeroes();
 		}
 		await LoadHeroes();
-	}
-
-	private async Task CompleteQuest()
-	{
-		DialogWindow("Completing Quest...");
-		StringBuilder output = new();
-		DFKAccount acc = Acc.Accounts.FirstOrDefault();
-		if(SelectedHeroes.Count <= 0)
-		{
-			Console.WriteLine($"Select Heroes!");
-            DialogWindow("Select Heroes!");
-            return;
-		}
-		try
-		{
-			string okMessage = await new Transaction().CompleteQuest(Acc.Accounts.FirstOrDefault(), SelectedHeroes.FirstOrDefault());
-			Console.WriteLine($"{okMessage}");
-			output.AppendLine($"Completed Quest: {okMessage}");
-		}
-		catch (Exception e)
-		{
-			Console.WriteLine($"{e.Message}");
-			output.AppendLine(e.Message);
-		}
-		Dialog.Close();
-		DialogWindow("Completed Quest", output.ToString());
-	}
-
-	private async Task StartQuest()
-	{
-		QuestContract SelectedQuest = ContractDefinitions.GetQuestContract(SelectedQuestName);
-		if (SelectedQuest is null)
-		{
-			DialogWindow($"Select a quest!");
-			return;
-		}
-		DialogWindow($"Starting {SelectedQuest.Name}...");
-		StringBuilder output = new();
-		DFKAccount acc = Acc.Accounts.FirstOrDefault();
-		try
-		{
-			List<Hero> heroes = SelectedHeroes.ToList();
-			Console.WriteLine(SelectedHeroes.ToString());
-			string okMessage = await new Transaction().StartQuest(acc, heroes.ConvertAll<BigInteger>(h => long.Parse(h.id)), SelectedQuest, int.Parse(Attempts));
-			foreach(Hero h in heroes)
-			{
-				h.staminaFullAt -= 1200 * int.Parse(Attempts);
-			}
-			Console.WriteLine($"{okMessage}");
-			output.AppendLine($"Started {SelectedQuest.Name}: {okMessage}");
-		}
-		catch (Exception e)
-		{
-			Console.WriteLine($"{e.Message}");
-			output.AppendLine(e.Message);
-		}
-		Dialog.Close();
-		DialogWindow($"Started {SelectedQuest.Name}", output.ToString());
-	}
-
-	private void UpdateSelection()
-	{
-		if (heroes.Count > 0)
-		{
-			StartQuestButtonDisabled = false;
-			StartQuestStyle = ButtonStyle.Success;
-		}
-		else
-		{
-			StartQuestButtonDisabled = true;
-			StartQuestStyle = ButtonStyle.Warning;
-		}
 	}
 
 	protected override async Task OnInitializedAsync()

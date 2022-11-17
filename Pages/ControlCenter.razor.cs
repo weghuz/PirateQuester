@@ -27,7 +27,7 @@ public partial class ControlCenter
 
 	public string SelectedQuestName { get; set; }
 
-	string pagingSummaryFormat = "Displaying page {0} of {1} (total {2} records)";
+	
 	bool Loading = false;
 	IList<DFKBotHero> SelectedHeroes = new List<DFKBotHero>();
 	RadzenDataGrid<DFKBotHero> heroes;

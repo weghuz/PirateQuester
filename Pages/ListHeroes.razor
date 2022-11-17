@@ -73,12 +73,6 @@
 		 @bind-Value=@SelectedQuestName
 		 Data="@ContractDefinitions.DFKQuestContracts.Select(q => q.Name).AsQueryable()"
 		 Class="w-100 my-2" />
-		<RadzenButton ButtonStyle="StartQuestStyle" Disabled="StartQuestButtonDisabled" Click="@StartQuest">
-			Start Quest!
-		</RadzenButton>
-		<RadzenButton ButtonStyle="StartQuestStyle" Disabled="StartQuestButtonDisabled" Click="@CompleteQuest">
-			Complete Quests
-		</RadzenButton>
 		<RadzenButton ButtonStyle="ButtonStyle.Primary" Click="@UpdateHeroes">
 			Update Heroes
 		</RadzenButton>
@@ -94,7 +88,6 @@
 	SelectionMode="DataGridSelectionMode.Multiple"
 	@ref="heroes"
 	@bind-Value=@SelectedHeroes
-	RowClick="@UpdateSelection"
 	AllowRowSelectOnRowClick="true"
 	AllowPaging="true"
 	AllowSorting="true"

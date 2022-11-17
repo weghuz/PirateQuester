@@ -25,7 +25,7 @@ public static class ContractDefinitions
             Category = "Training",
             Subcategory = "Strength",
             Level = 1,
-            StaminaDrain = 5,
+			AvailableAttempts = (hero) => 5 * hero.StaminaCurrent(),
         },
         new QuestContract
         {
@@ -35,7 +35,7 @@ public static class ContractDefinitions
             Category = "Training",
             Subcategory = "Dexterity",
             Level = 1,
-			StaminaDrain = 5,
+			AvailableAttempts = (hero) => 5 * hero.StaminaCurrent(),
 		},
         new QuestContract
         {
@@ -45,7 +45,7 @@ public static class ContractDefinitions
             Category = "Training",
             Subcategory = "Agility",
             Level = 1,
-			StaminaDrain = 5,
+			AvailableAttempts = (hero) => 5 * hero.StaminaCurrent(),
 		},
         new QuestContract
         {
@@ -55,7 +55,7 @@ public static class ContractDefinitions
             Category = "Training",
             Subcategory = "Vitality",
             Level = 1,
-			StaminaDrain = 5,
+			AvailableAttempts = (hero) => 5 * hero.StaminaCurrent(),
 		},
         new QuestContract
         {
@@ -65,7 +65,7 @@ public static class ContractDefinitions
             Category = "Training",
             Subcategory = "Endurance",
             Level = 1,
-			StaminaDrain = 5,
+			AvailableAttempts = (hero) => 5 * hero.StaminaCurrent(),
 		},
         new QuestContract
         {
@@ -75,7 +75,7 @@ public static class ContractDefinitions
             Category = "Training",
             Subcategory = "Wisdom",
             Level = 1,
-			StaminaDrain = 5,
+			AvailableAttempts = (hero) => 5 * hero.StaminaCurrent(),
 		},
         new QuestContract
         {
@@ -85,7 +85,7 @@ public static class ContractDefinitions
             Category = "Training",
             Subcategory = "Intelligence",
             Level = 1,
-			StaminaDrain = 5,
+			AvailableAttempts = (hero) => 5 * hero.StaminaCurrent(),
 		},
         new QuestContract
         {
@@ -95,7 +95,7 @@ public static class ContractDefinitions
             Category = "Training",
             Subcategory = "Luck",
             Level = 1,
-			StaminaDrain = 5,
+			AvailableAttempts = (hero) => 5 * hero.StaminaCurrent(),
 		},
         new QuestContract
         {
@@ -105,7 +105,7 @@ public static class ContractDefinitions
             Category = "Mining",
             Subcategory = "Gold",
             Level = 0,
-			StaminaDrain = 1,
+			AvailableAttempts = (hero) => 1,
 		},
         new QuestContract
         {
@@ -115,7 +115,7 @@ public static class ContractDefinitions
             Category = "Mining",
             Subcategory = "Crystal",
             Level = 0,
-			StaminaDrain = 1,
+			AvailableAttempts = (hero) => 1,
 		},
         new QuestContract
         {
@@ -125,7 +125,7 @@ public static class ContractDefinitions
             Category = "Fishing",
             Subcategory = "Fishing",
             Level = 0,
-			StaminaDrain = 5,
+			AvailableAttempts = (hero) => hero.profession == "fishing" ? hero.StaminaCurrent()/5 : hero.StaminaCurrent()/7,
 		},
         new QuestContract
         {
@@ -135,7 +135,7 @@ public static class ContractDefinitions
             Category = "Foraging",
             Subcategory = "Foraging",
             Level = 0,
-			StaminaDrain = 5,
+			AvailableAttempts = (hero) => hero.profession == "foraging" ? hero.StaminaCurrent()/5 : hero.StaminaCurrent()/7,
 		},
         new QuestContract
         {
@@ -145,7 +145,7 @@ public static class ContractDefinitions
             Category = "Gardening",
             Subcategory = "Crystal-Avax",
             Level = 0,
-			StaminaDrain = 1,
+			AvailableAttempts = (hero) => 1,
 		},
         new QuestContract
         {
@@ -155,7 +155,7 @@ public static class ContractDefinitions
             Category = "Gardening",
             Subcategory = "Crystal-wJewel",
             Level = 0,
-			StaminaDrain = 1,
+			AvailableAttempts = (hero) => 1,
 		},
         new QuestContract
         {
@@ -165,7 +165,7 @@ public static class ContractDefinitions
             Category = "Gardening",
             Subcategory = "Crystal-USDC",
             Level = 0,
-			StaminaDrain = 1,
+			AvailableAttempts = (hero) => 1,
 		},
         new QuestContract
         {
@@ -175,7 +175,7 @@ public static class ContractDefinitions
             Category = "Gardening",
             Subcategory = "Eth-USDC",
             Level = 0,
-			StaminaDrain = 1,
+			AvailableAttempts = (hero) => 1,
 		},
         new QuestContract
         {
@@ -185,7 +185,7 @@ public static class ContractDefinitions
             Category = "Gardening",
             Subcategory = "wJewel-USDC",
             Level = 0,
-			StaminaDrain = 1,
+			AvailableAttempts = (hero) => 1,
 		},
         new QuestContract
         {
@@ -195,7 +195,7 @@ public static class ContractDefinitions
             Category = "Gardening",
             Subcategory = "Crystal-Eth",
             Level = 0,
-			StaminaDrain = 1,
+			AvailableAttempts = (hero) => 1,
 		},
         new QuestContract
         {
@@ -205,7 +205,7 @@ public static class ContractDefinitions
             Category = "Gardening",
             Subcategory = "Crystal-Btc.b",
             Level = 0,
-			StaminaDrain = 1,
+			AvailableAttempts = (hero) => 1,
 		},
         new QuestContract
         {
@@ -215,7 +215,7 @@ public static class ContractDefinitions
             Category = "Gardening",
             Subcategory = "Crystal-Klay",
             Level = 0,
-			StaminaDrain = 1,
+			AvailableAttempts = (hero) => 1,
 		},
         new QuestContract
         {
@@ -225,7 +225,7 @@ public static class ContractDefinitions
             Category = "Gardening",
             Subcategory = "Jewel-Klay",
             Level = 0,
-			StaminaDrain = 1,
+			AvailableAttempts = (hero) => 1,
 		},
         new QuestContract
         {
@@ -235,7 +235,7 @@ public static class ContractDefinitions
             Category = "Gardening",
             Subcategory = "Jewel-Avax",
             Level = 0,
-			StaminaDrain = 1,
+			AvailableAttempts = (hero) => 1,
 		},
         new QuestContract
         {
@@ -245,7 +245,7 @@ public static class ContractDefinitions
             Category = "Gardening",
             Subcategory = "Jewel-Btc.b",
             Level = 0,
-			StaminaDrain = 1,
+			AvailableAttempts = (hero) => 1,
 		},
         new QuestContract
         {
@@ -255,7 +255,7 @@ public static class ContractDefinitions
             Category = "Gardening",
             Subcategory = "Jewel-Eth",
             Level = 0,
-			StaminaDrain = 1,
+			AvailableAttempts = (hero) => 1,
 		},
         new QuestContract
         {
@@ -265,7 +265,7 @@ public static class ContractDefinitions
             Category = "Gardening",
             Subcategory = "Btc.b-USDC",
             Level = 0,
-			StaminaDrain = 1,
+			AvailableAttempts = (hero) => 1,
 		},
     };
 }

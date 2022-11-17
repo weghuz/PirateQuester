@@ -1,14 +1,56 @@
 ﻿@page "/Bot"
+@using DFKContracts.QuestCore.ContractDefinition;
 @using PirateQuester.Bot;
+@using PirateQuester.Utils;
 <PageTitle>PQ - Bot</PageTitle>
-<RadzenCard class=" my-1" Style="background-color:var(--rz-black);color:var(--rz-success);">
-	@if(RunningBot is null)
+
+<RadzenDataGrid Data="@DFKBot.RunningQuests"
+	TItem="Quest"
+	@ref="RunningQuestsGrid"
+	AllowPaging="true"
+	AllowSorting="true"
+	AllowColumnReorder="true"
+	AllowColumnResize="true"
+	AllowFiltering="true"
+	ShowPagingSummary="true"
+	ColumnWidth="100px"
+	PagerHorizontalAlign="HorizontalAlign.Center"
+	PageSize="15"
+	Style="max-height:700px;"
+	PagingSummaryFormat="@Constants.PagingSummaryFormat">
+	<Columns>
+		<RadzenDataGridColumn TItem="Quest" Property="Player" Title="Account" Width="100px" />
+		<RadzenDataGridColumn TItem="Quest" Property="" Title="Start" Width="100px">
+			<Template Context="quest">
+				@quest.StartTime()
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="Quest" Property="" Title="Complete" Width="100px">
+			<Template Context="quest">
+				@quest.CompleteTime()
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="Quest" Property="" Title="Heroes" Width="100px">
+			<Template Context="quest">
+				@string.Join(", ", quest.Heroes)
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="Quest" Property="Attempts" Title="Attempts" Width="100px" />
+		<RadzenDataGridColumn TItem="Quest" Property="status" Title="Status" Width="100px" />
+	</Columns>
+</RadzenDataGrid>
+<RadzenCard class="my-1"
+Style="background-color:var(--rz-black);
+color:var(--rz-success); 
+height:500px;
+overflow:auto;">
+	@if(RunningBots is null)
 	{
 		<span>No running bot</span>
 	}
 	else
 	{
-		foreach (DFKBotLogMessage msg in DFKBot.DFKBotLog)
+		foreach (DFKBotLogMessage msg in DFKBot.DFKBotLog.OrderByDescending(l => l.Id))
 		{
 			<span class="mr-2">@msg.TimeStamp</span>
 			<span>@msg.Message</span>
@@ -17,13 +59,14 @@
 	}
 </RadzenCard>
 <RadzenCard class="my-1">
-	<EditForm Model="Settings" OnValidSubmit="@RunBot">
+	<EditForm Model="Settings">
 		<RadzenLabel Text="Update Frequency (Seconds)" Component="UpdateInterval" />
 		<RadzenNumeric  Name="UpdateInterval" class="w-100 my-1"  @bind-Value=@Settings.UpdateInterval />
 		<RadzenLabel Text="Min Stamina to Quest" Component="MinStamina" />
 		<RadzenNumeric Name="MinStamina" class="w-100 my-1" @bind-Value="@Settings.MinStamina" />
 		<div class="my-1">
-			<RadzenButton Text="Run Bot" ButtonType="ButtonType.Submit" />
+			<RadzenButton Text="Run Bot" ButtonType="ButtonType.Submit" Disabled="Running" Click="@RunBot" />
+			<RadzenButton Text="Stop Bot" ButtonType="ButtonType.Button" Disabled="!Running" Click="@StopBot" />
 		</div>
 	</EditForm>
 </RadzenCard>

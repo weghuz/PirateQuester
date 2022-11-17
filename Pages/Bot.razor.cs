@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using DFKContracts.QuestCore.ContractDefinition;
+using Microsoft.AspNetCore.Components;
 using PirateQuester.Bot;
 using PirateQuester.Utils;
 using Radzen;
+using System.Net.NetworkInformation;
+using Radzen.Blazor;
 
 namespace PirateQuester.Pages;
 
@@ -13,8 +16,11 @@ public partial class Bot
     AccountManager Acc { get; set; }
     [Inject]
     NavigationManager Nav { get; set; }
-    public static DFKBot RunningBot { get; set; } = null;
+    public RadzenDataGrid<Quest> RunningQuestsGrid { get; set; }
+    public static List<DFKBot> RunningBots { get; set; } = null;
     public static DFKBotSettings Settings { get; set; } = new();
+    public static bool Running { get; set; } = false;
+
     protected override void OnInitialized()
     {
         DFKBot.BotLogAdded += () =>
@@ -28,20 +34,34 @@ public partial class Bot
     }
 
     public void StopBot()
-    {
-
-    }
-
-    public async Task RunBot()
-    {
-        if(RunningBot == null)
+	{
+		foreach (DFKBot bot in RunningBots)
 		{
-			RunningBot = new DFKBot(Acc.Accounts, Settings);
-            await RunningBot.StartBot();
+			bot.StopBot();
+		}
+		Running = false;
+	}
+
+    public void RunBot()
+    {
+        if(RunningBots == null)
+		{
+            RunningBots = new List<DFKBot>();
+
+			foreach (DFKAccount acc in Acc.Accounts)
+			{
+                DFKBot bot = new();
+                RunningBots.Add(bot);
+                bot.StartBot(acc, Settings);
+			}
 		}
         else
-        {
-            DialogWindow("Can only run 1 bot instance.");
+		{
+			foreach (DFKBot bot in RunningBots)
+			{
+				bot.StartBot(bot.Account, Settings);
+			}
 		}
-    }
+		Running = true;
+	}
 }

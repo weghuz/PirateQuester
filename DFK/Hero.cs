@@ -2,6 +2,7 @@ using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using PirateQuester.DFK.Contracts;
 using PirateQuester.Utils;
+using System.Numerics;
 
 namespace DFK;
 public class Hero
@@ -88,13 +89,13 @@ public class Hero
         else
         {
 			decimal staminaLeft = (staminaFullAt - now)/1200;
-            return stamina - (int)Math.Floor(staminaLeft);
+            return stamina - (int)Math.Floor(staminaLeft) - 1;
         }
     }
 
     public DFKAccount DFKAccount { get; set; }
 
-    public string id { get; set; }
+	public string id { get; set; }
     public string numberId { get; set; }
     public Profile owner { get; set; }
     public Profile previousOwner { get; set; }
@@ -137,7 +138,6 @@ public class Hero
     public int strengthGrowthP { get; set; }
     public int intelligenceGrowthP { get; set; }
     public int wisdomGrowthP { get; set; }
-
     public int luckGrowthP { get; set; }
     public int agilityGrowthP { get; set; }
     public int vitalityGrowthP { get; set; }

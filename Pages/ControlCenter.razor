@@ -5,6 +5,7 @@
 @using Nethereum.Web3;
 @using PirateQuester.Bot;
 @using PirateQuester.DFK.Contracts;
+@using PirateQuester.Utils;
 @using global::DFK;
 @using global::Utils;
 
@@ -86,7 +87,7 @@
 	PagerHorizontalAlign="HorizontalAlign.Center"
 	PageSize="15"
 	Style="max-height:700px;"
-	PagingSummaryFormat="@pagingSummaryFormat">
+	PagingSummaryFormat="@Constants.PagingSummaryFormat">
 	<Columns>
 		<RadzenDataGridColumn TItem="DFKBotHero" Title="Prefer Quest" Width="150px">
 			<Template Context="hero">

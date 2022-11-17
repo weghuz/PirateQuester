@@ -38,7 +38,7 @@ public class Transaction
 
 	public static event AddTransaction TransactionAdded;
 
-	public async Task<string> CompleteQuest(DFKAccount account, Hero hero)
+	public async Task<string> CompleteQuest(DFKAccount account, BigInteger heroId)
 	{
 		PendingTransaction pendingTransaction = new()
 		{
@@ -50,11 +50,11 @@ public class Transaction
 		try
         {
 			Console.WriteLine("Completing Quest...");
-            var receipt = await account.Quest.CompleteQuestRequestAndWaitForReceiptAsync(new BigInteger(long.Parse(hero.id)));
+            var receipt = await account.Quest.CompleteQuestRequestAndWaitForReceiptAsync(heroId);
             PendingTransactions.Remove(pendingTransaction);
 			FinishedTransactions.Add(new()
 			{
-				Name = $"Complete Quest For Hero: {hero.id}",
+				Name = $"Complete Quest For Hero: {heroId}",
 				TimeStamp = DateTime.UtcNow,
 				TransactionHash = receipt.TransactionHash
 			});
@@ -113,7 +113,7 @@ public class Transaction
 				TransactionHash = questStartResponse.TransactionHash
 			});
             TransactionAdded?.Invoke();
-            return $"Started Quest: {quest.Name}\nTransaction: {questStartResponse.TransactionHash}\n<a target=\"_blank\" href=\"https://avascan.info/blockchain/dfk/tx/{questStartResponse.TransactionHash}\">Open transaction in explorer</a>";
+            return $"Started Quest: {quest.Name}\nTransaction: {questStartResponse.TransactionHash}\nhttps://avascan.info/blockchain/dfk/tx/{questStartResponse.TransactionHash}";
         }
 		catch(Exception e)
         {

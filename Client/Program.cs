@@ -3,6 +3,7 @@ using DFKContracts.QuestCore;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
+using Nethereum.RPC.Fee1559Suggestions;
 using Nethereum.Web3;
 using PirateQuester.Bot;
 using PirateQuester.Utils;
@@ -15,9 +16,9 @@ namespace PirateQuester
     {
         public static async Task Main(string[] args)
         {
-
 			Web3 w3Service = new Web3("https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc");
-            w3Service.TransactionManager.UseLegacyAsDefault = true;
+            w3Service.TransactionManager.UseLegacyAsDefault = false;
+
 			var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
