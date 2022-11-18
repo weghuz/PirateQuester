@@ -1,18 +1,21 @@
 using System.Numerics;
 using Nethereum.ABI.FunctionEncoding.Attributes;
-using PirateQuester.Bot;
 
 namespace DFKContracts.QuestCore.ContractDefinition
 {
     public partial class Quest : QuestBase
 	{
+        public string QuestName()
+        {
+            return PirateQuester.DFK.Contracts.ContractDefinitions.GetQuestContractFromAddress(QuestAddress)?.Name;
+        }
 		public DateTime StartTime()
 		{
-			return new DateTime(DateTimeOffset.UtcNow.ToUnixTimeSeconds() - long.Parse(StartAtTime.ToString()));
+			return DateTime.UtcNow + new TimeSpan((long.Parse(StartAtTime.ToString()) - DateTimeOffset.UtcNow.ToUnixTimeSeconds()) * 1000000);
 		}
 		public DateTime CompleteTime()
 		{
-			return new DateTime(DateTimeOffset.UtcNow.ToUnixTimeSeconds() - long.Parse(CompleteAtTime.ToString()));
+			return DateTime.UtcNow + new TimeSpan((long.Parse(CompleteAtTime.ToString()) - DateTimeOffset.UtcNow.ToUnixTimeSeconds()) * 1000000);
 		}
 	}
 

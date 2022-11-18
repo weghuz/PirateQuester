@@ -29,7 +29,7 @@ public class AccountManager
                 DFKAccount account = new(name, Encrypt.GetAccount(model.Password, json));
 
 				Accounts.Add(account);
-                await account.LoadHeroes();
+                await account.InitializeAccount();
 
 			}
             return true;
@@ -83,7 +83,7 @@ public class AccountManager
         }
         DFKAccount account = new(model.Name, Encrypt.GetAccount(model.Password, json));
 		Accounts.Add(account);
-		await account.LoadHeroes();
+		await account.InitializeAccount();
 		return;
     }
 

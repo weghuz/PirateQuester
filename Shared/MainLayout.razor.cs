@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Nethereum.Web3;
+using Nethereum.Web3.Accounts;
 using PirateQuester.Utils;
 using Radzen;
 using Utils;
@@ -19,8 +21,9 @@ public partial class MainLayout : LayoutComponentBase
     public DialogService Dialog { get; set; }
     private string NotePad { get; set; }
 	private bool SidebarExpanded { get; set; }
+    public decimal Balance { get; set; }
 
-	protected override void OnInitialized()
+    protected override void OnInitialized()
 	{
 		NotePad = JS.Invoke<string>("localStorage.getItem", "notePad");
 		//Don't know why but I have to toggle the sidebar expand twice to actually have it not expanded by default.
@@ -29,11 +32,17 @@ public partial class MainLayout : LayoutComponentBase
 		{
 			SidebarExpanded = false;
 		}
-		Transaction.TransactionAdded += OnTransactionAdded;
+		Transaction.TransactionAdded += UpdateUI;
+		DFKAccount.UpdatedAccount += UpdateUI;
     }
 
-	public void OnTransactionAdded()
+	public void UpdateUI()
 	{
+		Balance = 0;
+		foreach(DFKAccount acc in Acc.Accounts)
+		{
+			Balance += acc.Balance;
+		}
 		StateHasChanged();
 	}
 

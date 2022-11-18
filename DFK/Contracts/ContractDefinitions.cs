@@ -14,7 +14,11 @@ public static class ContractDefinitions
 	{
 		return DFKQuestContracts.FirstOrDefault(quest => quest.Name == questContractName);
 	}
-    public static readonly string NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
+	public static QuestContract GetQuestContractFromAddress(string questContractAddress)
+	{
+		return DFKQuestContracts.FirstOrDefault(quest => quest.Address == questContractAddress);
+	}
+	public static readonly string NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 	public static readonly List<QuestContract> DFKQuestContracts = new()
     {
         new QuestContract

@@ -4,14 +4,27 @@ using DFKContracts.QuestCore;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using PirateQuester.Bot;
+using Utils;
 
 namespace PirateQuester.Utils
 {
     public class DFKAccount
 	{
-		public async Task LoadHeroes()
+		public delegate void AccountUpdated();
+
+		public static event AccountUpdated UpdatedAccount;
+		public async void UpdateBalance()
+        {
+            Balance = 0;
+
+            Balance += Web3.Convert.FromWei(await Signer.Eth.GetBalance.SendRequestAsync(Account.Address));
+        }
+
+        public async Task InitializeAccount()
 		{
-			Dictionary<HeroesArgument, string> args = new()
+			UpdateBalance();
+
+            Dictionary<HeroesArgument, string> args = new()
 			{
 				{ HeroesArgument.owner, Account.Address }
 			};
@@ -22,6 +35,7 @@ namespace PirateQuester.Utils
 			{
 				h.DFKAccount = this;
 			}
+			UpdatedAccount?.Invoke();
 		}
 
 		public async Task UpdateHeroes()
@@ -54,6 +68,8 @@ namespace PirateQuester.Utils
 			Hero = new HeroCoreService(Signer, "0xEb9B61B145D6489Be575D3603F4a704810e143dF");
 		}
 
+		private decimal balance;
+        public decimal Balance { get { return Math.Round(balance, 2); } set { balance = value;} }
         public Web3 Signer { get; set; }
         public HeroCoreService Hero { get; set; }
         public QuestCoreService Quest { get; set; }

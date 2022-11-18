@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using PirateQuester.Shared;
 using PirateQuester.Utils;
 using PirateQuester.ViewModels;
+using Utils;
 
 namespace PirateQuester.Pages;
 

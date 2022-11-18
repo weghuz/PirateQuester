@@ -52,6 +52,7 @@ public partial class Bot
 			{
                 DFKBot bot = new();
                 RunningBots.Add(bot);
+                Console.WriteLine($"Bot added for Account: {acc.Account.Address}");
                 bot.StartBot(acc, Settings);
 			}
 		}

@@ -20,14 +20,14 @@
 	PagingSummaryFormat="@Constants.PagingSummaryFormat">
 	<Columns>
 		<RadzenDataGridColumn TItem="Quest" Property="Player" Title="Account" Width="100px" />
-		<RadzenDataGridColumn TItem="Quest" Property="" Title="Start" Width="100px">
+		<RadzenDataGridColumn TItem="Quest" Property="QuestName" Title="Quest" Width="100px">
 			<Template Context="quest">
-				@quest.StartTime()
+				@quest.QuestName()
 			</Template>
 		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="Quest" Property="" Title="Complete" Width="100px">
+		<RadzenDataGridColumn TItem="Quest" Property="" Title="Start" Width="100px">
 			<Template Context="quest">
-				@quest.CompleteTime()
+				Block @quest.StartBlock
 			</Template>
 		</RadzenDataGridColumn>
 		<RadzenDataGridColumn TItem="Quest" Property="" Title="Heroes" Width="100px">
@@ -36,7 +36,6 @@
 			</Template>
 		</RadzenDataGridColumn>
 		<RadzenDataGridColumn TItem="Quest" Property="Attempts" Title="Attempts" Width="100px" />
-		<RadzenDataGridColumn TItem="Quest" Property="status" Title="Status" Width="100px" />
 	</Columns>
 </RadzenDataGrid>
 <RadzenCard class="my-1"

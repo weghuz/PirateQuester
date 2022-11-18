@@ -1,5 +1,6 @@
 ﻿using DFK;
 using DFKContracts.QuestCore.ContractDefinition;
+using Nethereum.Web3;
 using Org.BouncyCastle.Asn1.Cmp;
 using PirateQuester.DFK.Contracts;
 using PirateQuester.Utils;
@@ -67,14 +68,32 @@ public class DFKBot
     {
         return DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 	}
+	public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
+	{
+		// Unix timestamp is seconds past epoch
+		DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+		dateTime = dateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+		return dateTime;
+	}
 
-    public async Task Update()
+	public async Task<long> CurrentBlock()
+	{
+		return BigIntToLong(await Account.Signer.Eth.Blocks.GetBlockNumber.SendRequestAsync());
+	}
+
+	public long BigIntToLong(BigInteger bigInt)
+	{
+		return long.Parse(bigInt.ToString());
+	}
+
+	public async Task Update()
     {
-        var quests = await Account.Quest.GetAccountActiveQuestsQueryAsync(Account.Account.Address);
-        RunningQuests = quests.ReturnValue1;
-		foreach (Quest q in quests.ReturnValue1)
+        var quests = (await Account.Quest.GetAccountActiveQuestsQueryAsync(Account.Account.Address)).ReturnValue1.DistinctBy(q => q.Id).ToList();
+        RunningQuests = quests;
+		foreach (Quest q in quests)
 		{
-			if (q.CompleteAtTime <= UnixTime())
+			long currentBlock = await CurrentBlock();
+			if (currentBlock > q.StartBlock && BigIntToLong(await q.Heroes.Max(async h => await Account.Quest.GetCurrentStaminaQueryAsync(h))) <= 1 || currentBlock - q.StartBlock > 12000)
 			{
                 try
 				{
@@ -100,7 +119,7 @@ public class DFKBot
 				h.GetActiveQuest().Id == quest.Id)
 					.Select(h => h.Hero).ToList();
 
-			Log($"Found {readyQuestHeroes.Count} heroes ready to start {quest.Name}.");
+			Log($"Found {readyQuestHeroes.Count} heroes ready to start {quest.Name}. Starting...");
             for(int i = 0; i <= readyQuestHeroes.Count; i+= quest.Category != "Gardening" ? 6 : 1)
 			{
                 List<Hero> heroBatch = readyQuestHeroes.Skip(i).Take(6).ToList();

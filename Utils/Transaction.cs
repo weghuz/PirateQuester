@@ -3,6 +3,7 @@ using PirateQuester.DFK.Contracts;
 using DFK;
 using PirateQuester.Utils;
 using BigInteger = System.Numerics.BigInteger;
+using Nethereum.Web3;
 
 namespace Utils;
 
@@ -38,7 +39,7 @@ public class Transaction
 
 	public static event AddTransaction TransactionAdded;
 
-	public async Task<string> CompleteQuest(DFKAccount account, BigInteger heroId)
+    public async Task<string> CompleteQuest(DFKAccount account, BigInteger heroId)
 	{
 		PendingTransaction pendingTransaction = new()
 		{
@@ -59,7 +60,14 @@ public class Transaction
 				TransactionHash = receipt.TransactionHash
 			});
 			TransactionAdded?.Invoke();
-            return $"Completed Quests.\nTxn hash: {receipt.TransactionHash}";
+			if(receipt.Status == new BigInteger(1))
+			{
+				return $"Completed Quests.\nTxn hash: {receipt.TransactionHash}";
+			}
+			else
+			{
+				return $"Transaction Failed.\nTxn hash: {receipt.TransactionHash}";
+			}
         }
 		catch(Exception e)
         {
@@ -113,7 +121,14 @@ public class Transaction
 				TransactionHash = questStartResponse.TransactionHash
 			});
             TransactionAdded?.Invoke();
-            return $"Started Quest: {quest.Name}\nTransaction: {questStartResponse.TransactionHash}\nhttps://avascan.info/blockchain/dfk/tx/{questStartResponse.TransactionHash}";
+			if (questStartResponse.Status == new BigInteger(1))
+			{
+				return $"Started Quest: {quest.Name}\nTransaction: {questStartResponse.TransactionHash}\nhttps://avascan.info/blockchain/dfk/tx/{questStartResponse.TransactionHash}";
+			}
+			else
+			{
+				return $"Failed to start Quest: {quest.Name}\nTransaction: {questStartResponse.TransactionHash}\nhttps://avascan.info/blockchain/dfk/tx/{questStartResponse.TransactionHash}";
+			}
         }
 		catch(Exception e)
         {
