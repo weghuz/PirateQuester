@@ -58,10 +58,11 @@
 		   TValue="string"
 		   AllowClear="true"
 		   AllowFiltering="true"
+		   FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
 		@bind-Value=@SelectedQuestName
 		   Data="@ContractDefinitions.DFKQuestContracts.Select(q => q.Name).AsQueryable()"
 		   Class="w-100 my-2" />
-		<RadzenButton ButtonStyle="StartQuestStyle" Disabled="StartQuestButtonDisabled" Click="@SetQuestPreference">
+		<RadzenButton Click="@SetQuestPreference">
 			Set quest preference
 		</RadzenButton>
 	</RadzenCard>
@@ -70,35 +71,28 @@
 {
 	<RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" ProgressBarStyle="ProgressBarStyle.Secondary" />
 }
-<RadzenDataGrid Data="@Acc.Accounts.SelectMany(a => a.BotHeroes).ToList()"
+
+<RadzenDataGrid Data="@TableHeroes"
 	TItem="DFKBotHero"
+	@ref=@heroes
 	SelectionMode="DataGridSelectionMode.Multiple"
-	@ref="heroes"
 	@bind-Value=@SelectedHeroes
-	RowClick="@UpdateSelection"
 	AllowRowSelectOnRowClick="true"
 	AllowPaging="true"
-	AllowSorting="true"
-	AllowColumnReorder="true"
-	AllowColumnResize="true"
-	AllowFiltering="true"
+	FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+	FilterMode="FilterMode.Advanced"
 	ShowPagingSummary="true"
+	AllowColumnReorder="true"
 	ColumnWidth="100px"
+	AllowFiltering="true"
+	AllowColumnResize="true"
 	PagerHorizontalAlign="HorizontalAlign.Center"
 	PageSize="15"
 	Style="max-height:700px;"
 	PagingSummaryFormat="@Constants.PagingSummaryFormat">
 	<Columns>
-		<RadzenDataGridColumn TItem="DFKBotHero" Title="Prefer Quest" Width="150px">
-			<Template Context="hero">
-				@hero.Quest?.Name
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="DFKBotHero" Title="Bot Suggested Quest" Width="150px">
-			<Template Context="hero">
-				@hero.SuggestedQuest?.Name
-			</Template>
-		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="Quest.Name" Title="Prefer Quest" Width="150px" />
+		<RadzenDataGridColumn TItem="DFKBotHero" Property="SuggestedQuest.Name" Title="Bot Suggested Quest" Width="150px" />
 		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.profession" Title="Profession" />
 		<RadzenDataGridColumn TItem="DFKBotHero" Title="Owner Address" Width="150px">
 			<Template Context="hero">

@@ -50,8 +50,15 @@ public class Transaction
         TransactionAdded?.Invoke();
 		try
         {
-			Console.WriteLine("Completing Quest...");
-            var receipt = await account.Quest.CompleteQuestRequestAndWaitForReceiptAsync(heroId);
+
+			var handler = account.Signer.Eth.GetContractTransactionHandler<CompleteQuestFunction>();
+			var questCompleteFunc = new CompleteQuestFunction()
+			{
+				GasPrice = Web3.Convert.ToWei(7, Nethereum.Util.UnitConversion.EthUnit.Gwei),
+				HeroId = heroId
+			};
+			questCompleteFunc.Gas = await handler.EstimateGasAsync(account.Quest.ContractHandler.ContractAddress, questCompleteFunc);
+			var receipt = await account.Quest.CompleteQuestRequestAndWaitForReceiptAsync(questCompleteFunc);
             PendingTransactions.Remove(pendingTransaction);
 			FinishedTransactions.Add(new()
 			{
@@ -105,14 +112,18 @@ public class Transaction
 		Console.WriteLine($"Starting quest {quest.Name} with {attempts} attempts.");
 		try
         {
-            var questStartResponse = await account.Quest.StartQuestRequestAndWaitForReceiptAsync(new StartQuestFunction()
+			var handler = account.Signer.Eth.GetContractTransactionHandler<StartQuestFunction>();
+            var questStartFunc = new StartQuestFunction()
             {
-                HeroIds = selectedHeroes,
+				GasPrice = Web3.Convert.ToWei(7, Nethereum.Util.UnitConversion.EthUnit.Gwei),
+				HeroIds = selectedHeroes,
                 QuestAddress = quest.Address,
                 Attempts = (byte)attempts,
                 Level = (byte)quest.Level
-            });
-            PendingTransactions.Remove(pendingTxn);
+            };
+			questStartFunc.Gas = await handler.EstimateGasAsync(account.Quest.ContractHandler.ContractAddress, questStartFunc);
+			var questStartResponse = await account.Quest.StartQuestRequestAndWaitForReceiptAsync(questStartFunc);
+			PendingTransactions.Remove(pendingTxn);
 			FinishedTransactions.Add(new()
             {
                 Success = true,

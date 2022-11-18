@@ -30,10 +30,11 @@ namespace PirateQuester.Utils
 			};
 			string request = API.HeroesRequestBuilder(args, "id owner {id name} rarity generation firstName lastName mainClass subClass staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina profession statBoost1 statBoost2 salePrice");
 			Heroes = (await API.GetHeroes(request)).ToList();
-			BotHeroes = Heroes.Select(h => new DFKBotHero(h)).ToList();
+			BotHeroes = new();
 			foreach(Hero h in Heroes)
 			{
 				h.DFKAccount = this;
+				BotHeroes.Add(new DFKBotHero(h));
 			}
 			UpdatedAccount?.Invoke();
 		}
@@ -62,7 +63,7 @@ namespace PirateQuester.Utils
         {
             Name = name;
             Account = account;
-            Signer = new Web3(account, "https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc");
+            Signer = new Web3(account, "https://avax-dfk.gateway.pokt.network/v1/lb/6244818c00b9f0003ad1b619/ext/bc/q2aTwKuyzgs8pynF7UXBZCU7DejbZbZ6EUyHr3JQzYgwNPUPi/rpc");
 			Signer.TransactionManager.UseLegacyAsDefault = true;
 			Quest = new QuestCoreService(Signer, "0xE9AbfBC143d7cef74b5b793ec5907fa62ca53154");
 			Hero = new HeroCoreService(Signer, "0xEb9B61B145D6489Be575D3603F4a704810e143dF");

@@ -9,4 +9,6 @@ public class QuestContract : Contract
     public int Level { get; set; }
     public AvailableAttemptsFunction AvailableAttempts { get; set; }
     public delegate int AvailableAttemptsFunction(Hero h);
+    public BlocksPerAttemptFunction BlocksPerAttempt { get; set; }
+    public delegate long BlocksPerAttemptFunction(Hero h);
 }

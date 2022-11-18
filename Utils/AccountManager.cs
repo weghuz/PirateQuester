@@ -53,7 +53,11 @@ public class AccountManager
             _js.InvokeVoid("alert", "The passwords don't match.");
             return;
         }
-        if (!model.GenerateAccount && model.PrivateKey is not null && model.PrivateKey.Length != 66)
+        if(model.PrivateKey.Length == 64)
+        {
+            model.PrivateKey = $"0x{model.PrivateKey}";
+        }
+        if (!model.GenerateAccount && model.PrivateKey is not null && (model.PrivateKey.Length != 66))
         {
             _js.InvokeVoid("alert", "The private key is in and incorrect format.");
             return;

@@ -16,9 +16,7 @@ namespace PirateQuester
     {
         public static async Task Main(string[] args)
         {
-			Web3 w3Service = new Web3("https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc");
-            w3Service.TransactionManager.UseLegacyAsDefault = false;
-            Console.WriteLine($"Gas price: {w3Service.Eth.GasPrice}");
+			Web3 w3Service = new Web3("https://avax-dfk.gateway.pokt.network/v1/lb/6244818c00b9f0003ad1b619/ext/bc/q2aTwKuyzgs8pynF7UXBZCU7DejbZbZ6EUyHr3JQzYgwNPUPi/rpc");
 			var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");

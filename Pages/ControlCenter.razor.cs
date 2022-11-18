@@ -23,22 +23,19 @@ public partial class ControlCenter
 	public IJSInProcessRuntime JS { get; set; }
 	[Inject]
 	public DialogService Dialog { get; set; }
-	public List<Hero> TableHeroes { get; set; } = new();
+	public List<DFKBotHero> TableHeroes { get; set; } = new();
 
 	public string SelectedQuestName { get; set; }
 
-	
-	bool Loading = false;
+
+    bool Loading = false;
 	IList<DFKBotHero> SelectedHeroes = new List<DFKBotHero>();
 	RadzenDataGrid<DFKBotHero> heroes;
-
-
-	ButtonStyle StartQuestStyle = ButtonStyle.Secondary;
-	bool StartQuestButtonDisabled = true;
 	string Attempts = "1";
 	protected override void OnInitialized()
 	{
-		if(Acc.Accounts.Count == 0)
+		TableHeroes = Acc.Accounts.SelectMany(a => a.BotHeroes).ToList();
+		if (Acc.Accounts.Count == 0)
 		{
 			Nav.NavigateTo("CreateAccount");
 		}
@@ -53,20 +50,6 @@ public partial class ControlCenter
 		foreach(DFKBotHero h in SelectedHeroes)
 		{
 			h.Quest = ContractDefinitions.GetQuestContract(SelectedQuestName);
-		}
-	}
-
-	private void UpdateSelection()
-	{
-		if (heroes.Count > 0)
-		{
-			StartQuestButtonDisabled = false;
-			StartQuestStyle = ButtonStyle.Success;
-		}
-		else
-		{
-			StartQuestButtonDisabled = true;
-			StartQuestStyle = ButtonStyle.Warning;
 		}
 	}
 }

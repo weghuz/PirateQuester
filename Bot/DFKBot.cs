@@ -85,19 +85,41 @@ public class DFKBot
 	{
 		return long.Parse(bigInt.ToString());
 	}
-
+	public async Task<List<Quest>> GetUpdatedQuests()
+	{
+		
+		var quests = (await Account.Quest.GetAccountActiveQuestsQueryAsync(Account.Account.Address)).ReturnValue1.DistinctBy(q => q.Id).ToList();
+		RunningQuests = quests;
+		return quests;
+	}
 	public async Task Update()
     {
-        var quests = (await Account.Quest.GetAccountActiveQuestsQueryAsync(Account.Account.Address)).ReturnValue1.DistinctBy(q => q.Id).ToList();
-        RunningQuests = quests;
+		var quests = await GetUpdatedQuests();
+		long currentBlock = await CurrentBlock();
 		foreach (Quest q in quests)
 		{
-			long currentBlock = await CurrentBlock();
-			if (currentBlock > q.StartBlock && BigIntToLong(await q.Heroes.Max(async h => await Account.Quest.GetCurrentStaminaQueryAsync(h))) <= 1 || currentBlock - q.StartBlock > 12000)
+			QuestContract questContract = ContractDefinitions.GetQuestContractFromAddress(q.QuestAddress);
+			List<Hero> heroes = new();
+			foreach (Hero h in Account.Heroes)
+			{
+				foreach(BigInteger id in q.Heroes)
+				{
+					var one = id.ToString();
+					var two = h.id;
+					if(one == two)
+					{
+						heroes.Add(h);
+						continue;
+					}
+				}
+
+			}
+			Log($"Check finish{currentBlock - BigIntToLong(q.StartBlock)} > {questContract.BlocksPerAttempt(heroes.First()) * q.Attempts}");
+			if (currentBlock - BigIntToLong(q.StartBlock) > (long)10000 || heroes.Any(h => currentBlock - BigIntToLong(q.StartBlock) > questContract.BlocksPerAttempt(h)*q.Attempts))
 			{
                 try
 				{
-					Log($"Quest #{q.Id} is ready to complete, completing...");
+					Log($"Quest #{q.Id} {q.QuestName()} is ready to complete, completing...");
 					string okMessage = await new Transaction().CompleteQuest(Account, q.Heroes.First());
 					Log(okMessage);
 				}
@@ -119,10 +141,14 @@ public class DFKBot
 				h.GetActiveQuest().Id == quest.Id)
 					.Select(h => h.Hero).ToList();
 
-			Log($"Found {readyQuestHeroes.Count} heroes ready to start {quest.Name}. Starting...");
-            for(int i = 0; i <= readyQuestHeroes.Count; i+= quest.Category != "Gardening" ? 6 : 1)
+			Log($"Found {readyQuestHeroes.Count} heroes ready to start {quest.Name}.");
+            for(int i = 0; i <= readyQuestHeroes.Count; i+= quest.Category != "Gardening" ? 6 : 2)
 			{
-                List<Hero> heroBatch = readyQuestHeroes.Skip(i).Take(6).ToList();
+                List<Hero> heroBatch = readyQuestHeroes.Skip(i).Take(quest.Category != "Gardening" ? 6 : 2).ToList();
+				if(heroBatch.Count == 0)
+				{
+					continue;
+				}
                 int maxAttempts = heroBatch.Min(h => quest.AvailableAttempts(h));
                 if(maxAttempts == 0)
                 {
@@ -131,10 +157,12 @@ public class DFKBot
                 }
 				try
 				{
+					Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => h.id))}.");
 					string okMessage = await new Transaction().StartQuest(Account,
-						readyQuestHeroes.Select(h => new BigInteger(ulong.Parse(h.id))).ToList(),
+						heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
 						quest, maxAttempts);
 					Log(okMessage);
+					await GetUpdatedQuests();
 				}
 				catch (Exception e)
 				{

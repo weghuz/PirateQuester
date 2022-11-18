@@ -25,7 +25,7 @@
                                     @{
                                         var address = Acc.Accounts.FirstOrDefault().Account.Address;
                                         <span>@address.Substring(0, 4)...</span>
-                                        <span>@address.Substring(address.Length-4, 3)</span>
+                                        <span>@address.Substring(address.Length-4, 4)</span>
                                     }
                                 </RadzenButton>
                                 <span class="ml-2">@Balance <RadzenImage Path="Images/Crystal.png" Style="width: 18px; height:18px;" /></span>
