@@ -228,8 +228,9 @@ public class DFKBot
 					QuestQueue.Add(new(){
 						Contract = quest,
 						QuestId = quest.Id,
-						Queue = questsOfType + 1
+						Queue = ++questsOfType
 					});
+
 				}
 				catch (Exception e)
 				{
