@@ -110,8 +110,6 @@ public class DFKBot
 	}
 	public async Task Update()
     {
-
-
 		var quests = await GetUpdatedQuests();
 		await UpdateCurrentBlock();
 		foreach (Quest q in quests.OrderBy(quest => quest.Id))
@@ -195,7 +193,7 @@ public class DFKBot
 		List<DFKBotHero> readyHeroes = Account.BotHeroes
             .Where(h => h.Hero.StaminaCurrent() >= Settings.MinStamina
             && h.Hero.currentQuest == ContractDefinitions.NULL_ADDRESS
-			&& h.Hero.salePrice is not null)
+			&& h.Hero.salePrice is null)
             .ToList();
         Log($"{readyHeroes.Count} heroes ready to quest");
 
