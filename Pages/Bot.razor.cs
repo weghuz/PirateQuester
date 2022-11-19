@@ -33,36 +33,41 @@ public partial class Bot
 		}
     }
 
-    public void StopBot()
-	{
-		foreach (DFKBot bot in RunningBots)
-		{
-			bot.StopBot();
-		}
-		Running = false;
-	}
-
     public void RunBot()
-    {
-        if(RunningBots == null)
+	{
+		Running = true;
+		if (RunningBots == null)
 		{
-            RunningBots = new List<DFKBot>();
+			RunningBots = new List<DFKBot>();
 
 			foreach (DFKAccount acc in Acc.Accounts)
 			{
                 DFKBot bot = new();
                 RunningBots.Add(bot);
                 Console.WriteLine($"Bot added for Account: {acc.Account.Address}");
-                bot.StartBot(acc, Settings);
+                try
+				{
+					bot.StartBot(acc, Settings);
+				}
+                catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                }
 			}
 		}
         else
 		{
 			foreach (DFKBot bot in RunningBots)
 			{
-				bot.StartBot(bot.Account, Settings);
+				try
+				{
+					bot.StartBot(bot.Account, Settings);
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine(e);
+				}
 			}
 		}
-		Running = true;
 	}
 }

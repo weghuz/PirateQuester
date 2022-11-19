@@ -25,17 +25,43 @@ public static class API
     public static async Task<Hero> GetHero(string id)
     {
         var data = new StringContent(HeroRequestBuilder(id), Encoding.UTF8, "application/json");
-        var httpData = await Client.PostAsync(URL, data);
-        var response = JsonConvert.DeserializeObject<HeroResponse>(await httpData.Content.ReadAsStringAsync());
-        return response.data.hero;
+
+		for (int i = 0; i < 10; i++)
+		{
+			try
+			{
+				var httpData = await Client.PostAsync(URL, data);
+				var response = JsonConvert.DeserializeObject<HeroResponse>(await httpData.Content.ReadAsStringAsync());
+				return response.data.hero;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+				await Task.Delay(i * 100);
+			}
+		}
+		return new();
     }
 
     public static async Task<Hero[]> GetHeroes(string request)
     {
         var data = new StringContent(request, Encoding.UTF8, "application/json");
-        var httpData = await Client.PostAsync(URL, data);
-        var response = JsonConvert.DeserializeObject<HeroesResponse>(await httpData.Content.ReadAsStringAsync());
-        return response.data.heroes;
+
+		for (int i = 0; i < 10; i++)
+		{
+			try
+			{
+				var httpData = await Client.PostAsync(URL, data);
+				var response = JsonConvert.DeserializeObject<HeroesResponse>(await httpData.Content.ReadAsStringAsync());
+				return response.data.heroes;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+				await Task.Delay(i * 100);
+			}
+		}
+		return Array.Empty<Hero>();
     }
 
     public static string HeroRequestBuilder(string id, string heroFields = null)

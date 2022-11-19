@@ -39,7 +39,7 @@ public class Transaction
 
 	public static event AddTransaction TransactionAdded;
 
-    public async Task<string> CompleteQuest(DFKAccount account, BigInteger heroId)
+    public async Task<string> CompleteQuest(DFKAccount account, BigInteger heroId, int maxGasFeeGwei = 200)
 	{
 		PendingTransaction pendingTransaction = new()
 		{
@@ -54,17 +54,21 @@ public class Transaction
 			var handler = account.Signer.Eth.GetContractTransactionHandler<CompleteQuestFunction>();
 			var questCompleteFunc = new CompleteQuestFunction()
 			{
-				GasPrice = Web3.Convert.ToWei(7, Nethereum.Util.UnitConversion.EthUnit.Gwei),
-				HeroId = heroId
+				HeroId = heroId,
+				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
+				MaxPriorityFeePerGas = 0
 			};
-			questCompleteFunc.Gas = await handler.EstimateGasAsync(account.Quest.ContractHandler.ContractAddress, questCompleteFunc);
+			var gas = await handler.EstimateGasAsync(account.Quest.ContractHandler.ContractAddress, questCompleteFunc);
+			Console.WriteLine($"Estimated Gas: {gas}");
+
 			var receipt = await account.Quest.CompleteQuestRequestAndWaitForReceiptAsync(questCompleteFunc);
-            PendingTransactions.Remove(pendingTransaction);
+			Console.WriteLine($"Completed Quest Txn: Gas: {receipt.GasUsed.Value}");
+			PendingTransactions.Remove(pendingTransaction);
 			FinishedTransactions.Add(new()
 			{
 				Name = $"Complete Quest For Hero: {heroId}",
 				TimeStamp = DateTime.UtcNow,
-				TransactionHash = receipt.TransactionHash
+				TransactionHash = receipt.TransactionHash,
 			});
 			TransactionAdded?.Invoke();
 			if(receipt.Status == new BigInteger(1))
@@ -88,11 +92,11 @@ public class Transaction
             Console.WriteLine($"{e.Message}");
             PendingTransactions.Remove(pendingTransaction);
             TransactionAdded?.Invoke();
-            return $"{e.Message}";
-        }
+			throw;
+		}
 	}
 
-	public async Task<string> StartQuest(DFKAccount account, List<BigInteger> selectedHeroes, QuestContract quest, int attempts)
+	public async Task<string> StartQuest(DFKAccount account, List<BigInteger> selectedHeroes, QuestContract quest, int attempts, int maxGasFeeGwei = 200)
 	{
         var pendingTxn = new PendingTransaction()
         {
@@ -115,26 +119,29 @@ public class Transaction
 			var handler = account.Signer.Eth.GetContractTransactionHandler<StartQuestFunction>();
             var questStartFunc = new StartQuestFunction()
             {
-				GasPrice = Web3.Convert.ToWei(7, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 				HeroIds = selectedHeroes,
                 QuestAddress = quest.Address,
                 Attempts = (byte)attempts,
-                Level = (byte)quest.Level
-            };
-			questStartFunc.Gas = await handler.EstimateGasAsync(account.Quest.ContractHandler.ContractAddress, questStartFunc);
+                Level = (byte)quest.Level,
+				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
+				MaxPriorityFeePerGas = 0
+			};
+			var gas = await handler.EstimateGasAsync(account.Quest.ContractHandler.ContractAddress, questStartFunc);
+			Console.WriteLine($"Estimated Gas: {gas}");
 			var questStartResponse = await account.Quest.StartQuestRequestAndWaitForReceiptAsync(questStartFunc);
+			Console.WriteLine($"Started Quest Txn: Gas: {questStartResponse.GasUsed.Value}");
 			PendingTransactions.Remove(pendingTxn);
 			FinishedTransactions.Add(new()
             {
                 Success = true,
-                Name = $"Start Quest {quest.Name}",
+                Name = $"Started Quest {quest.Name}",
 				TimeStamp = DateTime.UtcNow,
 				TransactionHash = questStartResponse.TransactionHash
 			});
             TransactionAdded?.Invoke();
 			if (questStartResponse.Status == new BigInteger(1))
 			{
-				return $"Started Quest: {quest.Name}\nTransaction: {questStartResponse.TransactionHash}\nhttps://avascan.info/blockchain/dfk/tx/{questStartResponse.TransactionHash}";
+				return $"Started Quest: {quest.Name}\nTransaction: {questStartResponse.TransactionHash}\nhttps://avascan.info/blockchain/dfk/tx/{questStartResponse.TransactionHash}\nGas Paid: {questStartResponse.GasUsed}";
 			}
 			else
 			{
@@ -152,7 +159,7 @@ public class Transaction
 				TransactionHash = null
 			});
             TransactionAdded?.Invoke();
-            return $"{e.Message}";
-        }
+			throw;
+		}
 	}
 }

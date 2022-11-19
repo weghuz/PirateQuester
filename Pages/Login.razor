@@ -15,6 +15,6 @@
         <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Password</RadzenText>
         <RadzenPassword @bind-Value="Model.Password" Class="w-100 mb-2" />
 
-        <RadzenButton Text="Submit" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success"></RadzenButton>
+        <RadzenButton Text="Submit" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Disabled="LoggingIn"></RadzenButton>
     </EditForm>
 </RadzenCard>

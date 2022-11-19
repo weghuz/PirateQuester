@@ -9,15 +9,9 @@ namespace DFKContracts.QuestCore.ContractDefinition
         {
             return PirateQuester.DFK.Contracts.ContractDefinitions.GetQuestContractFromAddress(QuestAddress)?.Name;
         }
-		public DateTime StartTime()
-		{
-			return DateTime.UtcNow + new TimeSpan((long.Parse(StartAtTime.ToString()) - DateTimeOffset.UtcNow.ToUnixTimeSeconds()) * 1000000);
-		}
-		public DateTime CompleteTime()
-		{
-			return DateTime.UtcNow + new TimeSpan((long.Parse(CompleteAtTime.ToString()) - DateTimeOffset.UtcNow.ToUnixTimeSeconds()) * 1000000);
-		}
-	}
+
+        public BigInteger CompleteBlock { get; set; }
+    }
 
     public class QuestBase 
     {

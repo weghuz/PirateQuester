@@ -16,6 +16,7 @@ public partial class Login
 	[Inject]
 	public IJSInProcessRuntime JS { get; set; }
 	private LoginViewModel Model { get; set; } = new();
+	public bool LoggingIn { get; set; } = false;
 
     protected override void OnInitialized()
     {
@@ -24,14 +25,21 @@ public partial class Login
 
     async Task LoginAccount()
 	{
+		LoggingIn = true;
 		if (Model.Password.Length < 8)
 		{
 			JS.InvokeVoid("alert", "Password needs to be at least 8 characters");
+			LoggingIn = false;
 		}
 		if (await Acc.Login(Model))
 		{
 			Nav.NavigateTo("Accounts");
 		}
+		else
+		{
+			LoggingIn = false;
+		}
+
 	}
 
 	List<string> GetLoggedOutAccountNames()
