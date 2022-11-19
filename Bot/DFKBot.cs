@@ -132,9 +132,9 @@ public class DFKBot
 			QueuedQuest queuedQuest = QuestQueue.FirstOrDefault(queuedQuest => queuedQuest.QuestId == q.Id);
 			if (queuedQuest is not null)
 			{
-				Log($"Check quest completion Found Queued Quest: {CurrentBlock - BigIntToLong(q.StartBlock)} > {questContract.BlocksPerAttempt(heroes.First()) * q.Attempts * q.Heroes.Count * queuedQuest.Queue}");
-				q.CompleteBlock = BigIntToLong(q.StartBlock) + (ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * q.Attempts * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? q.Heroes.Count : 1) * queuedQuest.Queue);
-				if (CurrentBlock - BigIntToLong(q.StartBlock) > (ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * q.Attempts * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? q.Heroes.Count : 1) * queuedQuest.Queue))
+				Log($"Check quest completion for {questContract.Name} Found Queued Quest: {CurrentBlock - BigIntToLong(q.StartBlock)} > {(ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * q.Attempts * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? 6 : 1) * queuedQuest.Queue)}");
+				q.CompleteBlock = BigIntToLong(q.StartBlock) + (ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * q.Attempts * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? 6 : 1) * queuedQuest.Queue);
+				if (CurrentBlock - BigIntToLong(q.StartBlock) > (ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * q.Attempts * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? 6 : 1) * queuedQuest.Queue))
 				{
 					try
 					{
@@ -145,16 +145,18 @@ public class DFKBot
 					}
 					catch (Exception e)
 					{
+						Log($"Queue estimation wrong, adding 5 cycles of blocks to queue +{(ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * q.Attempts * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? q.Heroes.Count : 1))}");
+						queuedQuest.Queue += 5;
 						Log(e.Message);
 					}
 				}
 			}
 			else
 			{
-				Log($"Check quest completion: {CurrentBlock - BigIntToLong(q.StartBlock)} > {questContract.BlocksPerAttempt(heroes.First()) * q.Attempts * q.Heroes.Count}");
+				Log($"Check quest completion for {questContract.Name}: {CurrentBlock - BigIntToLong(q.StartBlock)} > {(ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? 6 : 1))}");
 
-				q.CompleteBlock = BigIntToLong(q.StartBlock) + (ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? q.Heroes.Count : 1));
-				if (CurrentBlock - BigIntToLong(q.StartBlock) > (ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? q.Heroes.Count : 1))
+				q.CompleteBlock = BigIntToLong(q.StartBlock) + (ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? 6 : 1));
+				if (CurrentBlock - BigIntToLong(q.StartBlock) > (ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? 6 : 1))
 					|| CurrentBlock - BigIntToLong(q.StartBlock) > (long)12000)
 				{
 					try
@@ -238,5 +240,6 @@ public class DFKBot
 				}
 			}
 		}
+		Log($"Iteration complete");
     }
 }
