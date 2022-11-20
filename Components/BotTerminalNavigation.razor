@@ -3,10 +3,21 @@
 @inject NavigationManager Nav
 @inject BotService Bots
 <RadzenCard class="mb-2 p-0 py-2">
+
+	<RadzenButton Click="@(() => Nav.NavigateTo($"/Bot/"))" class="mx-3">
+		Settings
+	</RadzenButton>
 	@foreach (DFKBot bot in Bots.RunningBots)
 	{
-		<RadzenButton Click="@(() => Nav.NavigateTo($"/BotTerminal/{Bots.RunningBots.IndexOf(bot)}"))" class="mx-3">
+		<RadzenButton Click="@(() => Nav.NavigateTo($"/Bot/{Bots.RunningBots.IndexOf(bot)}"))" class="mx-3">
 			Terminal @(Bots.RunningBots.IndexOf(bot) + 1) @bot.Account.Account.Address.Substring(2, 4)...@bot.Account.Account.Address.Substring(bot.Account.Account.Address.Length-4, 4)
 		</RadzenButton>
 	}
 </RadzenCard>
+
+@code{
+	protected override void OnInitialized()
+	{
+		Bots.UpdatedBot += StateHasChanged;
+	}
+}

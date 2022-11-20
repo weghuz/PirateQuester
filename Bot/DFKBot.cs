@@ -14,10 +14,10 @@ public class DFKBot
 	public List<DFKBotLogMessage> DFKBotLog = new();
 	public List<Quest> RunningQuests = new();
 	public ulong CurrentBlock { get; set; }
-	public delegate void AddBotLog();
 	public delegate void UpdatedHeroes();
 
     public event UpdatedHeroes HeroesUpdated;
+	public delegate void AddBotLog();
 	public event AddBotLog BotLogAdded;
     public DFKAccount Account { get; set; }
     public DFKBotSettings Settings { get; set; }

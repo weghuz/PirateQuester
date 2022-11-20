@@ -1,4 +1,4 @@
-﻿@page "/BotTerminal/{BotId:int}"
+﻿@page "/Bot/{BotId:int}"
 @using DFKContracts.QuestCore.ContractDefinition;
 @using PirateQuester.Bot;
 @using PirateQuester.Components
@@ -32,9 +32,21 @@
 					@quest.QuestName()
 				</Template>
 			</RadzenDataGridColumn>
-			<RadzenDataGridColumn TItem="Quest" Property="StartDateTime" Title="Start" Width="200px" />
-			<RadzenDataGridColumn TItem="Quest" Property="CompleteDateTime" Title="Complete" Width="200px" />
-			<RadzenDataGridColumn TItem="Quest" Property="CompleteInHours" Title="Complete in" Width="100px" />
+			<RadzenDataGridColumn TItem="Quest" Property="StartDateTime" Title="Start" Width="100px">
+				<Template Context="quest">
+					@quest.CompleteDateTime.ToLocalTime().ToString("HH:mm:ss")
+				</Template>
+			</RadzenDataGridColumn>
+			<RadzenDataGridColumn TItem="Quest" Property="CompleteDateTime" Title="Complete" Width="100px">
+				<Template Context="quest">
+					@quest.CompleteDateTime.ToLocalTime().ToString("HH:mm:ss")
+				</Template>
+			</RadzenDataGridColumn>
+			<RadzenDataGridColumn TItem="Quest" Property="CompleteInHours" Title="Complete in" Width="100px">
+				<Template Context="quest">
+					@((quest.CompleteDateTime - DateTime.UtcNow).ToString(@"hh\:mm\:ss"))
+				</Template>
+			</RadzenDataGridColumn>
 			<RadzenDataGridColumn TItem="Quest" Property="" Title="Heroes" Width="100px">
 				<Template Context="quest">
 					@string.Join(", ", quest.Heroes)

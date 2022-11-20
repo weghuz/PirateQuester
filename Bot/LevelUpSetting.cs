@@ -3,8 +3,8 @@
 	public class LevelUpSetting
 	{
         public string HeroClass { get; set; }
-        public string MainAttribute { get; set; }
-		public string SecondaryAttribute { get; set; }
-		public string TertiaryAttribute { get; set; }
+        public byte MainAttribute { get; set; }
+		public byte SecondaryAttribute { get; set; }
+		public byte TertiaryAttribute { get; set; }
 	}
 }

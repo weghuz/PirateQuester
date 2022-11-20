@@ -22,10 +22,6 @@ public partial class Bot
         {
             Nav.NavigateTo("CreateAccount");
 		}
-        foreach (var bot in Bots.RunningBots)
-        {
-            bot.BotLogAdded += StateHasChanged;
-        }
+        Bots.UpdatedBot += StateHasChanged;
     }
-
 }

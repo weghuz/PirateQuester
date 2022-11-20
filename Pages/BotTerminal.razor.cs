@@ -12,8 +12,6 @@ namespace PirateQuester.Pages;
 public partial class BotTerminal
 {
 	[Inject]
-	DialogService Dialog { get; set; }
-	[Inject]
 	AccountManager Acc { get; set; }
 	[Inject]
 	NavigationManager Nav { get; set; }
@@ -26,15 +24,12 @@ public partial class BotTerminal
 
 	protected override void OnInitialized()
 	{
-		if(Bots.RunningBots.Count <= BotId + 1)
+        Bots.UpdatedBot += StateHasChanged;
+		if (Bots.RunningBots.Count < BotId + 1)
 		{
 			Nav.NavigateTo($"CreateAccount");
 			return;
 		}
-		Bots.RunningBots[BotId].BotLogAdded += () =>
-		{
-			StateHasChanged();
-		};
 		if (Acc.Accounts.Count == 0)
 		{
 			Nav.NavigateTo("CreateAccount");

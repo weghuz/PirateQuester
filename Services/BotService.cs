@@ -9,6 +9,8 @@ namespace PirateQuester.Services
 		public DFKBotSettings Settings { get; set; } = new();
 		public bool Running { get; set; } = false;
 		public AccountManager Acc { get; }
+		public delegate void BotUpdated();
+		public event BotUpdated UpdatedBot;
 		public BotService(AccountManager acc)
 		{
 			Acc = acc;
@@ -28,8 +30,11 @@ namespace PirateQuester.Services
 				bot.StopBot = true;
 			}
 		}
-
-		public void RunBots()
+		public void InvokeUpdates()
+		{
+			UpdatedBot?.Invoke();
+		}
+		public Task RunBots()
 		{
 			Running = true;
 			RunningBots = new List<DFKBot>();
@@ -41,12 +46,17 @@ namespace PirateQuester.Services
 				try
 				{
 					bot.StartBot(acc, Settings);
+					bot.BotLogAdded += InvokeUpdates;
+					bot.HeroesUpdated += InvokeUpdates;
 				}
 				catch (Exception e)
 				{
 					Console.WriteLine(e);
 				}
 			}
+			InvokeUpdates();
+			return Task.CompletedTask;
 		}
+
 	}
 }

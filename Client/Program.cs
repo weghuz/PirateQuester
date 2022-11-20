@@ -3,13 +3,12 @@ using DFKContracts.QuestCore;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
-using Nethereum.RPC.Fee1559Suggestions;
 using Nethereum.Web3;
 using PirateQuester.Bot;
 using PirateQuester.Services;
 using PirateQuester.Utils;
 using Radzen;
-using Utils;
+using DFKContracts.MeditationCircle;
 
 namespace PirateQuester
 {
@@ -24,6 +23,7 @@ namespace PirateQuester
 			builder.Services.AddSingleton(w3Service);
 			builder.Services.AddSingleton(new HeroCoreService(w3Service, "0xEb9B61B145D6489Be575D3603F4a704810e143dF"));
 			builder.Services.AddSingleton(new QuestCoreService(w3Service, "0xE9AbfBC143d7cef74b5b793ec5907fa62ca53154"));
+			builder.Services.AddSingleton(new MeditationCircleService(w3Service, "0xD507b6b299d9FC835a0Df92f718920D13fA49B47"));
 			builder.Services.AddScoped<DialogService>();
 			builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddSingleton(serviceProvider => (IJSInProcessRuntime)serviceProvider.GetRequiredService<IJSRuntime>());

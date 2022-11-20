@@ -20,6 +20,28 @@
 				<RadzenLabel Text="MaxGasFee (If your Max Fee is too low txns could get stuck during high traffic times. A high Max Fee doesn't take more fees unless the chain is clogged.)" Component="MaxGasFee" />
 				<RadzenNumeric Name="MaxGasFee" class="w-100 my-1" @bind-Value="@Bots.Settings.MaxGasFeeGwei" />
 			</div>
+			<div>
+				<RadzenLabel Text="Level Up" Component="LevelUp" /><br />
+				<RadzenCheckBox @bind-Value=@Bots.Settings.LevelUp Name="LevelUp">
+					Enable Levelup
+				</RadzenCheckBox>
+				@if(Bots.Settings.LevelUp)
+				{
+					<div class="row">
+						@foreach(string className in Constants.Classes)
+						{
+							<div class="col-md-4">
+								<RadzenCard class="m-2">
+									@(className) Levelup settings
+									<RadzenDropDown @bind-Value=@Bots.Settings.LevelUpSettings>
+
+									</RadzenDropDown>
+								</RadzenCard>
+							</div>
+						}
+					</div>
+				}
+			</div>
 		</div>
 		<div class="my-1 text-center">
 			<RadzenButton Text="Run Bots" ButtonType="ButtonType.Submit" Disabled="Bots.CheckRunning()" Click="@Bots.RunBots" />
