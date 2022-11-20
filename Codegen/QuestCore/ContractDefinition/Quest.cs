@@ -11,7 +11,10 @@ namespace DFKContracts.QuestCore.ContractDefinition
         }
 
         public BigInteger CompleteBlock { get; set; }
-    }
+		public DateTime StartDateTime { get; set; }
+
+		public DateTime CompleteDateTime { get; set; }
+	}
 
     public class QuestBase 
     {

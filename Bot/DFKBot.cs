@@ -22,7 +22,6 @@ public class DFKBot
     public DFKAccount Account { get; set; }
     public DFKBotSettings Settings { get; set; }
     public bool Exit {get;set;} = false;
-	public List<QueuedQuest> QuestQueue { get; set; } = new();
 
     public static void Log(string message)
     {
@@ -77,7 +76,7 @@ public class DFKBot
 	{
 		// Unix timestamp is seconds past epoch
 		DateTime dateTime = new(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-		dateTime = dateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+		dateTime = dateTime.AddSeconds(unixTimeStamp);
 		return dateTime;
 	}
 
@@ -97,7 +96,6 @@ public class DFKBot
 			try
 			{
 				var quests = (await Account.Quest.GetAccountActiveQuestsQueryAsync(Account.Account.Address)).ReturnValue1.DistinctBy(q => q.Id).ToList();
-				RunningQuests = quests;
 				return quests;
 			}
 			catch(Exception e)
@@ -110,87 +108,30 @@ public class DFKBot
 	}
 	public async Task Update()
     {
-		var quests = await GetUpdatedQuests();
 		await UpdateCurrentBlock();
-		foreach (Quest q in quests.OrderBy(quest => quest.Id))
+		var quests = await GetUpdatedQuests();
+		RunningQuests = new(quests);
+		foreach (Quest q in quests)
 		{
-			QuestContract questContract = ContractDefinitions.GetQuestContractFromAddress(q.QuestAddress);
-			List<Hero> heroes = new();
-			foreach (Hero h in Account.Heroes)
-			{
-				foreach (BigInteger id in q.Heroes)
-				{
-					var one = id.ToString();
-					var two = h.id;
-					if (one == two)
-					{
-						heroes.Add(h);
-						continue;
-					}
-				}
-			}
-			QueuedQuest queuedQuest = QuestQueue.FirstOrDefault(queuedQuest => queuedQuest.QuestId == q.Id);
-			if (queuedQuest is not null)
-			{
-				Log($"Check quest completion for {questContract.Name} Found Queued Quest: {CurrentBlock - BigIntToLong(q.StartBlock)} > {(ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * q.Attempts * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? 6 : 1) * queuedQuest.Queue)}");
-				q.CompleteBlock = BigIntToLong(q.StartBlock) + (ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * q.Attempts * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? 6 : 1) * queuedQuest.Queue);
-				if (CurrentBlock - BigIntToLong(q.StartBlock) > (ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * q.Attempts * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? 6 : 1) * queuedQuest.Queue))
-				{
-					try
-					{
-						Log($"Quest #{q.Id} {q.QuestName()} is ready to complete, completing...");
-						string okMessage = await new Transaction().CompleteQuest(Account, q.Heroes.First());
-						Log(okMessage);
-						quests.Remove(q);
-					}
-					catch (Exception e)
-					{
-						Log($"Queue estimation wrong, adding 5 cycles of blocks to queue +{(ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * q.Attempts * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? q.Heroes.Count : 1))}");
-						queuedQuest.Queue += 5;
-						Log(e.Message);
-					}
-				}
-			}
-			else
-			{
-				Log($"Check quest completion for {questContract.Name}: {CurrentBlock - BigIntToLong(q.StartBlock)} > {(ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? 6 : 1))}");
+			q.StartDateTime = UnixTimeStampToDateTime(BigIntToLong(q.StartAtTime));
+			q.CompleteDateTime = UnixTimeStampToDateTime(BigIntToLong(q.CompleteAtTime));
+			var questContract = ContractDefinitions.GetQuestContractFromAddress(q.QuestAddress);
 
-				q.CompleteBlock = BigIntToLong(q.StartBlock) + (ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? 6 : 1));
-				if (CurrentBlock - BigIntToLong(q.StartBlock) > (ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? 6 : 1))
-					|| CurrentBlock - BigIntToLong(q.StartBlock) > (long)12000)
+			if(DateTime.UtcNow > q.CompleteDateTime)
+			{
+				try
 				{
-					try
-					{
-						Log($"Quest #{q.Id} {q.QuestName()} is ready to complete, completing...");
-						string okMessage = await new Transaction().CompleteQuest(Account, q.Heroes.First());
-						Log(okMessage);
-						quests.Remove(q);
-					}
-					catch (Exception e)
-					{
-						if (e.Message.Contains("time"))
-						{
-							Log($"Quest wasn't complete, establishing new quest queue.");
-							List<Quest> questsToQueue = quests.Where(quest => quest.Id >= q.Id && quest.QuestAddress == q.QuestAddress).ToList();
-							foreach (Quest questToQueue in questsToQueue)
-							{
-								queuedQuest = new()
-								{
-									Contract = questContract,
-									QuestId = questToQueue.Id,
-									Queue = questsToQueue.IndexOf(questToQueue) + 2
-								};
-								QuestQueue.Add(queuedQuest);
-								quests.Remove(questToQueue);
-								questToQueue.CompleteBlock = BigIntToLong(questToQueue.StartBlock) + (ulong)(questContract.BlocksPerAttempt(heroes.FirstOrDefault()) * questToQueue.Attempts * (questContract.Category == "Fishing" || questContract.Category == "Foraging" ? questToQueue.Heroes.Count : 1) * queuedQuest.Queue);
-							}
-							continue;
-						}
-						Log(e.Message);
-					}
+					Log($"Quest #{q.Id} {q.QuestName()} is ready to complete, completing...");
+					string okMessage = await new Transaction().CompleteQuest(Account, q.Heroes.First());
+					Log(okMessage);
+					RunningQuests.RemoveAll(remQ => remQ.Id == q.Id);
+				}
+				catch (Exception e)
+				{
+					Log(e.Message);
 				}
 			}
-        }
+		}
 
 		List<DFKBotHero> readyHeroes = Account.BotHeroes
             .Where(h => h.Hero.StaminaCurrent() >= Settings.MinStamina
@@ -204,7 +145,6 @@ public class DFKBot
 			List<Hero> readyQuestHeroes = readyHeroes.Where(h =>
 				h.GetActiveQuest().Id == quest.Id)
 					.Select(h => h.Hero).ToList();
-			int questsOfType = quests.Where(currentQuest => currentQuest.QuestAddress == quest.Address).Count();
 			Log($"Found {readyQuestHeroes.Count} heroes ready to start {quest.Name}.");
             for(int i = 0; i <= readyQuestHeroes.Count; i+= quest.Category != "Gardening" ? 6 : 2)
 			{
@@ -226,13 +166,6 @@ public class DFKBot
 						heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
 						quest, maxAttempts);
 					Log(okMessage);
-					Log($"Queueing quest {quest.Name} #{questsOfType + 1}");
-					QuestQueue.Add(new(){
-						Contract = quest,
-						QuestId = quest.Id,
-						Queue = ++questsOfType
-					});
-
 				}
 				catch (Exception e)
 				{
