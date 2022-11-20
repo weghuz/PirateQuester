@@ -6,6 +6,7 @@ using PirateQuester.DFK.Contracts;
 using PirateQuester.Utils;
 using System.Numerics;
 using Utils;
+using Meditation = DFKContracts.MeditationCircle.ContractDefinition.Meditation;
 
 namespace PirateQuester.Bot;
 
@@ -33,7 +34,6 @@ public class DFKBot
             TimeStamp = DateTime.UtcNow
         });
         BotLogAdded?.Invoke();
-
 	}
 
     public async Task UpdateHeroes()
@@ -120,7 +120,7 @@ public class DFKBot
 				try
 				{
 					Log($"Quest #{q.Id} {q.QuestName()} is ready to complete, completing...");
-					string okMessage = await new Transaction().CompleteQuest(Account, q.Heroes.First());
+					string okMessage = await new Transaction().CompleteQuest(Account, q.Heroes.First(), Settings.MaxGasFeeGwei);
 					Log(okMessage);
 					RunningQuests.RemoveAll(remQ => remQ.Id == q.Id);
 				}
@@ -135,6 +135,62 @@ public class DFKBot
 		{
 			return;
 		}
+		if(Settings.LevelUp)
+		{
+			List<Meditation> activeMeditations = (await Account.Meditation.GetActiveMeditationsQueryAsync(Account.Account.Address)).ReturnValue1;
+			List<DFKBotHero> readyToLevelHeroes = Account.BotHeroes
+				.Where(h => h.Hero.xp >= h.Hero.XpToLevelUp()
+				&& h.Hero.currentQuest == ContractDefinitions.NULL_ADDRESS
+				&& h.Hero.StaminaCurrent() <= Settings.MinStamina
+				&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
+				.ToList();
+			Log($"{activeMeditations.Count} Active meditations.");
+			foreach (Meditation meditation in activeMeditations)
+			{
+				if(meditation.StartBlock <= CurrentBlock - 20)
+				{
+					DFKBotHero hero = Account.BotHeroes.FirstOrDefault(h => h.ID == meditation.HeroId);
+					Log($"Hero {hero.ID} is ready to complete meditating.\nCompleting Meditation...");
+					try
+					{
+						string okMessage = await new Transaction().CompleteMeditation(Account, hero.ID, Settings.MaxGasFeeGwei);
+						Log($"Hero {hero.ID} Leveled up from {hero.Hero.level} to {hero.Hero.level + 1}!");
+						Log(okMessage);
+					}
+					catch (Exception e)
+					{
+						Log(e.Message);
+					}
+				}
+			}
+
+			Log($"{readyToLevelHeroes.Count} heroes ready to level up.");
+			foreach (DFKBotHero h in readyToLevelHeroes)
+			{
+				Log($"Hero {h.ID} is ready to level up.\nStarting Meditation...");
+				LevelUpSetting setting = Settings.LevelUpSettings.FirstOrDefault(levelSetting => levelSetting.HeroClass == h.Hero.mainClass.ToLower());
+				if(setting is null)
+				{
+					Log($"Found no levelup settings for {h.Hero.mainClass}.");
+					continue;
+				}
+				try
+				{
+					string okMessage = await new Transaction().StartMeditation(Account, h.ID, setting.MainAttribute.Id, setting.SecondaryAttribute.Id, setting.TertiaryAttribute.Id, Settings.MaxGasFeeGwei);
+					Log($"Hero started meditating with Stat settings: \nMain(+1):{setting.MainAttribute.Name}\nSecondary(50%+1):{setting.SecondaryAttribute.Name}\nTertiary(50%+1):{setting.TertiaryAttribute.Name}!");
+					Log(okMessage);
+				}
+				catch (Exception e)
+				{
+					Log(e.Message);
+				}
+			}
+			if (StopBot)
+			{
+				return;
+			}
+		}
+
 		List<DFKBotHero> readyHeroes = Account.BotHeroes
             .Where(h => h.Hero.StaminaCurrent() >= Settings.MinStamina
             && h.Hero.currentQuest == ContractDefinitions.NULL_ADDRESS
@@ -166,7 +222,7 @@ public class DFKBot
 					Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => h.id))}.");
 					string okMessage = await new Transaction().StartQuest(Account,
 						heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
-						quest, maxAttempts);
+						quest, maxAttempts, Settings.MaxGasFeeGwei);
 					Log(okMessage);
 				}
 				catch (Exception e)

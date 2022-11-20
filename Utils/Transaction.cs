@@ -4,6 +4,7 @@ using DFK;
 using PirateQuester.Utils;
 using BigInteger = System.Numerics.BigInteger;
 using Nethereum.Web3;
+using DFKContracts.MeditationCircle.ContractDefinition;
 
 namespace Utils;
 
@@ -39,7 +40,121 @@ public class Transaction
 
 	public static event AddTransaction TransactionAdded;
 
-    public async Task<string> CompleteQuest(DFKAccount account, BigInteger heroId, int maxGasFeeGwei = 200)
+	public async Task<string> CompleteMeditation(DFKAccount account, BigInteger heroId, int maxGasFeeGwei = 200)
+	{
+		PendingTransaction pendingTransaction = new()
+		{
+			Name = $"Starting meditation For: {heroId}",
+			TimeStamp = DateTime.UtcNow,
+		};
+		PendingTransactions.Add(pendingTransaction);
+		TransactionAdded?.Invoke();
+		try
+		{
+			var handler = account.Signer.Eth.GetContractTransactionHandler<CompleteMeditationFunction>();
+			var completeMeditationFunc = new CompleteMeditationFunction()
+			{
+				HeroId = heroId,
+				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
+				MaxPriorityFeePerGas = 0
+			};
+			var gas = await handler.EstimateGasAsync(account.Meditation.ContractHandler.ContractAddress, completeMeditationFunc);
+			Console.WriteLine($"Estimated Gas: {gas}");
+
+			var receipt = await account.Meditation.CompleteMeditationRequestAndWaitForReceiptAsync(completeMeditationFunc);
+			Console.WriteLine($"Complete Meditation Txn: Gas: {receipt.GasUsed.Value}");
+			PendingTransactions.Remove(pendingTransaction);
+			FinishedTransactions.Add(new()
+			{
+				Name = $"Completed meditation For Hero: {heroId}",
+				TimeStamp = DateTime.UtcNow,
+				TransactionHash = receipt.TransactionHash,
+			});
+			TransactionAdded?.Invoke();
+			if (receipt.Status == new BigInteger(1))
+			{
+				return $"Completed Meditating.\nTxn hash: {receipt.TransactionHash}";
+			}
+			else
+			{
+				return $"Completed Meditating.\nTxn hash: {receipt.TransactionHash}";
+			}
+		}
+		catch (Exception e)
+		{
+			FinishedTransactions.Add(new()
+			{
+				Success = false,
+				Name = $"Failed to completed meditating: {e.Message}",
+				TimeStamp = DateTime.UtcNow,
+				TransactionHash = null
+			});
+			Console.WriteLine($"{e.Message}");
+			PendingTransactions.Remove(pendingTransaction);
+			TransactionAdded?.Invoke();
+			throw;
+		}
+	}
+	public async Task<string> StartMeditation(DFKAccount account, BigInteger heroId, byte stat1, byte stat2, byte stat3, int maxGasFeeGwei = 200)
+	{
+		PendingTransaction pendingTransaction = new()
+		{
+			Name = $"Starting meditation For: {heroId}",
+			TimeStamp = DateTime.UtcNow,
+		};
+		PendingTransactions.Add(pendingTransaction);
+		TransactionAdded?.Invoke();
+		try
+		{
+			var handler = account.Signer.Eth.GetContractTransactionHandler<StartMeditationFunction>();
+			var startMeditationFunc = new StartMeditationFunction()
+			{
+				AttunementCrystal = ContractDefinitions.NULL_ADDRESS,
+				HeroId = heroId,
+				PrimaryStat = stat1,
+				SecondaryStat = stat2,
+				TertiaryStat = stat3,
+				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
+				MaxPriorityFeePerGas = 0
+			};
+			var gas = await handler.EstimateGasAsync(account.Meditation.ContractHandler.ContractAddress, startMeditationFunc);
+			Console.WriteLine($"Estimated Gas: {gas}");
+
+			var receipt = await account.Meditation.StartMeditationRequestAndWaitForReceiptAsync(startMeditationFunc);
+			Console.WriteLine($"Started Meditation Txn: Gas: {receipt.GasUsed.Value}");
+			PendingTransactions.Remove(pendingTransaction);
+			FinishedTransactions.Add(new()
+			{
+				Name = $"Started meditation For Hero: {heroId}",
+				TimeStamp = DateTime.UtcNow,
+				TransactionHash = receipt.TransactionHash,
+			});
+			TransactionAdded?.Invoke();
+			if (receipt.Status == new BigInteger(1))
+			{
+				return $"Started Meditating.\nTxn hash: {receipt.TransactionHash}";
+			}
+			else
+			{
+				return $"Started Meditating.\nTxn hash: {receipt.TransactionHash}";
+			}
+		}
+		catch (Exception e)
+		{
+			FinishedTransactions.Add(new()
+			{
+				Success = false,
+				Name = $"Failed to start meditating: {e.Message}",
+				TimeStamp = DateTime.UtcNow,
+				TransactionHash = null
+			});
+			Console.WriteLine($"{e.Message}");
+			PendingTransactions.Remove(pendingTransaction);
+			TransactionAdded?.Invoke();
+			throw;
+		}
+	}
+	public async Task<string> CompleteQuest(DFKAccount account, BigInteger heroId, int maxGasFeeGwei = 200)
 	{
 		PendingTransaction pendingTransaction = new()
 		{
@@ -73,7 +188,7 @@ public class Transaction
 			TransactionAdded?.Invoke();
 			if(receipt.Status == new BigInteger(1))
 			{
-				return $"Completed Quest.\nTxn hash: {receipt.TransactionHash}";
+				return $"Completed Quests.\nTxn hash: {receipt.TransactionHash}";
 			}
 			else
 			{

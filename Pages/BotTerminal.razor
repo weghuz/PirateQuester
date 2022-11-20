@@ -34,7 +34,7 @@
 			</RadzenDataGridColumn>
 			<RadzenDataGridColumn TItem="Quest" Property="StartDateTime" Title="Start" Width="100px">
 				<Template Context="quest">
-					@quest.CompleteDateTime.ToLocalTime().ToString("HH:mm:ss")
+					@quest.StartDateTime.ToLocalTime().ToString("HH:mm:ss")
 				</Template>
 			</RadzenDataGridColumn>
 			<RadzenDataGridColumn TItem="Quest" Property="CompleteDateTime" Title="Complete" Width="100px">

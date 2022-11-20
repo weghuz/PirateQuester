@@ -21,21 +21,61 @@
 				<RadzenNumeric Name="MaxGasFee" class="w-100 my-1" @bind-Value="@Bots.Settings.MaxGasFeeGwei" />
 			</div>
 			<div>
-				<RadzenLabel Text="Level Up" Component="LevelUp" /><br />
-				<RadzenCheckBox @bind-Value=@Bots.Settings.LevelUp Name="LevelUp">
-					Enable Levelup
-				</RadzenCheckBox>
+				<div class="text-center my-2" style="font-size:12px;">
+					<RadzenLabel Text="Level Up" Component="LevelUp" /><br />
+					<RadzenCheckBox @bind-Value=@Bots.Settings.LevelUp Name="LevelUp">
+						Enable Levelup
+					</RadzenCheckBox>
+				</div>
 				@if(Bots.Settings.LevelUp)
 				{
 					<div class="row">
-						@foreach(string className in Constants.Classes)
+						@foreach (string mainClass in Constants.Classes)
 						{
+							var suggested = Bots.Settings.SuggestedLevelUpSettings.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower());
+							var valueAttribute = Bots.Settings.LevelUpSettings.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower());
+							valueAttribute = suggested;
+							if(suggested is null)
+							{
+								Console.WriteLine(suggested.HeroClass);
+								continue;
+							}
+							
+							<RadzenText TextStyle="TextStyle.H6" class="text-center">@(mainClass) Levelup settings</RadzenText>
 							<div class="col-md-4">
 								<RadzenCard class="m-2">
-									@(className) Levelup settings
-									<RadzenDropDown @bind-Value=@Bots.Settings.LevelUpSettings>
-
-									</RadzenDropDown>
+									<RadzenText Text="Main (+1)" class="text-center" />
+									<RadzenDropDown TValue="DFKStat"
+									   Data="@Constants.DFKStats"
+									   AllowClear="false"
+									   TextProperty="Name"
+									   class="w-100"
+									   Value=@valueAttribute.MainAttribute
+									   Change="((value) => {valueAttribute.MainAttribute = value as DFKStat;})" />
+								</RadzenCard>
+							</div>
+							<div class="col-md-4">
+								<RadzenCard class="m-2">
+									<RadzenText Text="Secondary (50% +1)" class="text-center" />
+									<RadzenDropDown TValue="DFKStat"
+									   Data="@Constants.DFKStats"
+									   TextProperty="Name"
+									   AllowClear="false"
+									   class="w-100"
+									   Value=@valueAttribute.SecondaryAttribute
+									   Change="((value) => {valueAttribute.SecondaryAttribute = value as DFKStat;})" />
+								</RadzenCard>
+							</div>
+							<div class="col-md-4">
+								<RadzenCard class="m-2">
+									<RadzenText Text="Secondary (50% +1)" class="text-center" />
+									<RadzenDropDown TValue="DFKStat"
+									   Data="@Constants.DFKStats"
+									   TextProperty="Name"
+									   AllowClear="false"
+									   class="w-100"
+									   Value=@valueAttribute.TertiaryAttribute
+									   Change="((value) => {valueAttribute.TertiaryAttribute = value as DFKStat;})" />
 								</RadzenCard>
 							</div>
 						}

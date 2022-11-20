@@ -1,4 +1,5 @@
 ﻿using DFK;
+using PirateQuester.Utils;
 
 namespace PirateQuester.Bot
 {
@@ -7,80 +8,134 @@ namespace PirateQuester.Bot
         public int UpdateInterval { get; set; } = 180;
         public int MinStamina { get; set; } = 20;
         public int MaxGasFeeGwei { get; set; } = 200;
-        public bool LevelUp { get; set; } = false;
+        public bool LevelUp { get; set; } = true;
 		public List<LevelUpSetting> LevelUpSettings { get; set; } = new()
 		{
 			new()
 			{
-				HeroClass = "warrior"
+				HeroClass = "warrior",
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[1],
+				TertiaryAttribute = Constants.DFKStats[3],
 			},
 			new()
 			{
-				HeroClass = "knight"
+				HeroClass = "knight",
+				MainAttribute = Constants.DFKStats[3],
+				SecondaryAttribute = Constants.DFKStats[4],
+				TertiaryAttribute = Constants.DFKStats[0],
 			},
 			new()
 			{
-				HeroClass = "thief"
+				HeroClass = "thief",
+				MainAttribute = Constants.DFKStats[2],
+				SecondaryAttribute = Constants.DFKStats[7],
+				TertiaryAttribute = Constants.DFKStats[1],
 			},
 			new()
 			{
-				HeroClass = "archer"
+				HeroClass = "archer",
+				MainAttribute = Constants.DFKStats[1],
+				SecondaryAttribute = Constants.DFKStats[4],
+				TertiaryAttribute = Constants.DFKStats[0],
 			},
 			new()
 			{
-				HeroClass = "pirate"
+				HeroClass = "pirate",
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[1],
+				TertiaryAttribute = Constants.DFKStats[3],
 			},
 			new()
 			{
-				HeroClass = "monk"
+				HeroClass = "monk",
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[2],
+				TertiaryAttribute = Constants.DFKStats[3],
 			},
 			new()
 			{
-				HeroClass = "priest"
+				HeroClass = "priest",
+				MainAttribute = Constants.DFKStats[6],
+				SecondaryAttribute = Constants.DFKStats[5],
+				TertiaryAttribute = Constants.DFKStats[4],
 			},
 			new()
 			{
-				HeroClass = "priest"
+				HeroClass = "wizard",
+				MainAttribute = Constants.DFKStats[5],
+				SecondaryAttribute = Constants.DFKStats[6],
+				TertiaryAttribute = Constants.DFKStats[3],
 			},
 			new()
 			{
-				HeroClass = "wizard"
+				HeroClass = "seer",
+				MainAttribute = Constants.DFKStats[6],
+				SecondaryAttribute = Constants.DFKStats[5],
+				TertiaryAttribute = Constants.DFKStats[2],
 			},
 			new()
 			{
-				HeroClass = "seer"
+				HeroClass = "berserker",
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[3],
+				TertiaryAttribute = Constants.DFKStats[1],
 			},
 			new()
 			{
-				HeroClass = "berserker"
+				HeroClass = "paladin",
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[3],
+				TertiaryAttribute = Constants.DFKStats[4],
 			},
 			new()
 			{
-				HeroClass = "paladin"
+				HeroClass = "darkknight",
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[3],
+				TertiaryAttribute = Constants.DFKStats[5],
 			},
 			new()
 			{
-				HeroClass = "darkknight"
+				HeroClass = "ninja",
+				MainAttribute = Constants.DFKStats[2],
+				SecondaryAttribute = Constants.DFKStats[1],
+				TertiaryAttribute = Constants.DFKStats[7],
 			},
 			new()
 			{
-				HeroClass = "ninja"
+				HeroClass = "summoner",
+				MainAttribute = Constants.DFKStats[5],
+				SecondaryAttribute = Constants.DFKStats[6],
+				TertiaryAttribute = Constants.DFKStats[3],
 			},
 			new()
 			{
-				HeroClass = "summoner"
+				HeroClass = "shapeshifter",
+				MainAttribute = Constants.DFKStats[2],
+				SecondaryAttribute = Constants.DFKStats[1],
+				TertiaryAttribute = Constants.DFKStats[3],
 			},
 			new()
 			{
-				HeroClass = "shapeshifter"
+				HeroClass = "dragoon",
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[1],
+				TertiaryAttribute = Constants.DFKStats[2],
 			},
 			new()
 			{
-				HeroClass = "dragoon"
+				HeroClass = "sage",
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[4],
+				TertiaryAttribute = Constants.DFKStats[1],
 			},
 			new()
 			{
-				HeroClass = "dreadknight"
+				HeroClass = "dreadknight",
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[1],
+				TertiaryAttribute = Constants.DFKStats[4],
 			},
 		};
         public List<LevelUpSetting> SuggestedLevelUpSettings { get; set; } = new()
@@ -88,128 +143,128 @@ namespace PirateQuester.Bot
 			new()
 			{
 				HeroClass = "warrior",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[1],
+				TertiaryAttribute = Constants.DFKStats[3],
 			},
 			new()
 			{
 				HeroClass = "knight",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[3],
+				SecondaryAttribute = Constants.DFKStats[4],
+				TertiaryAttribute = Constants.DFKStats[0],
 			},
 			new()
 			{
 				HeroClass = "thief",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[2],
+				SecondaryAttribute = Constants.DFKStats[7],
+				TertiaryAttribute = Constants.DFKStats[1],
 			},
 			new()
 			{
 				HeroClass = "archer",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[1],
+				SecondaryAttribute = Constants.DFKStats[4],
+				TertiaryAttribute = Constants.DFKStats[0],
 			},
 			new()
 			{
 				HeroClass = "pirate",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[1],
+				TertiaryAttribute = Constants.DFKStats[3],
 			},
 			new()
 			{
 				HeroClass = "monk",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[2],
+				TertiaryAttribute = Constants.DFKStats[3],
 			},
 			new()
 			{
 				HeroClass = "priest",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
-			},
-			new()
-			{
-				HeroClass = "priest",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[6],
+				SecondaryAttribute = Constants.DFKStats[5],
+				TertiaryAttribute = Constants.DFKStats[4],
 			},
 			new()
 			{
 				HeroClass = "wizard",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[5],
+				SecondaryAttribute = Constants.DFKStats[6],
+				TertiaryAttribute = Constants.DFKStats[3],
 			},
 			new()
 			{
 				HeroClass = "seer",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[6],
+				SecondaryAttribute = Constants.DFKStats[5],
+				TertiaryAttribute = Constants.DFKStats[2],
 			},
 			new()
 			{
 				HeroClass = "berserker",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[3],
+				TertiaryAttribute = Constants.DFKStats[1],
 			},
 			new()
 			{
 				HeroClass = "paladin",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[3],
+				TertiaryAttribute = Constants.DFKStats[4],
 			},
 			new()
 			{
 				HeroClass = "darkknight",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[3],
+				TertiaryAttribute = Constants.DFKStats[5],
 			},
 			new()
 			{
 				HeroClass = "ninja",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[2],
+				SecondaryAttribute = Constants.DFKStats[1],
+				TertiaryAttribute = Constants.DFKStats[7],
 			},
 			new()
 			{
 				HeroClass = "summoner",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[5],
+				SecondaryAttribute = Constants.DFKStats[6],
+				TertiaryAttribute = Constants.DFKStats[3],
 			},
 			new()
 			{
 				HeroClass = "shapeshifter",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[2],
+				SecondaryAttribute = Constants.DFKStats[1],
+				TertiaryAttribute = Constants.DFKStats[3],
 			},
 			new()
 			{
 				HeroClass = "dragoon",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[1],
+				TertiaryAttribute = Constants.DFKStats[2],
+			},
+			new()
+			{
+				HeroClass = "sage",
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[4],
+				TertiaryAttribute = Constants.DFKStats[1],
 			},
 			new()
 			{
 				HeroClass = "dreadknight",
-				MainAttribute = 0,
-				SecondaryAttribute = 1,
-				TertiaryAttribute = 2,
+				MainAttribute = Constants.DFKStats[0],
+				SecondaryAttribute = Constants.DFKStats[1],
+				TertiaryAttribute = Constants.DFKStats[4],
 			},
 		};
     }

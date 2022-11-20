@@ -7,6 +7,43 @@ using System.Numerics;
 namespace DFK;
 public class Hero
 {
+    public int XpToLevelUp()
+    {
+        int xpNeeded = 0;
+        var nextLevel = level + 1;
+        if(nextLevel < 6)
+		{
+			xpNeeded = nextLevel * 1000;
+		}
+        else if(nextLevel < 9)
+		{
+			xpNeeded = 4000 + (nextLevel - 5) * 2000;
+		}
+        else if(level < 16)
+		{
+            xpNeeded = 12000 + (nextLevel - 9) * 4000;
+
+		}
+		else if (level < 36)
+		{
+			xpNeeded = 40000 + (nextLevel - 16) * 5000;
+		}
+		else if (level < 56)
+		{
+            xpNeeded = 140000 + (nextLevel - 36) * 7500;
+		}
+		else if (level > 56)
+		{
+            xpNeeded = 290000 + (nextLevel - 56) * 10000;
+		}
+        else
+        {
+            xpNeeded = 0;
+        }
+        return xpNeeded;
+	}
+
+
     public void UpdateHeroValues(Hero h)
     {
         staminaFullAt = h.staminaFullAt;

@@ -28,7 +28,7 @@ namespace PirateQuester.Utils
 			{
 				{ HeroesArgument.owner, Account.Address }
 			};
-			string request = API.HeroesRequestBuilder(args, "id owner {id name} rarity generation firstName lastName mainClass subClass staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina profession statBoost1 statBoost2 salePrice");
+			string request = API.HeroesRequestBuilder(args, "id owner {id name} rarity generation firstName lastName mainClass subClass staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina profession statBoost1 statBoost2 salePrice xp");
 			Heroes = (await API.GetHeroes(request)).ToList();
 			BotHeroes = new();
 			foreach(Hero h in Heroes)
@@ -45,7 +45,7 @@ namespace PirateQuester.Utils
             {
                 { HeroesArgument.owner, Account.Address }
             };
-            string request = API.HeroesRequestBuilder(args, "id staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina salePrice");
+            string request = API.HeroesRequestBuilder(args, "id staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina salePrice xp");
 			List<Hero> updates = (await API.GetHeroes(request)).ToList();
 			foreach(Hero h in updates)
 			{
@@ -67,6 +67,7 @@ namespace PirateQuester.Utils
 			Signer.TransactionManager.UseLegacyAsDefault = true;
 			Quest = new QuestCoreService(Signer, "0xE9AbfBC143d7cef74b5b793ec5907fa62ca53154");
 			Hero = new HeroCoreService(Signer, "0xEb9B61B145D6489Be575D3603F4a704810e143dF");
+			Meditation = new DFKContracts.MeditationCircle.MeditationCircleService(Signer, "0xD507b6b299d9FC835a0Df92f718920D13fA49B47");
 		}
 
 		private decimal balance;
@@ -74,7 +75,8 @@ namespace PirateQuester.Utils
         public Web3 Signer { get; set; }
         public HeroCoreService Hero { get; set; }
         public QuestCoreService Quest { get; set; }
-		public Account Account { get; set; }
+        public DFKContracts.MeditationCircle.MeditationCircleService Meditation { get; set; }
+        public Account Account { get; set; }
         public string Name { get; set; }
         public List<Hero> Heroes { get; set; }
 		public List<DFKBotHero> BotHeroes { get; set; }

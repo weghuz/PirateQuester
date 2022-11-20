@@ -33,13 +33,12 @@ public partial class Login
 		}
 		if (await Acc.Login(Model))
 		{
-			Nav.NavigateTo("Accounts");
+			Nav.NavigateTo("Bot");
 		}
 		else
 		{
 			LoggingIn = false;
 		}
-
 	}
 
 	List<string> GetLoggedOutAccountNames()
