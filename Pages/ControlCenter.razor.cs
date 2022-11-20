@@ -9,6 +9,7 @@ using Microsoft.JSInterop;
 using Utils;
 using System.Numerics;
 using PirateQuester.Bot;
+using PirateQuester.Services;
 
 namespace PirateQuester.Pages;
 
@@ -23,10 +24,10 @@ public partial class ControlCenter
 	public IJSInProcessRuntime JS { get; set; }
 	[Inject]
 	public DialogService Dialog { get; set; }
+	[Inject]
+	public BotService Bots { get; set; }
 	public List<DFKBotHero> TableHeroes { get; set; } = new();
-
 	public string SelectedQuestName { get; set; }
-
 
     bool Loading = false;
 	IList<DFKBotHero> SelectedHeroes = new List<DFKBotHero>();
@@ -39,9 +40,9 @@ public partial class ControlCenter
 		{
 			Nav.NavigateTo("CreateAccount");
 		}
-		DFKBot.HeroesUpdated += () =>
+		foreach(DFKBot bot in Bots.RunningBots)
 		{
-			StateHasChanged();
+			bot.HeroesUpdated += StateHasChanged;
 		};
 	}
 

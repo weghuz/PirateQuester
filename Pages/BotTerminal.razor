@@ -1,0 +1,65 @@
+﻿@page "/BotTerminal/{BotId:int}"
+@using DFKContracts.QuestCore.ContractDefinition;
+@using PirateQuester.Bot;
+@using PirateQuester.Components
+@using PirateQuester.Utils;
+
+<BotTerminalNavigation />
+@if (Bots.RunningBots.Count() >= BotId + 1)
+{
+	<PageTitle>Bot Terminal @BotId</PageTitle>
+	<RadzenText TextStyle="TextStyle.H5">
+		Bot Terminal @BotId
+	</RadzenText>
+	<RadzenDataGrid Data="@Bots.RunningBots[BotId].RunningQuests"
+		TItem="Quest"
+		@ref="RunningQuestsGrid"
+		AllowPaging="true"
+		AllowSorting="true"
+		AllowColumnReorder="true"
+		AllowColumnResize="true"
+		AllowFiltering="true"
+		ShowPagingSummary="true"
+		ColumnWidth="100px"
+		PagerHorizontalAlign="HorizontalAlign.Center"
+		PageSize="15"
+		Style="max-height:400px;"
+		PagingSummaryFormat="@Constants.PagingSummaryFormat">
+		<Columns>
+			<RadzenDataGridColumn TItem="Quest" Property="Player" Title="Account" Width="100px" />
+			<RadzenDataGridColumn TItem="Quest" Property="" Title="Quest" Width="100px">
+				<Template Context="quest">
+					@quest.QuestName()
+				</Template>
+			</RadzenDataGridColumn>
+			<RadzenDataGridColumn TItem="Quest" Property="StartDateTime" Title="Start" Width="200px" />
+			<RadzenDataGridColumn TItem="Quest" Property="CompleteDateTime" Title="Complete" Width="200px" />
+			<RadzenDataGridColumn TItem="Quest" Property="CompleteInHours" Title="Complete in" Width="100px" />
+			<RadzenDataGridColumn TItem="Quest" Property="" Title="Heroes" Width="100px">
+				<Template Context="quest">
+					@string.Join(", ", quest.Heroes)
+				</Template>
+			</RadzenDataGridColumn>
+			<RadzenDataGridColumn TItem="Quest" Property="Attempts" Title="Attempts" Width="100px" />
+		</Columns>
+	</RadzenDataGrid>
+	<RadzenCard class="my-1"
+	   Style="background-color:var(--rz-black);
+	color:var(--rz-success);
+	height:500px;
+	overflow:auto;">
+		@if (Bots.RunningBots is null)
+		{
+			<span>No running bot</span>
+		}
+		else
+		{
+			foreach (DFKBotLogMessage msg in Bots.RunningBots[BotId].DFKBotLog.OrderByDescending(l => l.Id))
+			{
+				<span class="mr-2">@msg.TimeStamp</span>
+				<span>@msg.Message</span>
+				<br />
+			}
+		}
+	</RadzenCard>
+}

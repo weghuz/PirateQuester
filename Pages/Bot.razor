@@ -1,82 +1,29 @@
 ﻿@page "/Bot"
 @using DFKContracts.QuestCore.ContractDefinition;
 @using PirateQuester.Bot;
+@using PirateQuester.Components
 @using PirateQuester.Utils;
 <PageTitle>PQ - Bot</PageTitle>
-
-<RadzenDataGrid Data="@DFKBot.RunningQuests"
-	TItem="Quest"
-	@ref="RunningQuestsGrid"
-	AllowPaging="true"
-	AllowSorting="true"
-	AllowColumnReorder="true"
-	AllowColumnResize="true"
-	AllowFiltering="true"
-	ShowPagingSummary="true"
-	ColumnWidth="100px"
-	PagerHorizontalAlign="HorizontalAlign.Center"
-	PageSize="15"
-	Style="max-height:400px;"
-	PagingSummaryFormat="@Constants.PagingSummaryFormat">
-	<Columns>
-		<RadzenDataGridColumn TItem="Quest" Property="Player" Title="Account" Width="100px" />
-		<RadzenDataGridColumn TItem="Quest" Property="" Title="Quest" Width="100px">
-			<Template Context="quest">
-				@quest.QuestName()
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="Quest" Property="StartDateTime" Title="Start" Width="200px" />
-		<RadzenDataGridColumn TItem="Quest" Property="CompleteDateTime" Title="Complete" Width="200px" />
-		<RadzenDataGridColumn TItem="Quest" Property="" Title="Complete in" Width="100px">
-			<Template Context="quest">
-				@Math.Round((quest.CompleteDateTime - DateTime.UtcNow).TotalHours, 2)Hours
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="Quest" Property="" Title="Heroes" Width="100px">
-			<Template Context="quest">
-				@string.Join(", ", quest.Heroes)
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="Quest" Property="Attempts" Title="Attempts" Width="100px" />
-	</Columns>
-</RadzenDataGrid>
-<RadzenCard class="my-1"
-Style="background-color:var(--rz-black);
-color:var(--rz-success); 
-height:500px;
-overflow:auto;">
-	@if(RunningBots is null)
-	{
-		<span>No running bot</span>
-	}
-	else
-	{
-		foreach (DFKBotLogMessage msg in DFKBot.DFKBotLog.OrderByDescending(l => l.Id))
-		{
-			<span class="mr-2">@msg.TimeStamp</span>
-			<span>@msg.Message</span>
-			<br />
-		}
-	}
-</RadzenCard>
+<BotTerminalNavigation />
 <RadzenCard class="my-1">
-	<EditForm Model="Settings">
+	<EditForm Model="Bots.Settings">
 		<div class="row">
 			<div class="col-md-4">
 				<RadzenLabel Text="Update Frequency (Seconds)" Component="UpdateInterval" />
-				<RadzenNumeric Name="UpdateInterval" class="w-100 my-1" @bind-Value=@Settings.UpdateInterval />
+				<RadzenNumeric Name="UpdateInterval" class="w-100 my-1" @bind-Value=@Bots.Settings.UpdateInterval />
 			</div>
 			<div class="col-md-4">
 				<RadzenLabel Text="Min Stamina to Quest" Component="MinStamina" />
-				<RadzenNumeric Name="MinStamina" class="w-100 my-1" @bind-Value="@Settings.MinStamina" />
+				<RadzenNumeric Name="MinStamina" class="w-100 my-1" @bind-Value="@Bots.Settings.MinStamina" />
 			</div>
 			<div class="col-md-4">
 				<RadzenLabel Text="MaxGasFee (If your Max Fee is too low txns could get stuck during high traffic times. A high Max Fee doesn't take more fees unless the chain is clogged.)" Component="MaxGasFee" />
-				<RadzenNumeric Name="MaxGasFee" class="w-100 my-1" @bind-Value="@Settings.MaxGasFeeGwei" />
+				<RadzenNumeric Name="MaxGasFee" class="w-100 my-1" @bind-Value="@Bots.Settings.MaxGasFeeGwei" />
 			</div>
 		</div>
 		<div class="my-1 text-center">
-			<RadzenButton Text="Run Bot" ButtonType="ButtonType.Submit" Disabled="Running" Click="@RunBot" />
+			<RadzenButton Text="Run Bots" ButtonType="ButtonType.Submit" Disabled="Bots.CheckRunning()" Click="@Bots.RunBots" />
+			<RadzenButton Text="Stop Bots" ButtonType="ButtonType.Submit" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" Click="@Bots.StopBots" />
 		</div>
 	</EditForm>
 </RadzenCard>

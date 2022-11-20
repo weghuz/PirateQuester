@@ -11,22 +11,22 @@ namespace PirateQuester.Bot;
 
 public class DFKBot
 {
-	public static List<DFKBotLogMessage> DFKBotLog = new();
-	public static List<Quest> RunningQuests = new();
-	public static ulong CurrentBlock { get; set; }
+	public List<DFKBotLogMessage> DFKBotLog = new();
+	public List<Quest> RunningQuests = new();
+	public ulong CurrentBlock { get; set; }
 	public delegate void AddBotLog();
 	public delegate void UpdatedHeroes();
 
-    public static event UpdatedHeroes HeroesUpdated;
-	public static event AddBotLog BotLogAdded;
+    public event UpdatedHeroes HeroesUpdated;
+	public event AddBotLog BotLogAdded;
     public DFKAccount Account { get; set; }
     public DFKBotSettings Settings { get; set; }
-    public bool Exit {get;set;} = false;
-
-    public static void Log(string message)
+    public bool StopBot { get; set; }
+	public bool IsRunning { get; set; } = false;
+    public void Log(string message)
     {
         Console.WriteLine(message);
-        DFKBotLog.Add(new()
+		DFKBotLog.Add(new()
         {
             Id = DFKBotLog.Count + 1,
             Message = message + "\n",
@@ -43,16 +43,12 @@ public class DFKBot
         HeroesUpdated?.Invoke();
 	}
 
-    public void StopBot()
-    {
-        Exit = true;
-    }
-
     public async void StartBot(DFKAccount account, DFKBotSettings settings)
 	{
+		IsRunning = true;
 		Account = account;
         Settings = settings;
-		Exit = false;
+		Log($"Bot added for account {account.Account.Address}!");
 		Log("Welcome to Pirate Quester Bot V0.1!");
 		Log("Booting up...");
 		Log($"Interval: {Settings.UpdateInterval}");
@@ -60,14 +56,16 @@ public class DFKBot
 		{
 			await UpdateHeroes();
 			await Update();
-            if (Exit)
+            if (StopBot)
                 break;
             await Task.Delay(Settings.UpdateInterval * 1000);
-			if (Exit)
+			if (StopBot)
 				break;
 		}
-        Log("Bot stopped...");
+		IsRunning = false;
+		Log($"Bot for account {account.Account.Address} stopped...");
 	}
+
     public static ulong UnixTime()
     {
         return (ulong)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -133,6 +131,10 @@ public class DFKBot
 			}
 		}
 
+		if (StopBot)
+		{
+			return;
+		}
 		List<DFKBotHero> readyHeroes = Account.BotHeroes
             .Where(h => h.Hero.StaminaCurrent() >= Settings.MinStamina
             && h.Hero.currentQuest == ContractDefinitions.NULL_ADDRESS

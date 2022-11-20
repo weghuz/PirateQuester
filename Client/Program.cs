@@ -6,6 +6,7 @@ using Microsoft.JSInterop;
 using Nethereum.RPC.Fee1559Suggestions;
 using Nethereum.Web3;
 using PirateQuester.Bot;
+using PirateQuester.Services;
 using PirateQuester.Utils;
 using Radzen;
 using Utils;
@@ -29,6 +30,7 @@ namespace PirateQuester
             builder.Services.AddSingleton(serviceProvider => (IJSUnmarshalledRuntime)serviceProvider.GetRequiredService<IJSRuntime>());
             builder.Services.AddSingleton<AccountManager>();
             builder.Services.AddSingleton<DFKBot>();
+            builder.Services.AddSingleton<BotService>();
 
             await builder.Build().RunAsync();
         }

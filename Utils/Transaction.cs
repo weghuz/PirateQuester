@@ -73,7 +73,7 @@ public class Transaction
 			TransactionAdded?.Invoke();
 			if(receipt.Status == new BigInteger(1))
 			{
-				return $"Completed Quests.\nTxn hash: {receipt.TransactionHash}";
+				return $"Completed Quest.\nTxn hash: {receipt.TransactionHash}";
 			}
 			else
 			{
