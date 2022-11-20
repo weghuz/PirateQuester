@@ -183,6 +183,10 @@ public class DFKBot
 				catch (Exception e)
 				{
 					Log(e.Message);
+					if(e.Message.Contains("burn"))
+					{
+						break;
+					}
 				}
 			}
 			if (StopBot)
