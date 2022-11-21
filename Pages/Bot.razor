@@ -7,6 +7,10 @@
 <BotTerminalNavigation />
 <RadzenCard class="my-1">
 	<EditForm Model="Bots.Settings">
+		<div class="my-1 text-center">
+			<RadzenButton Text="Run Bots" ButtonType="ButtonType.Submit" Disabled="Bots.CheckRunning()" Click="@Bots.RunBots" />
+			<RadzenButton Text="Stop Bots" ButtonType="ButtonType.Submit" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" Click="@Bots.StopBots" />
+		</div>
 		<div class="row">
 			<div class="col-md-4">
 				<RadzenLabel Text="Update Frequency (Seconds)" Component="UpdateInterval" />
@@ -82,10 +86,6 @@
 					</div>
 				}
 			</div>
-		</div>
-		<div class="my-1 text-center">
-			<RadzenButton Text="Run Bots" ButtonType="ButtonType.Submit" Disabled="Bots.CheckRunning()" Click="@Bots.RunBots" />
-			<RadzenButton Text="Stop Bots" ButtonType="ButtonType.Submit" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" Click="@Bots.StopBots" />
 		</div>
 	</EditForm>
 </RadzenCard>

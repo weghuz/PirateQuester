@@ -1,7 +1,5 @@
 ﻿using DFK;
 using DFKContracts.QuestCore.ContractDefinition;
-using Nethereum.Web3;
-using Org.BouncyCastle.Asn1.Cmp;
 using PirateQuester.DFK.Contracts;
 using PirateQuester.Utils;
 using System.Numerics;
@@ -52,7 +50,11 @@ public class DFKBot
 		Log("Welcome to Pirate Quester Bot V0.1!");
 		Log("Booting up...");
 		Log($"Interval: {Settings.UpdateInterval}");
-        while(true)
+
+		//var transferEventLogs = new List<EventLog<QuestRewardEventDTO>>();
+		//account.Signer.Processing.Logs.CreateProcessor<QuestRewardEventDTO>((log) => Console.WriteLine(log.Log.Data));
+
+		while (true)
 		{
 			await UpdateHeroes();
 			await Update();
@@ -211,9 +213,23 @@ public class DFKBot
             for(int i = 0; i <= readyQuestHeroes.Count; i+= quest.Category != "Gardening" ? 6 : 2)
 			{
                 List<Hero> heroBatch = readyQuestHeroes.Skip(i).Take(quest.Category != "Gardening" ? 6 : 2).ToList();
-				if(heroBatch.Count == 0)
+				
+				if (heroBatch.Count() < (quest.Category != "Gardening" ? 6 : 2))
 				{
-					continue;
+					List<Hero> heroesCatchingUp = Account.Heroes.Where(h => h.StaminaCurrent() > Settings.MinStamina - 5 && h.StaminaCurrent() < Settings.MinStamina && h.currentQuest == ContractDefinitions.NULL_ADDRESS).ToList();
+					if (heroesCatchingUp.Count() > 0)
+					{
+						Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.id))} to make a full sqad for {quest.Name}.");
+						heroBatch = heroBatch.Where(h => h.StaminaCurrent() == h.stamina).ToList();
+						if (heroBatch.Count() > 0)
+						{
+							Log($"{string.Join(", ", heroBatch.Select(h => h.id))} are so energetic they don't care.");
+						}
+						else
+						{
+							continue;
+						}
+					}
 				}
                 int maxAttempts = heroBatch.Min(h => quest.AvailableAttempts(h));
                 if(maxAttempts == 0)

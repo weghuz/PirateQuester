@@ -2,6 +2,9 @@
 using PirateQuester.Utils;
 using Radzen;
 using PirateQuester.Services;
+using Nethereum.JsonRpc.WebSocketStreamingClient;
+using Nethereum.RPC.Reactive.Eth.Subscriptions;
+using Newtonsoft.Json;
 
 namespace PirateQuester.Pages;
 
@@ -15,6 +18,7 @@ public partial class Bot
     NavigationManager Nav { get; set; }
     [Inject]
     BotService Bots { get; set; }
+
 
     protected override void OnInitialized()
     {

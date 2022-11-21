@@ -5,7 +5,6 @@ using PirateQuester.Utils;
 using BigInteger = System.Numerics.BigInteger;
 using Nethereum.Web3;
 using DFKContracts.MeditationCircle.ContractDefinition;
-
 namespace Utils;
 
 public class Transaction

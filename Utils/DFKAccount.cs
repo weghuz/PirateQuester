@@ -1,9 +1,11 @@
 ﻿using DFK;
 using DFKContracts.HeroCore;
 using DFKContracts.QuestCore;
+using Nethereum.JsonRpc.WebSocketClient;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using PirateQuester.Bot;
+using System.Net.Sockets;
 using Utils;
 
 namespace PirateQuester.Utils
@@ -63,8 +65,8 @@ namespace PirateQuester.Utils
         {
             Name = name;
             Account = account;
-            Signer = new Web3(account, "https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc");
-			Signer.TransactionManager.UseLegacyAsDefault = true;
+			Signer = new Web3(account, "https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc");
+			Signer.TransactionManager.UseLegacyAsDefault = false;
 			Quest = new QuestCoreService(Signer, "0xE9AbfBC143d7cef74b5b793ec5907fa62ca53154");
 			Hero = new HeroCoreService(Signer, "0xEb9B61B145D6489Be575D3603F4a704810e143dF");
 			Meditation = new DFKContracts.MeditationCircle.MeditationCircleService(Signer, "0xD507b6b299d9FC835a0Df92f718920D13fA49B47");
@@ -72,8 +74,9 @@ namespace PirateQuester.Utils
 
 		private decimal balance;
         public decimal Balance { get { return Math.Round(balance, 2); } set { balance = value;} }
+
         public Web3 Signer { get; set; }
-        public HeroCoreService Hero { get; set; }
+		public HeroCoreService Hero { get; set; }
         public QuestCoreService Quest { get; set; }
         public DFKContracts.MeditationCircle.MeditationCircleService Meditation { get; set; }
         public Account Account { get; set; }

@@ -9,18 +9,21 @@ using PirateQuester.Services;
 using PirateQuester.Utils;
 using Radzen;
 using DFKContracts.MeditationCircle;
+using Nethereum.JsonRpc.WebSocketClient;
 
 namespace PirateQuester
 {
     public class Program
     {
         public static async Task Main(string[] args)
-        {
+		{
 			Web3 w3Service = new Web3("https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc");
+			WebSocketClient w3Socket = new WebSocketClient("wss://subnets.avax.network/defi-kingdoms/dfk-chain/rpc");
 			var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 			builder.Services.AddSingleton(w3Service);
+            builder.Services.AddSingleton(w3Socket);
 			builder.Services.AddSingleton(new HeroCoreService(w3Service, "0xEb9B61B145D6489Be575D3603F4a704810e143dF"));
 			builder.Services.AddSingleton(new QuestCoreService(w3Service, "0xE9AbfBC143d7cef74b5b793ec5907fa62ca53154"));
 			builder.Services.AddSingleton(new MeditationCircleService(w3Service, "0xD507b6b299d9FC835a0Df92f718920D13fA49B47"));
