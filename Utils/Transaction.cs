@@ -1,10 +1,10 @@
 using DFKContracts.QuestCore.ContractDefinition;
 using PirateQuester.DFK.Contracts;
-using DFK;
 using PirateQuester.Utils;
 using BigInteger = System.Numerics.BigInteger;
 using Nethereum.Web3;
 using DFKContracts.MeditationCircle.ContractDefinition;
+
 namespace Utils;
 
 public class Transaction
@@ -105,6 +105,19 @@ public class Transaction
 		TransactionAdded?.Invoke();
 		try
 		{
+			if(!await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, "0xD507b6b299d9FC835a0Df92f718920D13fA49B47"))
+			{
+				Console.WriteLine($"Heroes not approved for meditation (Level up).\nTrying to approve Meditation of heroes.");
+				var approvalForAllFunc = new DFKContracts.HeroCore.ContractDefinition.SetApprovalForAllFunction()
+				{
+					Operator = "0xD507b6b299d9FC835a0Df92f718920D13fA49B47",
+					Approved = true,
+					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
+					MaxPriorityFeePerGas = 0
+				};
+				var approvalReceipt = await account.Hero.SetApprovalForAllRequestAndWaitForReceiptAsync(approvalForAllFunc);
+				Console.WriteLine($"Heroes approved for meditation. {approvalReceipt.TransactionHash}");
+			}
 			var handler = account.Signer.Eth.GetContractTransactionHandler<StartMeditationFunction>();
 			var startMeditationFunc = new StartMeditationFunction()
 			{

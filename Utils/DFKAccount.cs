@@ -1,12 +1,9 @@
 ﻿using DFK;
 using DFKContracts.HeroCore;
 using DFKContracts.QuestCore;
-using Nethereum.JsonRpc.WebSocketClient;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using PirateQuester.Bot;
-using System.Net.Sockets;
-using Utils;
 
 namespace PirateQuester.Utils
 {
