@@ -1,4 +1,5 @@
 ﻿using DFK;
+using DFKContracts.ERC20;
 using DFKContracts.HeroCore;
 using DFKContracts.QuestCore;
 using Nethereum.Web3;
@@ -19,7 +20,7 @@ namespace PirateQuester.Utils
             Balance += Web3.Convert.FromWei(await Signer.Eth.GetBalance.SendRequestAsync(Account.Address));
         }
 
-        public async Task InitializeAccount()
+        public async Task InitializeAccount(DFKBotSettings settings)
 		{
 			UpdateBalance();
 
@@ -33,7 +34,7 @@ namespace PirateQuester.Utils
 			foreach(Hero h in Heroes)
 			{
 				h.DFKAccount = this;
-				BotHeroes.Add(new DFKBotHero(h));
+				BotHeroes.Add(new DFKBotHero(h, settings));
 			}
 			UpdatedAccount?.Invoke();
 		}
@@ -71,9 +72,9 @@ namespace PirateQuester.Utils
 
 		private decimal balance;
         public decimal Balance { get { return Math.Round(balance, 2); } set { balance = value;} }
-
         public Web3 Signer { get; set; }
-		public HeroCoreService Hero { get; set; }
+        public Erc20Service Erc20 { get; set; }
+        public HeroCoreService Hero { get; set; }
         public QuestCoreService Quest { get; set; }
         public DFKContracts.MeditationCircle.MeditationCircleService Meditation { get; set; }
         public Account Account { get; set; }

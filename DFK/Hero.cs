@@ -43,7 +43,6 @@ public class Hero
         return xpNeeded;
 	}
 
-
     public void UpdateHeroValues(Hero h)
     {
         staminaFullAt = h.staminaFullAt;

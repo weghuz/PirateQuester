@@ -54,6 +54,7 @@ public class DFKBot
 		//var transferEventLogs = new List<EventLog<QuestRewardEventDTO>>();
 		//account.Signer.Processing.Logs.CreateProcessor<QuestRewardEventDTO>((log) => Console.WriteLine(log.Log.Data));
 
+		await account.InitializeAccount(settings);
 		while (true)
 		{
 			await UpdateHeroes();
@@ -204,7 +205,10 @@ public class DFKBot
             .ToList();
         Log($"{readyHeroes.Count} heroes ready to quest");
 
-		foreach (QuestContract quest in readyHeroes.Select(r => r.GetActiveQuest()).DistinctBy(q => q.Id))
+		foreach (QuestContract quest in readyHeroes
+			.Select(r => r.GetActiveQuest())
+			.DistinctBy(q => q.Id)
+			.Where(q => Settings.QuestEnabled.All(qe => Settings.QuestEnabled[q.Id])))
 		{
 			List<Hero> readyQuestHeroes = readyHeroes.Where(h =>
 				h.GetActiveQuest().Id == quest.Id)

@@ -4,6 +4,9 @@ using PirateQuester.Utils;
 using BigInteger = System.Numerics.BigInteger;
 using Nethereum.Web3;
 using DFKContracts.MeditationCircle.ContractDefinition;
+using DFKContracts.ERC20.ContractDefinition;
+using DFKContracts.ERC20;
+using static PirateQuester.DFK.Contracts.ContractDefinitions;
 
 namespace Utils;
 
@@ -105,7 +108,35 @@ public class Transaction
 		TransactionAdded?.Invoke();
 		try
 		{
-			if(!await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, "0xD507b6b299d9FC835a0Df92f718920D13fA49B47"))
+			var DFKSHvas = new Erc20Service(account.Signer, InventoryItems[(int)DFKItemContracts.DFKShvas].Address);
+			if (await DFKSHvas.AllowanceQueryAsync(account.Account.Address, DFKSHvas.ContractHandler.ContractAddress) < 1)
+			{
+				Console.WriteLine($"DFKSHvas not allowed. Setting allowance for meditation circle to use..");
+				var approveERC20Function = new ApproveFunction()
+				{
+					Amount = new BigInteger(100000),
+					Spender = InventoryItems[(int)DFKItemContracts.DFKShvas].Address,
+					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
+					MaxPriorityFeePerGas = 0
+				};
+				var allowDFKShvasReceipt = await DFKSHvas.ApproveRequestAndWaitForReceiptAsync(approveERC20Function);
+				Console.WriteLine($"DFKSHvas was approved to be used in the meditation circle\n{allowDFKShvasReceipt.GasUsed} gas was used.");
+			}
+			var DFKMoksha = new Erc20Service(account.Signer, InventoryItems[(int)DFKItemContracts.DFKMoksha].Address);
+			if (await DFKMoksha.AllowanceQueryAsync(account.Account.Address, DFKMoksha.ContractHandler.ContractAddress) < 1)
+			{
+				Console.WriteLine($"DFKMoksha not allowed. Setting allowance for meditation circle to use..");
+				var approveERC20Function = new ApproveFunction()
+				{
+					Amount = new BigInteger(100000),
+					Spender = InventoryItems[(int)DFKItemContracts.DFKMoksha].Address,
+					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
+					MaxPriorityFeePerGas = 0
+				};
+				var allowDFKMokshaReceipt = await DFKMoksha.ApproveRequestAndWaitForReceiptAsync(approveERC20Function);
+				Console.WriteLine($"DFKMoksha was approved to be used in the meditation circle.\n{allowDFKMokshaReceipt.GasUsed} gas was used.");
+			}
+			if (!await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, "0xD507b6b299d9FC835a0Df92f718920D13fA49B47"))
 			{
 				Console.WriteLine($"Heroes not approved for meditation (Level up).\nTrying to approve Meditation of heroes.");
 				var approvalForAllFunc = new DFKContracts.HeroCore.ContractDefinition.SetApprovalForAllFunction()
@@ -121,7 +152,7 @@ public class Transaction
 			var handler = account.Signer.Eth.GetContractTransactionHandler<StartMeditationFunction>();
 			var startMeditationFunc = new StartMeditationFunction()
 			{
-				AttunementCrystal = ContractDefinitions.NULL_ADDRESS,
+				AttunementCrystal = NULL_ADDRESS,
 				HeroId = heroId,
 				PrimaryStat = stat1,
 				SecondaryStat = stat2,

@@ -26,33 +26,32 @@
 		Style="max-height:400px;"
 		PagingSummaryFormat="@Constants.PagingSummaryFormat">
 		<Columns>
-			<RadzenDataGridColumn TItem="Quest" Property="Player" Title="Account" Width="100px" />
-			<RadzenDataGridColumn TItem="Quest" Property="" Title="Quest" Width="100px">
+			<RadzenDataGridColumn TItem="Quest" Property="" Title="Quest">
 				<Template Context="quest">
 					@quest.QuestName()
 				</Template>
 			</RadzenDataGridColumn>
-			<RadzenDataGridColumn TItem="Quest" Property="StartDateTime" Title="Start" Width="100px">
+			<RadzenDataGridColumn TItem="Quest" Property="StartDateTime" Title="Start">
 				<Template Context="quest">
 					@quest.StartDateTime.ToLocalTime().ToString("HH:mm:ss")
 				</Template>
 			</RadzenDataGridColumn>
-			<RadzenDataGridColumn TItem="Quest" Property="CompleteDateTime" Title="Complete" Width="100px">
+			<RadzenDataGridColumn TItem="Quest" Property="CompleteDateTime" Title="Complete">
 				<Template Context="quest">
 					@quest.CompleteDateTime.ToLocalTime().ToString("HH:mm:ss")
 				</Template>
 			</RadzenDataGridColumn>
-			<RadzenDataGridColumn TItem="Quest" Property="CompleteInHours" Title="Complete in" Width="100px">
+			<RadzenDataGridColumn TItem="Quest" Property="CompleteInHours" Title="Complete in">
 				<Template Context="quest">
 					@((quest.CompleteDateTime - DateTime.UtcNow).ToString(@"hh\:mm\:ss"))
 				</Template>
 			</RadzenDataGridColumn>
-			<RadzenDataGridColumn TItem="Quest" Property="" Title="Heroes" Width="100px">
+			<RadzenDataGridColumn TItem="Quest" Property="" Title="Heroes">
 				<Template Context="quest">
 					@string.Join(", ", quest.Heroes)
 				</Template>
 			</RadzenDataGridColumn>
-			<RadzenDataGridColumn TItem="Quest" Property="Attempts" Title="Attempts" Width="100px" />
+			<RadzenDataGridColumn TItem="Quest" Property="Attempts" Title="Attempts" />
 		</Columns>
 	</RadzenDataGrid>
 	<RadzenCard class="my-1"
