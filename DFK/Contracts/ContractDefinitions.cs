@@ -46,7 +46,7 @@ public static partial class ContractDefinitions
             Category = "Training",
             Subcategory = "Strength",
             Level = 1,
-			AvailableAttempts = (hero) => hero.StaminaCurrent()/5,
+			AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent()/5, 0, 5),
             BlocksPerAttempt = (hero) => 10
         },
         new QuestContract
@@ -57,7 +57,7 @@ public static partial class ContractDefinitions
             Category = "Training",
             Subcategory = "Dexterity",
             Level = 1,
-			AvailableAttempts = (hero) => hero.StaminaCurrent()/5,
+			AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent()/5, 0, 5),
 			BlocksPerAttempt = (hero) => 10
 		},
         new QuestContract
@@ -68,7 +68,7 @@ public static partial class ContractDefinitions
             Category = "Training",
             Subcategory = "Agility",
             Level = 1,
-			AvailableAttempts = (hero) => hero.StaminaCurrent()/5,
+			AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent() / 5, 0, 5),
 			BlocksPerAttempt = (hero) => 10
 		},
         new QuestContract
@@ -79,7 +79,7 @@ public static partial class ContractDefinitions
             Category = "Training",
             Subcategory = "Vitality",
             Level = 1,
-			AvailableAttempts = (hero) => hero.StaminaCurrent()/5,
+			AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent() / 5, 0, 5),
 			BlocksPerAttempt = (hero) => 10
 		},
         new QuestContract
@@ -90,7 +90,7 @@ public static partial class ContractDefinitions
             Category = "Training",
             Subcategory = "Endurance",
             Level = 1,
-			AvailableAttempts = (hero) => hero.StaminaCurrent()/5,
+			AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent() / 5, 0, 5),
 			BlocksPerAttempt = (hero) => 10
 		},
         new QuestContract
@@ -101,7 +101,7 @@ public static partial class ContractDefinitions
             Category = "Training",
             Subcategory = "Intelligence",
             Level = 1,
-			AvailableAttempts = (hero) => hero.StaminaCurrent()/5,
+			AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent() / 5, 0, 5),
 			BlocksPerAttempt = (hero) => 10
 		},
 		new QuestContract
@@ -112,7 +112,7 @@ public static partial class ContractDefinitions
 			Category = "Training",
 			Subcategory = "Wisdom",
 			Level = 1,
-			AvailableAttempts = (hero) => hero.StaminaCurrent()/5,
+			AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent() / 5, 0, 5),
 			BlocksPerAttempt = (hero) => 10
 		},
 		new QuestContract
@@ -123,7 +123,7 @@ public static partial class ContractDefinitions
             Category = "Training",
             Subcategory = "Luck",
             Level = 1,
-			AvailableAttempts = (hero) => hero.StaminaCurrent()/5,
+			AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent()/5, 0, 5),
 			BlocksPerAttempt = (hero) => 10
 		},
         new QuestContract
