@@ -60,8 +60,6 @@ public class Transaction
 				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 				MaxPriorityFeePerGas = 0
 			};
-			var gas = await handler.EstimateGasAsync(account.Meditation.ContractHandler.ContractAddress, completeMeditationFunc);
-			Console.WriteLine($"Estimated Gas: {gas}");
 
 			var receipt = await account.Meditation.CompleteMeditationRequestAndWaitForReceiptAsync(completeMeditationFunc);
 			Console.WriteLine($"Complete Meditation Txn: Gas: {receipt.GasUsed.Value}");
@@ -160,8 +158,6 @@ public class Transaction
 				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 				MaxPriorityFeePerGas = 0
 			};
-			var gas = await handler.EstimateGasAsync(account.Meditation.ContractHandler.ContractAddress, startMeditationFunc);
-			Console.WriteLine($"Estimated Gas: {gas}");
 
 			var receipt = await account.Meditation.StartMeditationRequestAndWaitForReceiptAsync(startMeditationFunc);
 			Console.WriteLine($"Started Meditation Txn: Gas: {receipt.GasUsed.Value}");
@@ -216,8 +212,6 @@ public class Transaction
 				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 				MaxPriorityFeePerGas = 0
 			};
-			var gas = await handler.EstimateGasAsync(account.Quest.ContractHandler.ContractAddress, questCompleteFunc);
-			Console.WriteLine($"Estimated Gas: {gas}");
 
 			var receipt = await account.Quest.CompleteQuestRequestAndWaitForReceiptAsync(questCompleteFunc);
 			Console.WriteLine($"Completed Quest Txn: Gas: {receipt.GasUsed.Value}");
@@ -284,8 +278,6 @@ public class Transaction
 				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 				MaxPriorityFeePerGas = 0
 			};
-			var gas = await handler.EstimateGasAsync(account.Quest.ContractHandler.ContractAddress, questStartFunc);
-			Console.WriteLine($"Estimated Gas: {gas}");
 			var questStartResponse = await account.Quest.StartQuestRequestAndWaitForReceiptAsync(questStartFunc);
 			Console.WriteLine($"Started Quest Txn: Gas: {questStartResponse.GasUsed.Value}");
 			PendingTransactions.Remove(pendingTxn);

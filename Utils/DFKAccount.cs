@@ -64,7 +64,7 @@ namespace PirateQuester.Utils
             Name = name;
             Account = account;
 			Signer = new Web3(account, "https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc");
-			Signer.TransactionManager.UseLegacyAsDefault = false;
+			Signer.TransactionManager.UseLegacyAsDefault = true;
 			Quest = new QuestCoreService(Signer, "0xE9AbfBC143d7cef74b5b793ec5907fa62ca53154");
 			Hero = new HeroCoreService(Signer, "0xEb9B61B145D6489Be575D3603F4a704810e143dF");
 			Meditation = new DFKContracts.MeditationCircle.MeditationCircleService(Signer, "0xD507b6b299d9FC835a0Df92f718920D13fA49B47");
