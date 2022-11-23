@@ -52,15 +52,13 @@
 @if (Acc.Accounts.Count > 0)
 {
 	<RadzenCard class="my-2">
-		<RadzenTextBox @bind-Value=@Attempts>
-		</RadzenTextBox>
 		<RadzenDropDownDataGrid PageSize="10"
 		   TValue="string"
 		   AllowClear="true"
 		   AllowFiltering="true"
 		   FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
 		@bind-Value=@SelectedQuestName
-		   Data="@ContractDefinitions.DFKQuestContracts.Select(q => q.Name).AsQueryable()"
+		   Data="@QuestContractDefinitions.DFKQuestContracts.Select(q => q.Name)"
 		   Class="w-100 my-2" />
 		<RadzenButton Click="@SetQuestPreference">
 			Set quest preference
@@ -103,7 +101,7 @@
 		</RadzenDataGridColumn>
 		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.currentQuest" Title="Current Quest" Width="200px">
 			<Template Context="hero">
-				@ContractDefinitions.GetQuestContract(hero.Hero.currentQuest)?.Name
+				@QuestContractDefinitions.GetQuestContract(hero.Hero.currentQuest)?.Name
 			</Template>
 		</RadzenDataGridColumn>
 		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.stamina" Title="Stamina">

@@ -1,4 +1,4 @@
-﻿namespace PirateQuester.DFK.Contracts;
+﻿namespace PirateQuester.DFK;
 
 public class Contract
 {

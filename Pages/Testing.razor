@@ -1,0 +1,30 @@
+﻿@page "/testing"
+@using DFKContracts.QuestCore.ContractDefinition;
+@using Nethereum.Web3;
+@using PirateQuester.DFK.Contracts;
+@using PirateQuester.Utils;
+@using Nethereum.RPC.Eth.DTOs;
+@inject AccountManager Acc
+@inject Web3 w3
+
+<RadzenButton Text="Test" Click="@Test" />
+@code {
+	private async void Test()
+	{
+		var block = await w3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
+		var questRewardEvent = w3.Eth.GetEvent<RewardMintedEventDTO>("0x08D93Db24B783F8eBb68D7604bF358F5027330A6");
+		var questEvents = await questRewardEvent
+			.GetAllChangesAsync(questRewardEvent.CreateFilterInput(null, 
+				new[] { "0x7c28c3D867E324A7eEf25792817b93DB4f70bF9b" }, 
+				new BlockParameter(new Nethereum.Hex.HexTypes.HexBigInteger(new BigInteger(long.Parse(block.ToString()) - 200))),
+				new BlockParameter(block)));
+		foreach (var questEvent in questEvents)
+		{
+			Console.WriteLine($"Player: {questEvent.Event.Player}");
+			Console.WriteLine($"Amount: {questEvent.Event.Amount}");
+			Console.WriteLine($"Data: {questEvent.Event.Data}");
+			Console.WriteLine($"Reward: {questEvent.Event.Reward}");
+			Console.WriteLine($"Quest ID: {questEvent.Event.QuestId}");
+		}
+	}
+}

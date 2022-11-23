@@ -18,7 +18,9 @@ namespace PirateQuester
         public static async Task Main(string[] args)
 		{
 			Web3 w3Service = new Web3("https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc");
-			WebSocketClient w3Socket = new WebSocketClient("wss://subnets.avax.network/defi-kingdoms/dfk-chain/rpc");
+            w3Service.Eth.TransactionManager.UseLegacyAsDefault = true;
+			WebSocketClient w3Socket = new WebSocketClient("wss://subnets.avax.network/defi-kingdoms/dfk-chain/ws");
+            
 			var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");

@@ -1,6 +1,6 @@
 namespace PirateQuester.DFK.Contracts;
 
-public static partial class ContractDefinitions
+public static partial class QuestContractDefinitions
 {
 	public static QuestContract GetQuestContract(int questContractId)
 	{
@@ -19,22 +19,6 @@ public static partial class ContractDefinitions
 		return DFKQuestContracts.FirstOrDefault(quest => quest.Address == questContractAddress);
 	}
 	public static readonly string NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
-
-    public static readonly List<Contract> InventoryItems = new List<Contract>()
-    {
-        new()
-        {
-            Id = 0,
-            Address = "0x75E8D8676d774C9429FbB148b30E304b5542aC3d",
-            Name = "DFKSHVAS",
-        },
-		new()
-		{
-			Id = 1,
-			Address = "0xCd2192521BD8e33559b0CA24f3260fE6A26C28e4",
-			Name = "DFKMOKSHA",
-		}
-	};
 
 	public static readonly List<QuestContract> DFKQuestContracts = new()
     {

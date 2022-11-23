@@ -6,7 +6,9 @@ using Nethereum.Web3;
 using DFKContracts.MeditationCircle.ContractDefinition;
 using DFKContracts.ERC20.ContractDefinition;
 using DFKContracts.ERC20;
-using static PirateQuester.DFK.Contracts.ContractDefinitions;
+using static PirateQuester.DFK.Contracts.QuestContractDefinitions;
+using Nethereum.Contracts;
+using PirateQuester.DFK.Items;
 
 namespace Utils;
 
@@ -106,28 +108,28 @@ public class Transaction
 		TransactionAdded?.Invoke();
 		try
 		{
-			var DFKSHvas = new Erc20Service(account.Signer, InventoryItems[(int)DFKItemContracts.DFKShvas].Address);
+			var DFKSHvas = new Erc20Service(account.Signer, ItemContractDefinitions.InventoryItems[(int)DFKItemEnum.DFKSHVAS].Address);
 			if (await DFKSHvas.AllowanceQueryAsync(account.Account.Address, DFKSHvas.ContractHandler.ContractAddress) < 1)
 			{
 				Console.WriteLine($"DFKSHvas not allowed. Setting allowance for meditation circle to use..");
 				var approveERC20Function = new ApproveFunction()
 				{
 					Amount = new BigInteger(100000),
-					Spender = InventoryItems[(int)DFKItemContracts.DFKShvas].Address,
+					Spender = ItemContractDefinitions.InventoryItems[(int)DFKItemEnum.DFKSHVAS].Address,
 					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 					MaxPriorityFeePerGas = 0
 				};
 				var allowDFKShvasReceipt = await DFKSHvas.ApproveRequestAndWaitForReceiptAsync(approveERC20Function);
 				Console.WriteLine($"DFKSHvas was approved to be used in the meditation circle\n{allowDFKShvasReceipt.GasUsed} gas was used.");
 			}
-			var DFKMoksha = new Erc20Service(account.Signer, InventoryItems[(int)DFKItemContracts.DFKMoksha].Address);
+			var DFKMoksha = new Erc20Service(account.Signer, ItemContractDefinitions.InventoryItems[(int)DFKItemEnum.DFKMOKSHA].Address);
 			if (await DFKMoksha.AllowanceQueryAsync(account.Account.Address, DFKMoksha.ContractHandler.ContractAddress) < 1)
 			{
 				Console.WriteLine($"DFKMoksha not allowed. Setting allowance for meditation circle to use..");
 				var approveERC20Function = new ApproveFunction()
 				{
 					Amount = new BigInteger(100000),
-					Spender = InventoryItems[(int)DFKItemContracts.DFKMoksha].Address,
+					Spender = ItemContractDefinitions.InventoryItems[(int)DFKItemEnum.DFKMOKSHA].Address,
 					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 					MaxPriorityFeePerGas = 0
 				};
@@ -215,6 +217,7 @@ public class Transaction
 
 			var receipt = await account.Quest.CompleteQuestRequestAndWaitForReceiptAsync(questCompleteFunc);
 			Console.WriteLine($"Completed Quest Txn: Gas: {receipt.GasUsed.Value}");
+			//var completeQuestEvent = receipt.DecodeAllEvents<QuestCompletedEventDTO>();
 			PendingTransactions.Remove(pendingTransaction);
 			FinishedTransactions.Add(new()
 			{
@@ -280,6 +283,7 @@ public class Transaction
 			};
 			var questStartResponse = await account.Quest.StartQuestRequestAndWaitForReceiptAsync(questStartFunc);
 			Console.WriteLine($"Started Quest Txn: Gas: {questStartResponse.GasUsed.Value}");
+			//var startQuestEvent = questStartResponse.DecodeAllEvents<QuestStartedEventDTO>();
 			PendingTransactions.Remove(pendingTxn);
 			FinishedTransactions.Add(new()
             {

@@ -71,7 +71,7 @@
 		 AllowClear="true"
 		 AllowFiltering="true"
 		 @bind-Value=@SelectedQuestName
-		 Data="@ContractDefinitions.DFKQuestContracts.Select(q => q.Name).AsQueryable()"
+		 Data="@QuestContractDefinitions.DFKQuestContracts.Select(q => q.Name).AsQueryable()"
 		 Class="w-100 my-2" />
 		<RadzenButton ButtonStyle="ButtonStyle.Primary" Click="@UpdateHeroes">
 			Update Heroes

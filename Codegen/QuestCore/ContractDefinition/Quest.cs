@@ -7,7 +7,7 @@ namespace DFKContracts.QuestCore.ContractDefinition
 	{
         public string QuestName()
         {
-            return PirateQuester.DFK.Contracts.ContractDefinitions.GetQuestContractFromAddress(QuestAddress)?.Name;
+            return PirateQuester.DFK.Contracts.QuestContractDefinitions.GetQuestContractFromAddress(QuestAddress)?.Name;
         }
 
         public BigInteger CompleteBlock { get; set; }

@@ -1,6 +1,8 @@
 ﻿using DFK;
 using DFKContracts.QuestCore.ContractDefinition;
+using Nethereum.Contracts;
 using PirateQuester.DFK.Contracts;
+using PirateQuester.DFK.Items;
 using PirateQuester.Utils;
 using System.Numerics;
 using Utils;
@@ -12,6 +14,7 @@ public class DFKBot
 {
 	public List<DFKBotLogMessage> DFKBotLog = new();
 	public List<Quest> RunningQuests = new();
+	public List<QuestReward> QuestRewards = new();
 	public ulong CurrentBlock { get; set; }
 	public delegate void UpdatedHeroes();
 
@@ -51,7 +54,7 @@ public class DFKBot
 		Log("Booting up...");
 		Log($"Interval: {Settings.UpdateInterval}");
 
-		//var transferEventLogs = new List<EventLog<QuestRewardEventDTO>>();
+
 		//account.Signer.Processing.Logs.CreateProcessor<QuestRewardEventDTO>((log) => Console.WriteLine(log.Log.Data));
 
 		await account.InitializeAccount(settings);
@@ -61,7 +64,8 @@ public class DFKBot
 			await Update();
             if (StopBot)
                 break;
-            await Task.Delay(Settings.UpdateInterval * 1000);
+			await UpdateQuestRewards();
+			await Task.Delay(Settings.UpdateInterval * 1000);
 			if (StopBot)
 				break;
 		}
@@ -69,27 +73,32 @@ public class DFKBot
 		Log($"Bot for account {account.Account.Address} stopped...");
 	}
 
-    public static ulong UnixTime()
-    {
-        return (ulong)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-	}
-	public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
+	private async Task UpdateQuestRewards()
 	{
-		// Unix timestamp is seconds past epoch
-		DateTime dateTime = new(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-		dateTime = dateTime.AddSeconds(unixTimeStamp);
-		return dateTime;
+		List<EventLog<RewardMintedEventDTO>> EventLog = await LogReader.GetQuestRewardLogs(Account);
+		foreach (BigInteger questId in EventLog.Select(el => el.Event.QuestId).Distinct())
+		{
+
+			if(!QuestRewards.Any(qr => qr.QuestId == questId))
+			{
+				List<RewardMintedEventDTO> rewards = EventLog.Where(el => el.Event.QuestId == questId).Select(el => el.Event).ToList();
+				QuestReward questReward = new QuestReward(questId);
+				foreach (RewardMintedEventDTO reward in rewards)
+				{
+					questReward.Heroes.Add(reward.HeroId);
+					var item = ItemContractDefinitions.GetItem(reward.Reward);
+					questReward.Rewards.AddItem(new() { Address = reward.Reward, Amount = int.Parse(reward.Amount.ToString()) });
+				}
+				QuestRewards.Add(questReward);
+			}
+		}
 	}
 
 	public async Task UpdateCurrentBlock()
 	{
-		CurrentBlock = BigIntToLong(await Account.Signer.Eth.Blocks.GetBlockNumber.SendRequestAsync());
+		CurrentBlock = Functions.BigIntToLong(await Functions.CurrentBlock(Account.Signer));
 	}
 
-	public static ulong BigIntToLong(BigInteger bigInt)
-	{
-		return ulong.Parse(bigInt.ToString());
-	}
 	public async Task<List<Quest>> GetUpdatedQuests()
 	{
 		for(int i = 0; i < 10; i++)
@@ -114,9 +123,9 @@ public class DFKBot
 		RunningQuests = new(quests);
 		foreach (Quest q in quests)
 		{
-			q.StartDateTime = UnixTimeStampToDateTime(BigIntToLong(q.StartAtTime));
-			q.CompleteDateTime = UnixTimeStampToDateTime(BigIntToLong(q.CompleteAtTime));
-			var questContract = ContractDefinitions.GetQuestContractFromAddress(q.QuestAddress);
+			q.StartDateTime = Functions.UnixTimeStampToDateTime(Functions.BigIntToLong(q.StartAtTime));
+			q.CompleteDateTime = Functions.UnixTimeStampToDateTime(Functions.BigIntToLong(q.CompleteAtTime));
+			var questContract = QuestContractDefinitions.GetQuestContractFromAddress(q.QuestAddress);
 
 			if(DateTime.UtcNow > q.CompleteDateTime)
 			{
@@ -143,7 +152,7 @@ public class DFKBot
 			List<Meditation> activeMeditations = (await Account.Meditation.GetActiveMeditationsQueryAsync(Account.Account.Address)).ReturnValue1;
 			List<DFKBotHero> readyToLevelHeroes = Account.BotHeroes
 				.Where(h => h.Hero.xp >= h.Hero.XpToLevelUp()
-				&& h.Hero.currentQuest == ContractDefinitions.NULL_ADDRESS
+				&& h.Hero.currentQuest == QuestContractDefinitions.NULL_ADDRESS
 				&& h.Hero.StaminaCurrent() <= Settings.MinStamina
 				&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
 				.ToList();
@@ -200,7 +209,7 @@ public class DFKBot
 
 		List<DFKBotHero> readyHeroes = Account.BotHeroes
             .Where(h => h.Hero.StaminaCurrent() >= Settings.MinStamina
-            && h.Hero.currentQuest == ContractDefinitions.NULL_ADDRESS
+            && h.Hero.currentQuest == QuestContractDefinitions.NULL_ADDRESS
 			&& h.Hero.salePrice is null)
             .ToList();
         Log($"{readyHeroes.Count} heroes ready to quest");
@@ -220,7 +229,7 @@ public class DFKBot
 				
 				if (heroBatch.Count() < (quest.Category != "Gardening" ? 6 : 2))
 				{
-					List<Hero> heroesCatchingUp = Account.Heroes.Where(h => h.StaminaCurrent() > Settings.MinStamina - 5 && h.StaminaCurrent() < Settings.MinStamina && h.currentQuest == ContractDefinitions.NULL_ADDRESS).ToList();
+					List<Hero> heroesCatchingUp = Account.Heroes.Where(h => h.StaminaCurrent() > Settings.MinStamina - 5 && h.StaminaCurrent() < Settings.MinStamina && h.currentQuest == QuestContractDefinitions.NULL_ADDRESS).ToList();
 					if (heroesCatchingUp.Count() > 0)
 					{
 						Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.id))} to make a full sqad for {quest.Name}.");

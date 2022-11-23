@@ -32,7 +32,7 @@ public partial class ControlCenter
     bool Loading = false;
 	IList<DFKBotHero> SelectedHeroes = new List<DFKBotHero>();
 	RadzenDataGrid<DFKBotHero> heroes;
-	string Attempts = "1";
+
 	protected override void OnInitialized()
 	{
 		TableHeroes = Acc.Accounts.SelectMany(a => a.BotHeroes).ToList();
@@ -50,7 +50,7 @@ public partial class ControlCenter
 	{
 		foreach(DFKBotHero h in SelectedHeroes)
 		{
-			h.Quest = ContractDefinitions.GetQuestContract(SelectedQuestName);
+			h.Quest = QuestContractDefinitions.GetQuestContract(SelectedQuestName);
 		}
 	}
 }
