@@ -4,6 +4,12 @@
 	{
 		Rune,
 		Currency,
-		Summoning
+		Summoning,
+		Pets,
+		Foraging,
+		Gardening,
+		Material,
+		Junk,
+		Story
 	}
 }

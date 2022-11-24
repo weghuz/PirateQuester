@@ -15,7 +15,7 @@ namespace PirateQuester.DFK.Items
 			QuestId = Id;
 		}
 		public BigInteger QuestId { get; set; }
-        public List<BigInteger> Heroes { get; set; }
-        public DFKInventory Rewards { get; set; }
+		public List<BigInteger> Heroes { get; set; } = new();
+		public DFKInventory Rewards { get; set; } = new();
     }
 }

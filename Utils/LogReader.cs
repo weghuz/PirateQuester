@@ -16,7 +16,7 @@ namespace PirateQuester.Utils
 			var questEvents = await questRewardEvent
 				.GetAllChangesAsync(questRewardEvent.CreateFilterInput(null,
 					new[] { acc.Account.Address },
-					LongToBlock(long.Parse(block.ToString()) - 200),
+					LongToBlock(long.Parse(block.ToString()) - 2048),
 					new BlockParameter(block.ToHexBigInteger())));
 			return questEvents;
 		}

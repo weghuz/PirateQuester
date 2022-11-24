@@ -32,7 +32,7 @@ public class DFKBot
         {
             Id = DFKBotLog.Count + 1,
             Message = message + "\n",
-            TimeStamp = DateTime.UtcNow
+            TimeStamp = DateTime.Now.ToLocalTime()
         });
         BotLogAdded?.Invoke();
 	}
@@ -65,7 +65,7 @@ public class DFKBot
             if (StopBot)
                 break;
 			await UpdateQuestRewards();
-			await Task.Delay(Settings.UpdateInterval * 1000);
+			await Task.Delay(1000 * Settings.UpdateInterval);
 			if (StopBot)
 				break;
 		}
@@ -75,23 +75,42 @@ public class DFKBot
 
 	private async Task UpdateQuestRewards()
 	{
+		Log($"Updating Questrewards");
 		List<EventLog<RewardMintedEventDTO>> EventLog = await LogReader.GetQuestRewardLogs(Account);
+		List<QuestReward> questRewards = new();
 		foreach (BigInteger questId in EventLog.Select(el => el.Event.QuestId).Distinct())
 		{
-
 			if(!QuestRewards.Any(qr => qr.QuestId == questId))
 			{
 				List<RewardMintedEventDTO> rewards = EventLog.Where(el => el.Event.QuestId == questId).Select(el => el.Event).ToList();
 				QuestReward questReward = new QuestReward(questId);
 				foreach (RewardMintedEventDTO reward in rewards)
 				{
-					questReward.Heroes.Add(reward.HeroId);
+					if(questReward.Heroes.Any(id => id == reward.HeroId) is false)
+					{
+						questReward.Heroes.Add(reward.HeroId);
+					}
 					var item = ItemContractDefinitions.GetItem(reward.Reward);
-					questReward.Rewards.AddItem(new() { Address = reward.Reward, Amount = int.Parse(reward.Amount.ToString()) });
+					if (item is not null)
+					{
+						item.Amount = ulong.Parse(reward.Amount.ToString());
+						questReward.Rewards.AddItem(item);
+					}
+					else
+					{
+						questReward.Rewards.AddItem(new()
+						{
+							Address = reward.Reward,
+							Amount = ulong.Parse(reward.Amount.ToString())
+						});
+					}
 				}
-				QuestRewards.Add(questReward);
+				questRewards.Add(questReward);
 			}
 		}
+		questRewards.AddRange(QuestRewards);
+		QuestRewards = questRewards;
+		Log($"Quest rewards updated.");
 	}
 
 	public async Task UpdateCurrentBlock()
@@ -116,6 +135,7 @@ public class DFKBot
 		}
 		return new();
 	}
+
 	public async Task Update()
     {
 		await UpdateCurrentBlock();
@@ -141,6 +161,7 @@ public class DFKBot
 					Log(e.Message);
 				}
 			}
+			await Task.Delay(1);
 		}
 
 		if (StopBot)
@@ -201,6 +222,7 @@ public class DFKBot
 					}
 				}
 			}
+			await Task.Delay(1);
 			if (StopBot)
 			{
 				return;
@@ -219,6 +241,10 @@ public class DFKBot
 			.DistinctBy(q => q.Id)
 			.Where(q => Settings.QuestEnabled.All(qe => Settings.QuestEnabled[q.Id])))
 		{
+			if(RunningQuests.Any(rq => rq.QuestAddress == quest.Address && rq.CompleteDateTime >= DateTime.UtcNow.AddMinutes(30)))
+			{
+				continue;
+			}
 			List<Hero> readyQuestHeroes = readyHeroes.Where(h =>
 				h.GetActiveQuest().Id == quest.Id)
 					.Select(h => h.Hero).ToList();
@@ -263,6 +289,7 @@ public class DFKBot
 					Log(e.Message);
 				}
 			}
+			await Task.Delay(1);
 		}
 		Log($"Iteration complete");
     }

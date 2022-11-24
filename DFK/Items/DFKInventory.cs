@@ -2,7 +2,7 @@
 {
     public class DFKInventory : Contract
 	{
-        public List<DFKItem> Items { get; set; }
+		public List<DFKItem> Items { get; set; } = new();
 		public delegate void UpdateItems();
 		public static event UpdateItems ItemsUpdated;
 		public void AddItem(DFKItem item)
@@ -16,6 +16,7 @@
 			{
 				currentItem.Amount += item.Amount;
 			}
+			ItemsUpdated?.Invoke();
 		}
 
 		public void AddItems(List<DFKItem> items)

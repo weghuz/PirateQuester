@@ -2,6 +2,7 @@
 @using DFKContracts.QuestCore.ContractDefinition;
 @using PirateQuester.Bot;
 @using PirateQuester.Components
+@using PirateQuester.DFK.Items;
 @using PirateQuester.Utils;
 
 <BotTerminalNavigation />
@@ -11,6 +12,69 @@
 	<RadzenText TextStyle="TextStyle.H5">
 		Bot Terminal @BotId for address @Bots.RunningBots[BotId].Account.Account.Address
 	</RadzenText>
+	<RadzenCard class="my-1"
+	   Style="background-color:var(--rz-black);
+		color:var(--rz-success);
+		height:250px;
+		overflow:auto;">
+		@if (Bots.RunningBots is null)
+		{
+			<span>No running bot</span>
+		}
+		else
+		{
+			foreach (DFKBotLogMessage msg in Bots.RunningBots[BotId].DFKBotLog.OrderByDescending(l => l.Id))
+			{
+				<span class="mr-2">@msg.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss")</span>
+				<span>@msg.Message</span>
+				<br />
+			}
+		}
+	</RadzenCard>
+	<RadzenText Text="Recent Quests" />
+	<RadzenDataGrid Data="@Bots.RunningBots[BotId].QuestRewards"
+		TItem="QuestReward"
+		@ref="QuestRewardDataGrid"
+		AllowPaging="true"
+		AllowSorting="true"
+		AllowColumnReorder="true"
+		AllowColumnResize="true"
+		AllowFiltering="true"
+		ShowPagingSummary="true"
+		ColumnWidth="100px"
+		PagerHorizontalAlign="HorizontalAlign.Center"
+		PageSize="4"
+		Style="max-height:285px;"
+		PagingSummaryFormat="@Constants.PagingSummaryFormat">
+		<Columns>
+			<RadzenDataGridColumn TItem="QuestReward" Property="QuestId" Title="Quest Id" Width="50px" />
+			<RadzenDataGridColumn TItem="QuestReward" Property="" Title="Heroes" Width="100px">
+				<Template Context="reward">
+					@string.Join(", ", reward.Heroes)
+				</Template>
+			</RadzenDataGridColumn>
+			<RadzenDataGridColumn TItem="QuestReward" Property="" Title="Items" Width="200px">
+				<Template Context="reward">
+					@foreach(DFKItem reward in reward.Rewards.Items)
+					{
+						if(reward.Name is not null)
+						{
+							@(reward.Decimals == 0 ? reward.Amount : reward.Amount / Math.Pow(10, reward.Decimals))
+							<img src="@(reward.Image)" width="32" height="32" />
+							@(reward.Name)
+							<span>, </span>
+						}
+						else
+						{
+							@reward.Address
+							<span>, </span>
+						}
+					}
+				</Template>
+			</RadzenDataGridColumn>
+		</Columns>
+	</RadzenDataGrid>
+	<RadzenText Text="Running Quests" />
 	<RadzenDataGrid Data="@Bots.RunningBots[BotId].RunningQuests"
 		TItem="Quest"
 		@ref="RunningQuestsGrid"
@@ -22,23 +86,14 @@
 		ShowPagingSummary="true"
 		ColumnWidth="100px"
 		PagerHorizontalAlign="HorizontalAlign.Center"
-		PageSize="15"
-		Style="max-height:400px;"
+		PageSize="4"
+		Style="max-height:250px;"
 		PagingSummaryFormat="@Constants.PagingSummaryFormat">
 		<Columns>
+			<RadzenDataGridColumn TItem="Quest" Property="Id" Title="Id" />
 			<RadzenDataGridColumn TItem="Quest" Property="" Title="Quest">
 				<Template Context="quest">
 					@quest.QuestName()
-				</Template>
-			</RadzenDataGridColumn>
-			<RadzenDataGridColumn TItem="Quest" Property="StartDateTime" Title="Start">
-				<Template Context="quest">
-					@quest.StartDateTime.ToLocalTime().ToString("HH:mm:ss")
-				</Template>
-			</RadzenDataGridColumn>
-			<RadzenDataGridColumn TItem="Quest" Property="CompleteDateTime" Title="Complete">
-				<Template Context="quest">
-					@quest.CompleteDateTime.ToLocalTime().ToString("HH:mm:ss")
 				</Template>
 			</RadzenDataGridColumn>
 			<RadzenDataGridColumn TItem="Quest" Property="CompleteInHours" Title="Complete in">
@@ -51,26 +106,6 @@
 					@string.Join(", ", quest.Heroes)
 				</Template>
 			</RadzenDataGridColumn>
-			<RadzenDataGridColumn TItem="Quest" Property="Attempts" Title="Attempts" />
 		</Columns>
 	</RadzenDataGrid>
-	<RadzenCard class="my-1"
-	   Style="background-color:var(--rz-black);
-	color:var(--rz-success);
-	height:500px;
-	overflow:auto;">
-		@if (Bots.RunningBots is null)
-		{
-			<span>No running bot</span>
-		}
-		else
-		{
-			foreach (DFKBotLogMessage msg in Bots.RunningBots[BotId].DFKBotLog.OrderByDescending(l => l.Id))
-			{
-				<span class="mr-2">@msg.TimeStamp</span>
-				<span>@msg.Message</span>
-				<br />
-			}
-		}
-	</RadzenCard>
 }
