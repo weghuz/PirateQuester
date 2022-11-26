@@ -23,10 +23,16 @@
 				<RadzenLabel Text="Min Stamina to Quest" Component="MinStamina" />
 				<RadzenNumeric Name="MinStamina" class="w-100 my-1" @bind-Value="@Bots.Settings.MinStamina" />
 			</div>
-
-			<div class="col-md-12">
+			
+			<div class="col-md-6">
 				<RadzenLabel Text="MaxGasFee (If your Max Fee is too low txns could get stuck during high traffic times.)" Component="MaxGasFee" />
 				<RadzenNumeric Name="MaxGasFee" class="w-100 my-1" @bind-Value="@Bots.Settings.MaxGasFeeGwei" />
+			</div>
+
+			<div class="col-md-6">
+				<RadzenLabel Text="Cancel transaction delay. If this is not set transactions may get stuck forever. If it's set too low transactions receipts get missed. (Milliseconds)"
+					Component="CancelTxnDelay" />
+				<RadzenNumeric Name="CancelTxnDelay" class="w-100 my-1" @bind-Value="@Bots.Settings.CancelTxnDelay" />
 			</div>
 			<div class="col-12">
 				<RadzenText Text="Professions" TextStyle="TextStyle.H5" />

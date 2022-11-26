@@ -90,7 +90,7 @@ public class DFKBot
 					{
 						questReward.Heroes.Add(reward.HeroId);
 					}
-					var item = ItemContractDefinitions.GetItem(reward.Reward);
+					var item = new DFKItem(ItemContractDefinitions.GetItem(reward.Reward));
 					if (item is not null)
 					{
 						item.Amount = ulong.Parse(reward.Amount.ToString());
@@ -109,7 +109,7 @@ public class DFKBot
 			}
 		}
 		questRewards.AddRange(QuestRewards);
-		QuestRewards = questRewards;
+		QuestRewards = questRewards.OrderByDescending(q => q.QuestId).ToList();
 		Log($"Quest rewards updated.");
 	}
 
@@ -152,7 +152,7 @@ public class DFKBot
 				try
 				{
 					Log($"Quest #{q.Id} {q.QuestName()} is ready to complete, completing...");
-					string okMessage = await new Transaction().CompleteQuest(Account, q.Heroes.First(), Settings.MaxGasFeeGwei);
+					string okMessage = await Transaction.CompleteQuest(Account, q.Heroes.First(), Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
 					Log(okMessage);
 					RunningQuests.RemoveAll(remQ => remQ.Id == q.Id);
 				}
@@ -186,7 +186,7 @@ public class DFKBot
 					Log($"Hero {hero.ID} is ready to complete meditating.\nCompleting Meditation...");
 					try
 					{
-						string okMessage = await new Transaction().CompleteMeditation(Account, hero.ID, Settings.MaxGasFeeGwei);
+						string okMessage = await Transaction.CompleteMeditation(Account, hero.ID, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
 						Log($"Hero {hero.ID} Leveled up from {hero.Hero.level} to {hero.Hero.level + 1}!");
 						Log(okMessage);
 					}
@@ -209,7 +209,7 @@ public class DFKBot
 				}
 				try
 				{
-					string okMessage = await new Transaction().StartMeditation(Account, h.ID, setting.MainAttribute.Id, setting.SecondaryAttribute.Id, setting.TertiaryAttribute.Id, Settings.MaxGasFeeGwei);
+					string okMessage = await Transaction.StartMeditation(Account, h.ID, setting.MainAttribute.Id, setting.SecondaryAttribute.Id, setting.TertiaryAttribute.Id, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
 					Log($"Hero started meditating with Stat settings: \nMain(+1):{setting.MainAttribute.Name}\nSecondary(50%+1):{setting.SecondaryAttribute.Name}\nTertiary(50%+1):{setting.TertiaryAttribute.Name}!");
 					Log(okMessage);
 				}
@@ -241,7 +241,8 @@ public class DFKBot
 			.DistinctBy(q => q.Id)
 			.Where(q => Settings.QuestEnabled.All(qe => Settings.QuestEnabled[q.Id])))
 		{
-			if(RunningQuests.Any(rq => rq.QuestAddress == quest.Address && rq.CompleteDateTime >= DateTime.UtcNow.AddMinutes(30)))
+			var questsOfType = RunningQuests.Where(rq => rq.QuestAddress == quest.Address);
+			if (questsOfType.Any(rq =>  rq.CompleteDateTime >= DateTime.UtcNow.AddMinutes(30)) || questsOfType.Count() >= 10)
 			{
 				continue;
 			}
@@ -259,8 +260,8 @@ public class DFKBot
 					if (heroesCatchingUp.Count() > 0)
 					{
 						Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.id))} to make a full sqad for {quest.Name}.");
-						heroBatch = heroBatch.Where(h => h.StaminaCurrent() == h.stamina).ToList();
-						if (heroBatch.Count() > 0)
+						var checkBatch = heroBatch.Where(h => h.StaminaCurrent() == h.stamina).ToList();
+						if (checkBatch.Count() > 0)
 						{
 							Log($"{string.Join(", ", heroBatch.Select(h => h.id))} are so energetic they don't care.");
 						}
@@ -279,9 +280,9 @@ public class DFKBot
 				try
 				{
 					Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => h.id))}.");
-					string okMessage = await new Transaction().StartQuest(Account,
+					string okMessage = await Transaction.StartQuest(Account,
 						heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
-						quest, maxAttempts, Settings.MaxGasFeeGwei);
+						quest, maxAttempts, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
 					Log(okMessage);
 				}
 				catch (Exception e)

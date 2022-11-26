@@ -47,7 +47,7 @@
 		Style="max-height:285px;"
 		PagingSummaryFormat="@Constants.PagingSummaryFormat">
 		<Columns>
-			<RadzenDataGridColumn TItem="QuestReward" Property="QuestId" Title="Quest Id" Width="50px" />
+			<RadzenDataGridColumn TItem="QuestReward" Property="QuestId" Title="Id" Width="50px" />
 			<RadzenDataGridColumn TItem="QuestReward" Property="" Title="Heroes" Width="100px">
 				<Template Context="reward">
 					@string.Join(", ", reward.Heroes)

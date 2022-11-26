@@ -12,7 +12,7 @@ using PirateQuester.DFK.Items;
 
 namespace Utils;
 
-public class Transaction
+public static class Transaction
 {
 	private static List<PendingTransaction> pendingTransactions = new List<PendingTransaction>();
 	public static List<PendingTransaction> PendingTransactions
@@ -44,7 +44,14 @@ public class Transaction
 
 	public static event AddTransaction TransactionAdded;
 
-	public async Task<string> CompleteMeditation(DFKAccount account, BigInteger heroId, int maxGasFeeGwei = 200)
+	public static CancellationTokenSource StopAfterDelay(int cancelDelay)
+	{
+		CancellationTokenSource cancelToken = new();
+		cancelToken.CancelAfter(cancelDelay);
+		return cancelToken;
+	}
+
+	public static async Task<string> CompleteMeditation(DFKAccount account, BigInteger heroId, int maxGasFeeGwei = 200, int cancelDelay = 60000)
 	{
 		PendingTransaction pendingTransaction = new()
 		{
@@ -63,7 +70,7 @@ public class Transaction
 				MaxPriorityFeePerGas = 0
 			};
 
-			var receipt = await account.Meditation.CompleteMeditationRequestAndWaitForReceiptAsync(completeMeditationFunc);
+			var receipt = await account.Meditation.CompleteMeditationRequestAndWaitForReceiptAsync(completeMeditationFunc, StopAfterDelay(cancelDelay));
 			Console.WriteLine($"Complete Meditation Txn: Gas: {receipt.GasUsed.Value}");
 			PendingTransactions.Remove(pendingTransaction);
 			FinishedTransactions.Add(new()
@@ -97,7 +104,8 @@ public class Transaction
 			throw;
 		}
 	}
-	public async Task<string> StartMeditation(DFKAccount account, BigInteger heroId, byte stat1, byte stat2, byte stat3, int maxGasFeeGwei = 200)
+
+	public static async Task<string> StartMeditation(DFKAccount account, BigInteger heroId, byte stat1, byte stat2, byte stat3, int maxGasFeeGwei = 200, int cancelDelay = 60000)
 	{
 		PendingTransaction pendingTransaction = new()
 		{
@@ -119,7 +127,7 @@ public class Transaction
 					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 					MaxPriorityFeePerGas = 0
 				};
-				var allowDFKShvasReceipt = await DFKSHvas.ApproveRequestAndWaitForReceiptAsync(approveERC20Function);
+				var allowDFKShvasReceipt = await DFKSHvas.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(cancelDelay));
 				Console.WriteLine($"DFKSHvas was approved to be used in the meditation circle\n{allowDFKShvasReceipt.GasUsed} gas was used.");
 			}
 			var DFKMoksha = new Erc20Service(account.Signer, ItemContractDefinitions.InventoryItems[(int)DFKItemEnum.DFKMOKSHA].Address);
@@ -133,7 +141,7 @@ public class Transaction
 					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 					MaxPriorityFeePerGas = 0
 				};
-				var allowDFKMokshaReceipt = await DFKMoksha.ApproveRequestAndWaitForReceiptAsync(approveERC20Function);
+				var allowDFKMokshaReceipt = await DFKMoksha.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(cancelDelay));
 				Console.WriteLine($"DFKMoksha was approved to be used in the meditation circle.\n{allowDFKMokshaReceipt.GasUsed} gas was used.");
 			}
 			if (!await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, "0xD507b6b299d9FC835a0Df92f718920D13fA49B47"))
@@ -146,7 +154,8 @@ public class Transaction
 					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 					MaxPriorityFeePerGas = 0
 				};
-				var approvalReceipt = await account.Hero.SetApprovalForAllRequestAndWaitForReceiptAsync(approvalForAllFunc);
+
+				var approvalReceipt = await account.Hero.SetApprovalForAllRequestAndWaitForReceiptAsync(approvalForAllFunc, StopAfterDelay(cancelDelay));
 				Console.WriteLine($"Heroes approved for meditation. {approvalReceipt.TransactionHash}");
 			}
 			var handler = account.Signer.Eth.GetContractTransactionHandler<StartMeditationFunction>();
@@ -161,7 +170,7 @@ public class Transaction
 				MaxPriorityFeePerGas = 0
 			};
 
-			var receipt = await account.Meditation.StartMeditationRequestAndWaitForReceiptAsync(startMeditationFunc);
+			var receipt = await account.Meditation.StartMeditationRequestAndWaitForReceiptAsync(startMeditationFunc, StopAfterDelay(cancelDelay));
 			Console.WriteLine($"Started Meditation Txn: Gas: {receipt.GasUsed.Value}");
 			PendingTransactions.Remove(pendingTransaction);
 			FinishedTransactions.Add(new()
@@ -195,7 +204,8 @@ public class Transaction
 			throw;
 		}
 	}
-	public async Task<string> CompleteQuest(DFKAccount account, BigInteger heroId, int maxGasFeeGwei = 200)
+
+	public static async Task<string> CompleteQuest(DFKAccount account, BigInteger heroId, int maxGasFeeGwei = 200, int cancelDelay = 60000)
 	{
 		PendingTransaction pendingTransaction = new()
 		{
@@ -215,7 +225,7 @@ public class Transaction
 				MaxPriorityFeePerGas = 0
 			};
 
-			var receipt = await account.Quest.CompleteQuestRequestAndWaitForReceiptAsync(questCompleteFunc);
+			var receipt = await account.Quest.CompleteQuestRequestAndWaitForReceiptAsync(questCompleteFunc, StopAfterDelay(cancelDelay));
 			Console.WriteLine($"Completed Quest Txn: Gas: {receipt.GasUsed.Value}");
 			//var completeQuestEvent = receipt.DecodeAllEvents<QuestCompletedEventDTO>();
 			PendingTransactions.Remove(pendingTransaction);
@@ -251,7 +261,7 @@ public class Transaction
 		}
 	}
 
-	public async Task<string> StartQuest(DFKAccount account, List<BigInteger> selectedHeroes, QuestContract quest, int attempts, int maxGasFeeGwei = 200)
+	public static async Task<string> StartQuest(DFKAccount account, List<BigInteger> selectedHeroes, QuestContract quest, int attempts, int maxGasFeeGwei = 200, int cancelDelay = 60000)
 	{
         var pendingTxn = new PendingTransaction()
         {
@@ -281,7 +291,7 @@ public class Transaction
 				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 				MaxPriorityFeePerGas = 0
 			};
-			var questStartResponse = await account.Quest.StartQuestRequestAndWaitForReceiptAsync(questStartFunc);
+			var questStartResponse = await account.Quest.StartQuestRequestAndWaitForReceiptAsync(questStartFunc, StopAfterDelay(cancelDelay));
 			Console.WriteLine($"Started Quest Txn: Gas: {questStartResponse.GasUsed.Value}");
 			//var startQuestEvent = questStartResponse.DecodeAllEvents<QuestStartedEventDTO>();
 			PendingTransactions.Remove(pendingTxn);

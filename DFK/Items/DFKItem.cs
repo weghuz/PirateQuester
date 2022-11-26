@@ -2,7 +2,7 @@
 {
 	public class DFKItem
 	{
-        public int Id { get; set; }
+		public int Id { get; set; }
         public string Name { get; set; }
         public string TokenName { get; set; }
         public string Address { get; set; }
@@ -16,6 +16,19 @@
         public DFKItem()
 		{
 
+		}
+
+		public DFKItem(DFKItem dFKItem)
+		{
+			Id = dFKItem.Id;
+			Name = dFKItem.Name;
+			Address = dFKItem.Address;
+			Amount = dFKItem.Amount;
+			Decimals = dFKItem.Decimals;
+			Image = dFKItem.Image;
+			Description = dFKItem.Description;
+			Category = dFKItem.Category;
+			ItemEnum = dFKItem.ItemEnum;
 		}
 	}
 }

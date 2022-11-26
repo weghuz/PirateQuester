@@ -9,6 +9,8 @@ namespace PirateQuester.Bot
 		{
 			QuestEnabled = Enumerable.Range(0, 25).Select(i => true).ToList();
 		}
+
+		public int CancelTxnDelay { get; set; } = 60000;
         public int UpdateInterval { get; set; } = 180;
         public int MinStamina { get; set; } = 20;
         public int MaxGasFeeGwei { get; set; } = 200;
