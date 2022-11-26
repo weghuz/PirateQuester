@@ -11,28 +11,41 @@
 		<div class="my-1 text-center">
 			<RadzenButton Text="Run Bots" ButtonType="ButtonType.Submit" Disabled="Bots.CheckRunning()" Click="@Bots.RunBots" />
 			<RadzenButton Text="Stop Bots" ButtonType="ButtonType.Submit" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" Click="@Bots.StopBots" />
+			<RadzenButton Text="Save Settings" ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Button" Click="@Bots.SaveSettings" />
 		</div>
 		<div class="row">
 
 			<div class="col-md-6">
 				<RadzenLabel Text="Update Frequency (Seconds)" Component="UpdateInterval" />
-				<RadzenNumeric Name="UpdateInterval" class="w-100 my-1" @bind-Value=@Bots.Settings.UpdateInterval />
+				<RadzenNumeric Name="UpdateInterval" class="w-100 my-1" 
+				TValue="int" 
+				Value="Bots.Settings.UpdateInterval" 
+				Change="@((val) => {Bots.Settings.UpdateInterval=val;Bots.SaveSettings();})" />
 			</div>
 
 			<div class="col-md-6">
 				<RadzenLabel Text="Min Stamina to Quest" Component="MinStamina" />
-				<RadzenNumeric Name="MinStamina" class="w-100 my-1" @bind-Value="@Bots.Settings.MinStamina" />
+				<RadzenNumeric Name="MinStamina" class="w-100 my-1"
+				TValue="int"
+				Value="Bots.Settings.MinStamina"
+				Change="@((val) => {Bots.Settings.MinStamina=val;Bots.SaveSettings();})"/>
 			</div>
 			
 			<div class="col-md-6">
 				<RadzenLabel Text="MaxGasFee (If your Max Fee is too low txns could get stuck during high traffic times.)" Component="MaxGasFee" />
-				<RadzenNumeric Name="MaxGasFee" class="w-100 my-1" @bind-Value="@Bots.Settings.MaxGasFeeGwei" />
+				<RadzenNumeric Name="MaxGasFee" class="w-100 my-1"
+				TValue="int"
+				Value="Bots.Settings.MaxGasFeeGwei"
+		  Change="@((val) => {Bots.Settings.MaxGasFeeGwei=val;Bots.SaveSettings();})" />
 			</div>
 
 			<div class="col-md-6">
 				<RadzenLabel Text="Cancel transaction delay. If this is not set transactions may get stuck forever. If it's set too low transactions receipts get missed. (Milliseconds)"
 					Component="CancelTxnDelay" />
-				<RadzenNumeric Name="CancelTxnDelay" class="w-100 my-1" @bind-Value="@Bots.Settings.CancelTxnDelay" />
+				<RadzenNumeric Name="CancelTxnDelay" class="w-100 my-1"
+					TValue="int"
+					Value="Bots.Settings.CancelTxnDelay"
+					Change="@((val) => {Bots.Settings.CancelTxnDelay=val;Bots.SaveSettings();})" />
 			</div>
 			<div class="col-12">
 				<RadzenText Text="Professions" TextStyle="TextStyle.H5" />

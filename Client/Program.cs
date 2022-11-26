@@ -30,6 +30,7 @@ namespace PirateQuester
 			builder.Services.AddSingleton(new QuestCoreService(w3Service, "0xE9AbfBC143d7cef74b5b793ec5907fa62ca53154"));
 			builder.Services.AddSingleton(new MeditationCircleService(w3Service, "0xD507b6b299d9FC835a0Df92f718920D13fA49B47"));
 			builder.Services.AddScoped<DialogService>();
+			builder.Services.AddScoped<TooltipService>();
 			builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddSingleton(serviceProvider => (IJSInProcessRuntime)serviceProvider.GetRequiredService<IJSRuntime>());
             builder.Services.AddSingleton(serviceProvider => (IJSUnmarshalledRuntime)serviceProvider.GetRequiredService<IJSRuntime>());

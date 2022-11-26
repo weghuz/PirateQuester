@@ -6,6 +6,26 @@
 @using PirateQuester.Utils;
 
 <BotTerminalNavigation />
+@code{
+	private void OpenTooltip(ElementReference arg, DFKItem reward)
+	{
+		Tooltip.Open(arg, ds => @<div>
+		<RadzenText Text=@(reward.Name) TextStyle="TextStyle.H6" />
+			<div>
+				<RadzenText Text=@(reward.Address) />
+			</div>
+			<div>
+				<RadzenText Text=@(reward.Description) />
+			</div>		
+		</div>, 
+		new()
+		{
+			Duration = 0,
+			Style = "background-color: var(--rz-black); color:var(--rz-series-1);padding:5px;"
+		});
+	}
+}
+
 @if (Bots.RunningBots.Count() >= BotId + 1)
 {
 	<PageTitle>Bot Terminal @BotId</PageTitle>
@@ -34,78 +54,65 @@
 	<RadzenText Text="Recent Quests" />
 	<RadzenDataGrid Data="@Bots.RunningBots[BotId].QuestRewards"
 		TItem="QuestReward"
-		@ref="QuestRewardDataGrid"
-		AllowPaging="true"
 		AllowSorting="true"
-		AllowColumnReorder="true"
 		AllowColumnResize="true"
-		AllowFiltering="true"
-		ShowPagingSummary="true"
-		ColumnWidth="100px"
-		PagerHorizontalAlign="HorizontalAlign.Center"
-		PageSize="4"
-		Style="max-height:285px;"
-		PagingSummaryFormat="@Constants.PagingSummaryFormat">
+		AllowColumnReorder="true"
+		Responsive="true"
+		@bind-Settings=@QuestRewardsDataGridSettings
+		Style="max-height:285px;">
 		<Columns>
-			<RadzenDataGridColumn TItem="QuestReward" Property="QuestId" Title="Id" Width="50px" />
-			<RadzenDataGridColumn TItem="QuestReward" Property="" Title="Heroes" Width="100px">
+			<RadzenDataGridColumn TItem="QuestReward" Property="QuestId" Title="Id"/>
+			<RadzenDataGridColumn TItem="QuestReward" Property="Heroes" Title="Heroes">
 				<Template Context="reward">
-					@string.Join(", ", reward.Heroes)
+					<div class="w-100 overflow-auto">
+						@string.Join(", ", reward.Heroes)
+					</div>
 				</Template>
 			</RadzenDataGridColumn>
-			<RadzenDataGridColumn TItem="QuestReward" Property="" Title="Items" Width="200px">
-				<Template Context="reward">
-					@foreach(DFKItem reward in reward.Rewards.Items)
-					{
-						if(reward.Name is not null)
+			<RadzenDataGridColumn TItem="QuestReward" Property="Rewards.Items" Title="Items">
+				<Template Context="r">
+					<div class="w-100 overflow-auto">
+						@foreach(DFKItem reward in r.Rewards.Items)
 						{
-							@(reward.Decimals == 0 ? reward.Amount : reward.Amount / Math.Pow(10, reward.Decimals))
-							<img src="@(reward.Image)" width="32" height="32" />
-							@(reward.Name)
-							<span>, </span>
+							@if(reward.Name is not null)
+							{
+								@(reward.Decimals == 0 ? reward.Amount : reward.Amount / Math.Pow(10, reward.Decimals))
+								if(reward.Name == "Crystal" || reward.Name == "Jewel")
+								{
+									<RadzenImage src="@(reward.Image)" width="24" height="24" class="mr-3" style="margin:6px;" 
+										MouseEnter=@((arg) => OpenTooltip(arg, reward))/>
+								}
+								else
+								{
+									<RadzenImage src="@(reward.Image)" width="32" height="32" class="mr-3" 
+										MouseEnter=@((arg) => OpenTooltip(arg, reward))/>
+								}
+							}
+							else
+							{
+								@reward.Address
+							}
 						}
-						else
-						{
-							@reward.Address
-							<span>, </span>
-						}
-					}
+					</div>
 				</Template>
 			</RadzenDataGridColumn>
 		</Columns>
 	</RadzenDataGrid>
 	<RadzenText Text="Running Quests" />
-	<RadzenDataGrid Data="@Bots.RunningBots[BotId].RunningQuests"
+	<RadzenDataGrid Data="@Bots.RunningBots[BotId].RunningQuests.OrderBy(rq => rq.CompleteDateTime - DateTime.UtcNow)"
 		TItem="Quest"
 		@ref="RunningQuestsGrid"
-		AllowPaging="true"
+		Responsive="true"
 		AllowSorting="true"
-		AllowColumnReorder="true"
 		AllowColumnResize="true"
-		AllowFiltering="true"
-		ShowPagingSummary="true"
-		ColumnWidth="100px"
-		PagerHorizontalAlign="HorizontalAlign.Center"
-		PageSize="4"
-		Style="max-height:250px;"
-		PagingSummaryFormat="@Constants.PagingSummaryFormat">
+		AllowColumnReorder="true"
+		@bind-Settings=@RunningQuestsDataGridSettings
+		Style="max-height:250px;">
 		<Columns>
 			<RadzenDataGridColumn TItem="Quest" Property="Id" Title="Id" />
-			<RadzenDataGridColumn TItem="Quest" Property="" Title="Quest">
-				<Template Context="quest">
-					@quest.QuestName()
-				</Template>
-			</RadzenDataGridColumn>
-			<RadzenDataGridColumn TItem="Quest" Property="CompleteInHours" Title="Complete in">
-				<Template Context="quest">
-					@((quest.CompleteDateTime - DateTime.UtcNow).ToString(@"hh\:mm\:ss"))
-				</Template>
-			</RadzenDataGridColumn>
-			<RadzenDataGridColumn TItem="Quest" Property="" Title="Heroes">
-				<Template Context="quest">
-					@string.Join(", ", quest.Heroes)
-				</Template>
-			</RadzenDataGridColumn>
+			<RadzenDataGridColumn TItem="Quest" Property="QuestName" Title="Quest" />
+			<RadzenDataGridColumn TItem="Quest" Property="CompleteInText" Title="Complete in" />
+			<RadzenDataGridColumn TItem="Quest" Property="HeroesText" Title="Heroes" />
 		</Columns>
 	</RadzenDataGrid>
 }

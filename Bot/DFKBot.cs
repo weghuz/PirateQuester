@@ -54,17 +54,16 @@ public class DFKBot
 		Log("Booting up...");
 		Log($"Interval: {Settings.UpdateInterval}");
 
-
 		//account.Signer.Processing.Logs.CreateProcessor<QuestRewardEventDTO>((log) => Console.WriteLine(log.Log.Data));
 
-		await account.InitializeAccount(settings);
+		await account.InitializeAccount(Settings.MinTrainingStats);
 		while (true)
 		{
 			await UpdateHeroes();
 			await Update();
-            if (StopBot)
-                break;
 			await UpdateQuestRewards();
+			if (StopBot)
+                break;
 			await Task.Delay(1000 * Settings.UpdateInterval);
 			if (StopBot)
 				break;
@@ -151,7 +150,7 @@ public class DFKBot
 			{
 				try
 				{
-					Log($"Quest #{q.Id} {q.QuestName()} is ready to complete, completing...");
+					Log($"Quest #{q.Id} {q.QuestName} is ready to complete, completing...");
 					string okMessage = await Transaction.CompleteQuest(Account, q.Heroes.First(), Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
 					Log(okMessage);
 					RunningQuests.RemoveAll(remQ => remQ.Id == q.Id);
@@ -175,6 +174,7 @@ public class DFKBot
 				.Where(h => h.Hero.xp >= h.Hero.XpToLevelUp()
 				&& h.Hero.currentQuest == QuestContractDefinitions.NULL_ADDRESS
 				&& h.Hero.StaminaCurrent() <= Settings.MinStamina
+				&& h.Hero.salePrice is null
 				&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
 				.ToList();
 			Log($"{activeMeditations.Count} Active meditations.");

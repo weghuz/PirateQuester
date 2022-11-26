@@ -20,8 +20,22 @@ namespace PirateQuester.Utils
             Balance += Web3.Convert.FromWei(await Signer.Eth.GetBalance.SendRequestAsync(Account.Address));
         }
 
-        public async Task InitializeAccount(DFKBotSettings settings)
+        public async Task InitializeAccount(List<DFKStatAmount> minTrainingStats )
 		{
+			if(minTrainingStats is null)
+			{
+				minTrainingStats = new()
+				{
+					{ new(0, 30) },
+					{ new(1, 30) },
+					{ new(2, 30) },
+					{ new(3, 30) },
+					{ new(4, 30) },
+					{ new(5, 30) },
+					{ new(6, 30) },
+					{ new(7, 30) }
+				};
+			}
 			UpdateBalance();
 
             Dictionary<HeroesArgument, string> args = new()
@@ -34,7 +48,7 @@ namespace PirateQuester.Utils
 			foreach(Hero h in Heroes)
 			{
 				h.DFKAccount = this;
-				BotHeroes.Add(new DFKBotHero(h, settings));
+				BotHeroes.Add(new DFKBotHero(h, minTrainingStats));
 			}
 			UpdatedAccount?.Invoke();
 		}

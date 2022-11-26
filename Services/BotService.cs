@@ -1,4 +1,7 @@
-﻿using PirateQuester.Bot;
+﻿using Microsoft.JSInterop;
+using Newtonsoft.Json;
+using PirateQuester.Bot;
+using PirateQuester.Pages;
 using PirateQuester.Utils;
 
 namespace PirateQuester.Services
@@ -8,12 +11,19 @@ namespace PirateQuester.Services
 		public List<DFKBot> RunningBots { get; set; } = new();
 		public DFKBotSettings Settings { get; set; } = new();
         public bool Running { get; set; } = false;
-		public AccountManager Acc { get; }
+        public IJSInProcessRuntime JS { get; set; }
+        public AccountManager Acc { get; }
 		public delegate void BotUpdated();
 		public event BotUpdated UpdatedBot;
-		public BotService(AccountManager acc)
+		public BotService(AccountManager acc, IJSInProcessRuntime js)
 		{
+			JS = js;
 			Acc = acc;
+		}
+
+		public void SaveSettings()
+		{
+			JS.InvokeVoid("localStorage.setItem", new string[] { "DFKBotSettings", JsonConvert.SerializeObject(Settings) });
 		}
 
 		public bool CheckRunning()
@@ -38,6 +48,7 @@ namespace PirateQuester.Services
 
 		public Task RunBots()
 		{
+			SaveSettings();
 			Running = true;
 			RunningBots = new List<DFKBot>();
 			foreach (DFKAccount acc in Acc.Accounts)

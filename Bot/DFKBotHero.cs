@@ -1,12 +1,13 @@
 ﻿using DFK;
 using PirateQuester.DFK.Contracts;
+using PirateQuester.Utils;
 using System.Numerics;
 
 namespace PirateQuester.Bot
 {
     public class DFKBotHero
     {
-        public DFKBotHero(Hero h, DFKBotSettings settings) 
+        public DFKBotHero(Hero h, List<DFKStatAmount> minTrainingStats) 
         { 
             Hero = h;
             ID = new BigInteger(long.Parse(h.id));
@@ -23,7 +24,7 @@ namespace PirateQuester.Bot
 			};
 			int highestStat = stats.Max();
 
-			if (highestStat >= settings.MinTrainingStats[stats.IndexOf(highestStat)].Amount)
+			if (highestStat >= minTrainingStats[stats.IndexOf(highestStat)].Amount)
 			{
 				SuggestedQuest = QuestContractDefinitions.DFKQuestContracts[stats.IndexOf(highestStat)];
 			}

@@ -5,11 +5,9 @@ namespace DFKContracts.QuestCore.ContractDefinition
 {
     public partial class Quest : QuestBase
 	{
-        public string QuestName()
-        {
-            return PirateQuester.DFK.Contracts.QuestContractDefinitions.GetQuestContractFromAddress(QuestAddress)?.Name;
-        }
-
+        public string QuestName { get { return PirateQuester.DFK.Contracts.QuestContractDefinitions.GetQuestContractFromAddress(QuestAddress)?.Name; } }
+        public string CompleteInText { get { return (CompleteDateTime - DateTime.UtcNow).ToString(@"hh\:mm\:ss"); } }
+        public string HeroesText { get { return string.Join(", ", Heroes); } }
         public BigInteger CompleteBlock { get; set; }
 		public DateTime StartDateTime { get; set; }
 
