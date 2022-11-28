@@ -47,6 +47,7 @@ public class Hero
     {
         staminaFullAt = h.staminaFullAt;
         level = h.level;
+        xp = h.xp;
         currentQuest = h.currentQuest;
         strength = h.strength;
         dexterity = h.dexterity;
