@@ -51,68 +51,70 @@
 			}
 		}
 	</RadzenCard>
-	<RadzenText Text="Recent Quests" />
-	<RadzenDataGrid Data="@Bots.RunningBots[BotId].QuestRewards"
-		TItem="QuestReward"
-		AllowSorting="true"
-		AllowColumnResize="true"
-		AllowColumnReorder="true"
-		Responsive="true"
-		@bind-Settings=@QuestRewardsDataGridSettings
-		Style="max-height:285px;">
-		<Columns>
-			<RadzenDataGridColumn TItem="QuestReward" Property="QuestId" Title="Id"/>
-			<RadzenDataGridColumn TItem="QuestReward" Property="Heroes" Title="Heroes">
-				<Template Context="reward">
+
+	<SfGrid DataSource="@Bots.RunningBots[BotId].QuestRewards" 
+		AllowResizing="true" 
+		EnableVirtualization="true" 
+		AllowFiltering="true"
+		AllowExcelExport="true"
+		Height="250">
+		<GridColumns>
+			<GridColumn Field="@nameof(QuestReward.QuestId)">
+
+			</GridColumn>
+			<GridColumn Field="@nameof(QuestReward.Heroes)">
+				<Template>
 					<div class="w-100 overflow-auto">
-						@string.Join(", ", reward.Heroes)
-					</div>
-				</Template>
-			</RadzenDataGridColumn>
-			<RadzenDataGridColumn TItem="QuestReward" Property="Rewards.Items" Title="Items">
-				<Template Context="r">
-					<div class="w-100 overflow-auto">
-						@foreach(DFKItem reward in r.Rewards.Items)
-						{
-							@if(reward.Name is not null)
-							{
-								@(reward.Decimals == 0 ? reward.Amount : reward.Amount / Math.Pow(10, reward.Decimals))
-								if(reward.Name == "Crystal" || reward.Name == "Jewel")
-								{
-									<RadzenImage src="@(reward.Image)" width="24" height="24" class="mr-3" style="margin:6px;" 
-										MouseEnter=@((arg) => OpenTooltip(arg, reward))/>
-								}
-								else
-								{
-									<RadzenImage src="@(reward.Image)" width="32" height="32" class="mr-3" 
-										MouseEnter=@((arg) => OpenTooltip(arg, reward))/>
-								}
-							}
-							else
-							{
-								@reward.Address
-							}
+						@{
+							var reward = context as QuestReward;
+							@string.Join(", ", reward.Heroes)
 						}
 					</div>
 				</Template>
-			</RadzenDataGridColumn>
-		</Columns>
-	</RadzenDataGrid>
-	<RadzenText Text="Running Quests" />
-	<RadzenDataGrid Data="@Bots.RunningBots[BotId].RunningQuests.OrderBy(rq => rq.CompleteDateTime - DateTime.UtcNow)"
-		TItem="Quest"
-		@ref="RunningQuestsGrid"
-		Responsive="true"
-		AllowSorting="true"
-		AllowColumnResize="true"
-		AllowColumnReorder="true"
-		@bind-Settings=@RunningQuestsDataGridSettings
-		Style="max-height:250px;">
-		<Columns>
-			<RadzenDataGridColumn TItem="Quest" Property="Id" Title="Id" />
-			<RadzenDataGridColumn TItem="Quest" Property="QuestName" Title="Quest" />
-			<RadzenDataGridColumn TItem="Quest" Property="CompleteInText" Title="Complete in" />
-			<RadzenDataGridColumn TItem="Quest" Property="HeroesText" Title="Heroes" />
-		</Columns>
-	</RadzenDataGrid>
+			</GridColumn>
+			<GridColumn Field="@nameof(QuestReward.Rewards)">
+				<Template>
+					<div class="w-100 overflow-auto">
+						@{
+							var r = (context as QuestReward);
+							foreach (DFKItem reward in r.Rewards.Items)
+							{
+								@if (reward.Name is not null)
+								{
+									@(reward.Decimals == 0 ? reward.Amount : reward.Amount / Math.Pow(10, reward.Decimals))
+									if (reward.Name == "Crystal" || reward.Name == "Jewel")
+									{
+										<RadzenImage src="@(reward.Image)" width="24" height="24" class="mr-3" style="margin:6px;"
+							MouseEnter=@((arg) => OpenTooltip(arg, reward)) />
+									}
+									else
+									{
+										<RadzenImage src="@(reward.Image)" width="32" height="32" class="mr-3"
+							MouseEnter=@((arg) => OpenTooltip(arg, reward)) />
+									}
+								}
+								else
+								{
+									@reward.Address
+								}
+							}
+						}		
+					</div>
+				</Template>
+			</GridColumn>
+		</GridColumns>
+	</SfGrid>
+	<SfGrid DataSource="@Bots.RunningBots[BotId].RunningQuests" 
+	AllowResizing="true" 
+	EnableVirtualization="true" 
+	AllowFiltering="true" 
+	AllowExcelExport="true" 
+	Height="150">
+		<GridColumns>
+			<GridColumn Field="@nameof(Quest.Id)"></GridColumn>
+			<GridColumn Field="@nameof(Quest.QuestName)"></GridColumn>
+			<GridColumn Field="@nameof(Quest.CompleteInText)"></GridColumn>
+			<GridColumn Field="@nameof(Quest.HeroesText)"></GridColumn>
+		</GridColumns>
+	</SfGrid>
 }

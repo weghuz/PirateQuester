@@ -16,6 +16,8 @@
     <PackageReference Include="Nethereum.Web3" Version="4.11.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Radzen.Blazor" Version="4.3.2" />
+    <PackageReference Include="Syncfusion.Blazor" Version="20.3.0.59" />
+    <PackageReference Include="Syncfusion.Blazor.Themes" Version="20.3.0.59" />
   </ItemGroup>
 
   <ItemGroup>

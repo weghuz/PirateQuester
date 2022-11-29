@@ -10,6 +10,7 @@ using PirateQuester.Utils;
 using Radzen;
 using DFKContracts.MeditationCircle;
 using Nethereum.JsonRpc.WebSocketClient;
+using Syncfusion.Blazor;
 
 namespace PirateQuester
 {
@@ -37,7 +38,9 @@ namespace PirateQuester
             builder.Services.AddSingleton<AccountManager>();
             builder.Services.AddSingleton<DFKBot>();
             builder.Services.AddSingleton<BotService>();
-
+            builder.Services.AddSyncfusionBlazor();
+            
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NzcwNjIwQDMyMzAyZTMzMmUzMFdwWFM4cnp3NHN0eVlQODFEMkhyRUFuNG16Sm1LTVJzRGxFY3d4SC9ZZlE9");
             await builder.Build().RunAsync();
         }
     }

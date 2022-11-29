@@ -38,13 +38,15 @@ public partial class Options
         if (bool.TryParse(darkMode, out bool darkModeBool))
         {
             if (darkModeBool)
-            {
-                JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
-            }
+			{
+				JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
+				JS.Invoke<string>("SetSyncfusionStylesheet", "_content/Syncfusion.Blazor/Styles/bootstrap5-dark.css");
+			}
             else
             {
                 JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/standard.css");
-            }
+				JS.Invoke<string>("SetSyncfusionStylesheet", "_content/Syncfusion.Blazor/Styles/bootstrap5.css");
+			}
         }
         else
         {

@@ -242,7 +242,7 @@ public static class Transaction
 			}
 			else
 			{
-				return $"Transaction Failed.\nTxn hash: {receipt.TransactionHash}";
+				return $"Transaction Failed.";
 			}
         }
 		catch(Exception e)
@@ -309,7 +309,7 @@ public static class Transaction
 			}
 			else
 			{
-				return $"Failed to start Quest: {quest.Name}\nTransaction: {questStartResponse.TransactionHash}\nhttps://avascan.info/blockchain/dfk/tx/{questStartResponse.TransactionHash}";
+				return $"Failed to start Quest: {quest.Name}";
 			}
         }
 		catch(Exception e)
