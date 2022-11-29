@@ -61,15 +61,22 @@ public partial class BotTerminal
 		if (firstRender)
 		{
 			Console.WriteLine("first");
-			var questRewardsDataGridSettingsJson = JS.Invoke<string>("localStorage.getItem", "QuestRewardsDataGridSettings");
-			if (questRewardsDataGridSettingsJson != null)
+			try
 			{
-				QuestRewardsDataGridSettings = JsonConvert.DeserializeObject<DataGridSettings>(questRewardsDataGridSettingsJson);
+				var questRewardsDataGridSettingsJson = JS.Invoke<string>("localStorage.getItem", "QuestRewardsDataGridSettings");
+				if (questRewardsDataGridSettingsJson != null)
+				{
+					QuestRewardsDataGridSettings = JsonConvert.DeserializeObject<DataGridSettings>(questRewardsDataGridSettingsJson);
+				}
+				var runningQuestsDataGridSettingsJson = JS.Invoke<string>("localStorage.getItem", "RunningQuestsDataGridSettings");
+				if (runningQuestsDataGridSettingsJson != null)
+				{
+					RunningQuestsDataGridSettings = JsonConvert.DeserializeObject<DataGridSettings>(questRewardsDataGridSettingsJson);
+				}
 			}
-			var runningQuestsDataGridSettingsJson = JS.Invoke<string>("localStorage.getItem", "RunningQuestsDataGridSettings");
-			if (runningQuestsDataGridSettingsJson != null)
+			catch(Exception e)
 			{
-				RunningQuestsDataGridSettings = JsonConvert.DeserializeObject<DataGridSettings>(questRewardsDataGridSettingsJson);
+				Console.WriteLine(e.Message);
 			}
 			StateHasChanged();
 		}
