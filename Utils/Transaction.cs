@@ -14,19 +14,6 @@ namespace Utils;
 
 public static class Transaction
 {
-	private static List<PendingTransaction> pendingTransactions = new List<PendingTransaction>();
-	public static List<PendingTransaction> PendingTransactions
-	{
-		get
-		{
-			return pendingTransactions;
-		}
-		set
-		{
-			TransactionAdded?.Invoke();
-			pendingTransactions = value;
-		}
-	}
 	private static List<FinishedTransaction> finishedTransactions = new List<FinishedTransaction>();
 	public static List<FinishedTransaction> FinishedTransactions
 	{
@@ -53,12 +40,6 @@ public static class Transaction
 
 	public static async Task<string> CompleteMeditation(DFKAccount account, BigInteger heroId, int maxGasFeeGwei = 200, int cancelDelay = 60000)
 	{
-		PendingTransaction pendingTransaction = new()
-		{
-			Name = $"Starting meditation For: {heroId}",
-			TimeStamp = DateTime.UtcNow,
-		};
-		PendingTransactions.Add(pendingTransaction);
 		TransactionAdded?.Invoke();
 		try
 		{
@@ -72,7 +53,6 @@ public static class Transaction
 
 			var receipt = await account.Meditation.CompleteMeditationRequestAndWaitForReceiptAsync(completeMeditationFunc, StopAfterDelay(cancelDelay));
 			Console.WriteLine($"Complete Meditation Txn: Gas: {receipt.GasUsed.Value}");
-			PendingTransactions.Remove(pendingTransaction);
 			FinishedTransactions.Add(new()
 			{
 				Name = $"Completed meditation For Hero: {heroId}",
@@ -99,7 +79,6 @@ public static class Transaction
 				TransactionHash = null
 			});
 			Console.WriteLine($"{e.Message}");
-			PendingTransactions.Remove(pendingTransaction);
 			TransactionAdded?.Invoke();
 			throw;
 		}
@@ -107,12 +86,6 @@ public static class Transaction
 
 	public static async Task<string> StartMeditation(DFKAccount account, BigInteger heroId, byte stat1, byte stat2, byte stat3, int maxGasFeeGwei = 200, int cancelDelay = 60000)
 	{
-		PendingTransaction pendingTransaction = new()
-		{
-			Name = $"Starting meditation For: {heroId}",
-			TimeStamp = DateTime.UtcNow,
-		};
-		PendingTransactions.Add(pendingTransaction);
 		TransactionAdded?.Invoke();
 		try
 		{
@@ -172,7 +145,6 @@ public static class Transaction
 
 			var receipt = await account.Meditation.StartMeditationRequestAndWaitForReceiptAsync(startMeditationFunc, StopAfterDelay(cancelDelay));
 			Console.WriteLine($"Started Meditation Txn: Gas: {receipt.GasUsed.Value}");
-			PendingTransactions.Remove(pendingTransaction);
 			FinishedTransactions.Add(new()
 			{
 				Name = $"Started meditation For Hero: {heroId}",
@@ -199,7 +171,6 @@ public static class Transaction
 				TransactionHash = null
 			});
 			Console.WriteLine($"{e.Message}");
-			PendingTransactions.Remove(pendingTransaction);
 			TransactionAdded?.Invoke();
 			throw;
 		}
@@ -207,12 +178,6 @@ public static class Transaction
 
 	public static async Task<string> CompleteQuest(DFKAccount account, BigInteger heroId, int maxGasFeeGwei = 200, int cancelDelay = 60000)
 	{
-		PendingTransaction pendingTransaction = new()
-		{
-			Name = "Complete Quest",
-			TimeStamp = DateTime.UtcNow,
-		};
-        PendingTransactions.Add(pendingTransaction);
         TransactionAdded?.Invoke();
 		try
         {
@@ -228,7 +193,6 @@ public static class Transaction
 			var receipt = await account.Quest.CompleteQuestRequestAndWaitForReceiptAsync(questCompleteFunc, StopAfterDelay(cancelDelay));
 			Console.WriteLine($"Completed Quest Txn: Gas: {receipt.GasUsed.Value}");
 			//var completeQuestEvent = receipt.DecodeAllEvents<QuestCompletedEventDTO>();
-			PendingTransactions.Remove(pendingTransaction);
 			FinishedTransactions.Add(new()
 			{
 				Name = $"Complete Quest For Hero: {heroId}",
@@ -255,7 +219,6 @@ public static class Transaction
                 TransactionHash = null
             });
             Console.WriteLine($"{e.Message}");
-            PendingTransactions.Remove(pendingTransaction);
             TransactionAdded?.Invoke();
 			throw;
 		}
@@ -263,12 +226,6 @@ public static class Transaction
 
 	public static async Task<string> StartQuest(DFKAccount account, List<BigInteger> selectedHeroes, QuestContract quest, int attempts, int maxGasFeeGwei = 200, int cancelDelay = 60000)
 	{
-        var pendingTxn = new PendingTransaction()
-        {
-            Name = $"Start Quest: {quest.Name}",
-            TimeStamp = DateTime.UtcNow,
-        };
-        PendingTransactions.Add(pendingTxn);
         TransactionAdded?.Invoke();
         bool isApproved = await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, quest.Address);
 		Console.WriteLine($"Is approved: {isApproved}");
@@ -294,7 +251,6 @@ public static class Transaction
 			var questStartResponse = await account.Quest.StartQuestRequestAndWaitForReceiptAsync(questStartFunc, StopAfterDelay(cancelDelay));
 			Console.WriteLine($"Started Quest Txn: Gas: {questStartResponse.GasUsed.Value}");
 			//var startQuestEvent = questStartResponse.DecodeAllEvents<QuestStartedEventDTO>();
-			PendingTransactions.Remove(pendingTxn);
 			FinishedTransactions.Add(new()
             {
                 Success = true,
@@ -314,7 +270,6 @@ public static class Transaction
         }
 		catch(Exception e)
         {
-            PendingTransactions.Remove(pendingTxn);
 			FinishedTransactions.Add(new()
 			{
 				Success = false,

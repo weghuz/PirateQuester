@@ -1,24 +1,6 @@
 ﻿@page "/TransactionWindow"
 @using PirateQuester.Utils;
-<h3>Transactions</h3>
-
 <PageTitle>PQ - Transactions</PageTitle>
-<h3>
-    Pending
-</h3>
-@foreach (PendingTransaction t in Transaction.PendingTransactions.OrderByDescending(tran => tran.TimeStamp))
-{
-    <RadzenCard class="mt-2">
-        <div class="col-md-12">
-            <div>
-                @t.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss"); @t.Name
-            </div>
-        </div>
-    </RadzenCard>
-}
-<h3>
-    Completed
-</h3>
 @foreach (FinishedTransaction t in Transaction.FinishedTransactions.OrderByDescending(tran => tran.TimeStamp))
 {
     if(t.Success)

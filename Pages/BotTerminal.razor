@@ -52,17 +52,19 @@
 		}
 	</RadzenCard>
 
-	<SfGrid DataSource="@Bots.RunningBots[BotId].QuestRewards" 
-		AllowResizing="true" 
-		EnableVirtualization="true" 
-		AllowFiltering="true"
+	<SfGrid DataSource="@Bots.RunningBots[BotId].QuestRewards"
+		ID="QuestRewardsGrid"
+		EnablePersistence="true"
+		AllowResizing="true"
+		AllowSorting="true"
+		EnableVirtualization="true"
 		AllowExcelExport="true"
 		Height="250">
 		<GridColumns>
-			<GridColumn Field="@nameof(QuestReward.QuestId)">
+			<GridColumn Field="@nameof(QuestReward.QuestId)" AllowResizing="true" Width="120">
 
 			</GridColumn>
-			<GridColumn Field="@nameof(QuestReward.Heroes)">
+			<GridColumn Field="@nameof(QuestReward.Heroes)" AllowResizing="true" Width="240">
 				<Template>
 					<div class="w-100 overflow-auto">
 						@{
@@ -72,7 +74,7 @@
 					</div>
 				</Template>
 			</GridColumn>
-			<GridColumn Field="@nameof(QuestReward.Rewards)">
+			<GridColumn Field="@nameof(QuestReward.Rewards)" AllowResizing="true" Width="420">
 				<Template>
 					<div class="w-100 overflow-auto">
 						@{
@@ -104,10 +106,12 @@
 			</GridColumn>
 		</GridColumns>
 	</SfGrid>
-	<SfGrid DataSource="@Bots.RunningBots[BotId].RunningQuests" 
-	AllowResizing="true" 
-	EnableVirtualization="true" 
-	AllowFiltering="true" 
+	<SfGrid DataSource="@Bots.RunningBots[BotId].RunningQuests"
+	ID="RunningQuestsGrid"
+	EnablePersistence="true"
+	AllowResizing="true"
+	EnableVirtualization="true"
+	AllowSorting="true"
 	AllowExcelExport="true" 
 	Height="150">
 		<GridColumns>

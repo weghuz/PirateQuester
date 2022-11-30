@@ -27,9 +27,9 @@ public partial class BotTerminal
 
 	private void UpdateTerminal()
 	{
-
-		Console.WriteLine("Terminal Updated");
+		StateHasChanged();
 	}
+
 	protected override void OnInitialized()
 	{
 		Bots.UpdatedBot += UpdateTerminal;

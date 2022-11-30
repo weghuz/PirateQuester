@@ -49,7 +49,7 @@
                         </div>
                         <RadzenText Text="Pirate Quester 🏴‍☠️" Style="white-space:nowrap;" class="d-inline-block mx-5" />
                         <RadzenButton class="d-inline-block" Click="@OpenTransactionWindow">
-                            @Transaction.PendingTransactions.Count Pending Transactions
+                            @Transaction.FinishedTransactions.Count() Transactions
                         </RadzenButton>
                     </div>
                 </div>

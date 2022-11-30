@@ -44,7 +44,6 @@ namespace PirateQuester.Services
 		public void InvokeUpdates()
 		{
 			UpdatedBot?.Invoke();
-			Console.WriteLine("UI Update");
 		}
 
 		public Task RunBots()
