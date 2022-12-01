@@ -4,6 +4,7 @@ using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using Newtonsoft.Json;
 using PirateQuester.ViewModels;
+using System.Runtime;
 using Utils;
 
 namespace PirateQuester.Utils;
@@ -13,9 +14,11 @@ public class AccountManager
     public List<DFKAccount> Accounts { get; set; } = new();
     private readonly IJSInProcessRuntime _js;
     public List<string> AccountNames { get; set; }
-    public AccountManager(IJSInProcessRuntime js)
+    public static AccountSettings AccSettings;
+    public AccountManager(IJSInProcessRuntime js, AccountSettings accountSettings)
     {
-        _js = js;
+        AccSettings = accountSettings;
+		_js = js;
         AccountNames = GetAccountNames();
     }
 
@@ -26,7 +29,7 @@ public class AccountManager
             foreach (string name in model.SelectedAccounts)
             {
                 string json = _js.Invoke<string>("localStorage.getItem", name);
-                DFKAccount account = new(name, Encrypt.GetAccount(model.Password, json));
+                DFKAccount account = new(name, Encrypt.GetAccount(model.Password, json), AccSettings);
 
 				Accounts.Add(account);
                 await account.InitializeAccount(null);
@@ -84,7 +87,7 @@ public class AccountManager
             json = Encrypt.CreateAccount(model.PrivateKey, model.Password);
             _js.InvokeVoid("localStorage.setItem", new string[] { model.Name, json });
         }
-        DFKAccount account = new(model.Name, Encrypt.GetAccount(model.Password, json));
+        DFKAccount account = new(model.Name, Encrypt.GetAccount(model.Password, json), AccSettings);
 		Accounts.Add(account);
 		await account.InitializeAccount(null);
 		return;

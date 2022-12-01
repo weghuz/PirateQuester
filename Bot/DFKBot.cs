@@ -40,8 +40,8 @@ public class DFKBot
     public async Task UpdateHeroes()
     {
         Log("Updating Heroes...");
-        await Account.UpdateHeroes();
-        HeroesUpdated?.Invoke();
+		await Account.UpdateHeroes();
+		HeroesUpdated?.Invoke();
 	}
 
     public async void StartBot(DFKAccount account, DFKBotSettings settings)

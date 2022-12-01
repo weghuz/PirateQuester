@@ -15,6 +15,8 @@ public partial class Login
 	public NavigationManager Nav { get; set; }
 	[Inject]
 	public IJSInProcessRuntime JS { get; set; }
+	[Inject]
+	public AccountSettings AccSettings { get; set; }
 	private LoginViewModel Model { get; set; } = new();
 	public bool LoggingIn { get; set; } = false;
 

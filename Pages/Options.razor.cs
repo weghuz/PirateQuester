@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using PirateQuester.Utils;
 
 namespace PirateQuester.Pages;
 
@@ -7,6 +8,8 @@ public partial class Options
 {
     [Inject]
     public IJSInProcessRuntime JS { get; set; }
+    [Inject]
+    public AccountSettings AccSettings { get; set; }
     void ClearLocalStorage()
     {
         if(JS.Invoke<bool>("confirm", "This will delete ALL your local accounts. Are you sure?"))

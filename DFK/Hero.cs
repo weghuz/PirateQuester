@@ -1,4 +1,5 @@
 using Microsoft.JSInterop;
+using Nethereum.Hex.HexConvertors.Extensions;
 using Newtonsoft.Json;
 using PirateQuester.DFK.Contracts;
 using PirateQuester.Utils;
@@ -7,7 +8,125 @@ using System.Numerics;
 namespace DFK;
 public class Hero
 {
-    public int XpToLevelUp()
+    public Hero() { }
+    public Hero(DFKContracts.HeroCore.ContractDefinition.Hero hero)
+    {
+        id = hero.Id.ToString();
+        rarity = hero.Info.Rarity;
+        generation = hero.Info.Generation;
+        firstName = (int)hero.Info.FirstName;
+        lastName = (int)hero.Info.LastName;
+        mainClass = hero.Info.Class switch {
+            1 => "knight",
+            2 => "thief",
+            3 => "archer",
+            4 => "priest",
+            5 => "wizard",
+            6 => "monk",
+            7 => "pirate",
+            8 => "berserker",
+            9 => "seer",
+            16 => "paladin",
+            17 => "darkknight",
+            18 => "summoner",
+            19 => "ninja",
+            20 => "shapeshifter",
+            24 => "dragoon",
+            25 => "sage",
+            28 => "dreadknight",
+			_ => "warrior"
+		};
+        subClass = hero.Info.SubClass switch
+		{
+			1 => "knight",
+			2 => "thief",
+			3 => "archer",
+			4 => "priest",
+			5 => "wizard",
+			6 => "monk",
+			7 => "pirate",
+			8 => "berserker",
+			9 => "seer",
+			16 => "paladin",
+			17 => "darkknight",
+			18 => "summoner",
+			19 => "ninja",
+			20 => "shapeshifter",
+			24 => "dragoon",
+			25 => "sage",
+			28 => "dreadknight",
+			_ => "warrior"
+		};
+
+        staminaFullAt = (long)Functions.BigIntToLong(hero.State.StaminaFullAt);
+        level = hero.State.Level;
+        currentQuest = hero.State.CurrentQuest;
+
+        strength = hero.Stats.Strength;
+        dexterity = hero.Stats.Dexterity;
+        agility = hero.Stats.Agility;
+        vitality = hero.Stats.Vitality;
+        endurance = hero.Stats.Endurance;
+        wisdom = hero.Stats.Wisdom;
+        intelligence = hero.Stats.Intelligence;
+        luck = hero.Stats.Luck;
+        byte[] decodedGenes = decodeRecessiveGenes(hero.Info.StatGenes);
+
+		profession = decodedGenes[11] switch
+        {
+		    0 => "mining",
+            2 => "gardening",
+            4 => "fishing",
+            _ => "foraging"
+        };
+		statBoost1 = decodedGenes[31] switch 
+        {
+            2  => "AGI",
+            4  => "INT",
+            6  => "WIS",
+            8  => "LCK",
+            10 => "VIT",
+            12 => "END",
+            14 => "DEX",
+			_ => "STR",
+		};
+		statBoost2 = decodedGenes[35] switch
+		{
+			2 => "AGI",
+			4 => "INT",
+			6 => "WIS",
+			8 => "LCK",
+			10 => "VIT",
+			12 => "END",
+			14 => "DEX",
+			_ => "STR",
+		};
+		stamina = hero.Stats.Stamina;
+	}
+
+    public byte[] decodeRecessiveGenes(BigInteger genesBigInt) {
+		var abc = "123456789abcdefghijkmnopqrstuvwx";
+		var buf = "";
+		byte bas = 32;
+		BigInteger mod = 0;
+
+		while (genesBigInt >= bas)
+		{
+			mod = genesBigInt % bas;
+			buf += abc[int.Parse(mod.ToString())];
+			genesBigInt = (genesBigInt - mod) / bas;
+		}
+		buf += abc[int.Parse(genesBigInt.ToString())];
+		buf = buf.PadRight(48, '1');
+		byte[] result = new byte[48];
+		for (int i = 0; i < buf.Length; i += 1)
+		{
+			result[i] = (byte)abc.IndexOf(buf[i]);
+		}
+		return result.Reverse().ToArray();
+	}
+
+	public int XpToLevelUp()
     {
         int xpNeeded = 0;
         var nextLevel = level + 1;

@@ -12,12 +12,32 @@ namespace PirateQuester.Utils
         public static async Task<List<EventLog<RewardMintedEventDTO>>> GetQuestRewardLogs(DFKAccount acc)
 		{
 			var block = await Functions.CurrentBlock(acc.Signer);
-			var questRewardEvent = acc.Signer.Eth.GetEvent<RewardMintedEventDTO>("0x08D93Db24B783F8eBb68D7604bF358F5027330A6");
-			var questEvents = await questRewardEvent
-				.GetAllChangesAsync(questRewardEvent.CreateFilterInput(null,
-					new[] { acc.Account.Address },
-					LongToBlock(long.Parse(block.ToString()) - 2048),
-					new BlockParameter(block.ToHexBigInteger())));
+			int attempt = 0;
+			bool retry = false;
+			List<EventLog<RewardMintedEventDTO>> questEvents = new();
+			while (retry)
+			{
+				try
+				{
+					var questRewardEvent = acc.Signer.Eth.GetEvent<RewardMintedEventDTO>("0x08D93Db24B783F8eBb68D7604bF358F5027330A6");
+					questEvents = await questRewardEvent
+						.GetAllChangesAsync(questRewardEvent.CreateFilterInput(null,
+							new[] { acc.Account.Address },
+							LongToBlock(long.Parse(block.ToString()) - 2048),
+							new BlockParameter(block.ToHexBigInteger())));
+					retry = false;
+				}
+				catch(Exception e)
+				{
+					Console.WriteLine(e.Message);
+					if(attempt <= 5)
+					{
+						retry = true;
+					}
+					block -= 10;
+					attempt++;
+				}
+			}
 			return questEvents;
 		}
 
