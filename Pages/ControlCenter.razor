@@ -35,7 +35,8 @@
 		x =>
 	@<div>
 		@message
-	</div>,
+		</div>
+	,
 		new DialogOptions()
 		{
 			ShowTitle = true,
@@ -47,97 +48,124 @@
 			AutoFocusFirstElement = true
 		});
 	}
+
+	public int pageSize { get; set; } = 50;
+
 }
 
 @if (Acc.Accounts.Count > 0)
 {
 	<RadzenCard class="my-2">
-		<RadzenDropDownDataGrid PageSize="10"
-		   TValue="string"
-		   AllowClear="true"
-		   AllowFiltering="true"
-		   FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-		@bind-Value=@SelectedQuestName
-		   Data="@QuestContractDefinitions.DFKQuestContracts.Select(q => q.Name)"
-		   Class="w-100 my-2" />
-		<RadzenButton Click="@SetQuestPreference">
+		<SfDropDownList 
+			TItem="QuestContract"
+			TValue="string"
+			@bind-Index="@SelectedQuest"
+			DataSource="@QuestContractDefinitions.DFKQuestContracts">
+            <DropDownListFieldSettings Value="Name"></DropDownListFieldSettings>
+		</SfDropDownList>
+		<RadzenButton Click="@SetQuestPreference"
+			class="mt-2">
 			Set quest preference
 		</RadzenButton>
 	</RadzenCard>
 }
-@if (Loading)
-{
-	<RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" ProgressBarStyle="ProgressBarStyle.Secondary" />
-}
-
-<RadzenDataGrid Data="@TableHeroes"
-	TItem="DFKBotHero"
-	@ref=@heroes
-	SelectionMode="DataGridSelectionMode.Multiple"
-	@bind-Value=@SelectedHeroes
-	AllowRowSelectOnRowClick="true"
-	AllowPaging="true"
-	FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-	FilterMode="FilterMode.Advanced"
-	ShowPagingSummary="true"
-	AllowColumnReorder="true"
-	ColumnWidth="100px"
+<SfGrid 
+	@ref=@HeroGridReference
+	DataSource="@TableHeroes"
+	ID="ControlCenterHeroGrid"
+	EnablePersistence="true"
+	AllowTextWrap="true"
+	AllowSelection="true"
 	AllowFiltering="true"
-	AllowColumnResize="true"
-	PagerHorizontalAlign="HorizontalAlign.Center"
-	PageSize="15"
-	Style="max-height:700px;"
-	PagingSummaryFormat="@Constants.PagingSummaryFormat">
-	<Columns>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Quest.Name" Title="Prefer Quest" Width="150px" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="SuggestedQuest.Name" Title="Bot Suggested Quest" Width="150px" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.profession" Title="Profession" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Title="Owner Address" Width="150px">
-			<Template Context="hero">
-				@hero.Hero.owner?.Id
+	AllowPaging="true"
+	AllowReordering="true"
+	AllowResizing="true"
+	AllowSorting="true"
+	AllowExcelExport="true"
+	Height="650px">
+	<GridSelectionSettings EnableSimpleMultiRowSelection="true" Type="SelectionType.Multiple" AllowDragSelection="true" ></GridSelectionSettings>
+
+	<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
+	<GridPageSettings PageSizes="@(new string[] { "5", "10", "15", "20", "50", "All" })" PageSize="@pageSize"></GridPageSettings>
+	<GridColumns>
+		<GridColumn Field="Hero.owner.Id" HeaderText="Wallet" Width="250">
+			<Template>
+				<div>
+					@{
+						var hero = context as DFKBotHero;
+						if(hero.Hero.owner?.Name is not null)
+						{
+							@hero.Hero?.owner?.Name
+							<span class="mx-2"></span>
+						}
+						if (hero.Hero.owner?.Id is not null)
+						{
+							@hero.Hero.owner.Id.Substring(2, 6)
+							@("...")
+							@hero.Hero.owner.Id.Substring(hero.Hero.owner.Id.Length - 4, 4)
+						}
+					}
+				</div>
 			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.id" Title="Id">
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.currentQuest" Title="Current Quest" Width="200px">
-			<Template Context="hero">
-				@QuestContractDefinitions.GetQuestContract(hero.Hero.currentQuest)?.Name
+		</GridColumn>
+		<GridColumn Field="Hero.id" HeaderText="Id" Width="120"></GridColumn>
+		<GridColumn Field="Hero.staminaFullAt" HeaderText="Stamina" Width="120">
+			<Template>
+				<div>
+					@{
+						var hero = context as DFKBotHero;
+						@hero.Hero.StaminaCurrent() @("/") @hero.Hero.stamina
+					}
+				</div>
 			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.stamina" Title="Stamina">
-			<Template Context="hero">
-				@hero.Hero.StaminaCurrent()/@hero.Hero.stamina
+		</GridColumn>
+		<GridColumn Field="Quest.Name" HeaderText="Prefer Quest" Width="280"></GridColumn>
+		<GridColumn Field="SuggestedQuest.Name" HeaderText="Suggested Quest" Width="280"></GridColumn>
+		<GridColumn Field="Hero.mainClass" HeaderText="Class" Width="120"></GridColumn>
+		<GridColumn Field="Hero.subClass" HeaderText="Subclass" Width="120"></GridColumn>
+		<GridColumn Field="Hero.profession" HeaderText="Profession" Width="130"></GridColumn>
+		<GridColumn Field="Hero.currentQuest" HeaderText="Current Quest" Width="280">
+			<Template>
+				<div>
+					@{
+						var hero = context as DFKBotHero;
+						@hero.Hero.GetCurrentQuestName();
+					}
+				</div>
 			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.salePrice" Title="Cost" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.mainClass" Title="Class" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.subClass" Title="Subclass" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="GetRarity" Title="Rarity">
-			<Template Context="hero">
-				@hero.Hero.GetRarity()
+		</GridColumn>
+		<GridColumn Field="Hero.salePrice" HeaderText="Price" Width="120">
+			<Template>
+				<div>
+					@((context as DFKBotHero).Hero.SalePrice(2))
+				</div>
 			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="FullName" Title="Name" Width="200px">
-			<Template Context="hero">
-				@hero.Hero.FullName()
+		</GridColumn>
+		<GridColumn Field="rarity" HeaderText="Rarity" Width="120">
+			<Template>
+				<div>
+					@((context as DFKBotHero).Hero.GetRarity())
+				</div>
 			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.level" Title="Level" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.generation" Title="Generation" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.statBoost1" Title="Statboost 1" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.statBoost2" Title="Statboost 2" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.strength" Title="Strength" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.dexterity" Title="Dexterity" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.agility" Title="Agility" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.vitality" Title="Vitality" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.endurance" Title="Endurance" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.intelligence" Title="Intelligence" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.wisdom" Title="Wisdom" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.luck" Title="Luck" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Title="Owner" Width="150px">
-			<Template Context="hero">
-				@hero.Hero.owner?.Name
+		</GridColumn>
+		<GridColumn Field="firstName" HeaderText="Name" Width="250">
+			<Template>
+				<div>
+					@((context as DFKBotHero).Hero.FullName())
+				</div>
 			</Template>
-		</RadzenDataGridColumn>
-	</Columns>
-</RadzenDataGrid>
+		</GridColumn>
+		<GridColumn Field="Hero.level" HeaderText="LVL" Width="90"></GridColumn>
+		<GridColumn Field="Hero.generation" HeaderText="Gen" Width="90"></GridColumn>
+		<GridColumn Field="Hero.statBoost1" HeaderText="SB1" Width="90"></GridColumn>
+		<GridColumn Field="Hero.statBoost2" HeaderText="SB2" Width="90"></GridColumn>
+		<GridColumn Field="Hero.strength" HeaderText="STR" Width="90"></GridColumn>
+		<GridColumn Field="Hero.dexterity" HeaderText="DEX" Width="90"></GridColumn>
+		<GridColumn Field="Hero.agility" HeaderText="AGI" Width="90"></GridColumn>
+		<GridColumn Field="Hero.vitality" HeaderText="VIT" Width="90"></GridColumn>
+		<GridColumn Field="Hero.endurance" HeaderText="END" Width="90"></GridColumn>
+		<GridColumn Field="Hero.intelligence" HeaderText="INT" Width="90"></GridColumn>
+		<GridColumn Field="Hero.wisdom" HeaderText="WIS" Width="90"></GridColumn>
+		<GridColumn Field="Hero.luck" HeaderText="LCK" Width="90"></GridColumn>
+	</GridColumns>
+</SfGrid>

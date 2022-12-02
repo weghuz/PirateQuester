@@ -221,8 +221,12 @@ public class Hero
 
     public decimal SalePrice(int decimals)
     {
-        decimal fixedSalePrice = long.Parse(salePrice) / 1000000000000000000;
-        return Math.Round(fixedSalePrice, decimals);
+        if(salePrice is not null)
+		{
+			decimal fixedSalePrice = long.Parse(salePrice) / 1000000000000000000;
+			return Math.Round(fixedSalePrice, decimals);
+		}
+        return 0;
     }
 
     public static Hero Deserialize(string json)

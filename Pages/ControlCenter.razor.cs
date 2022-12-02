@@ -10,6 +10,7 @@ using Utils;
 using System.Numerics;
 using PirateQuester.Bot;
 using PirateQuester.Services;
+using Syncfusion.Blazor.Grids;
 
 namespace PirateQuester.Pages;
 
@@ -27,13 +28,11 @@ public partial class ControlCenter
 	[Inject]
 	public BotService Bots { get; set; }
 	public List<DFKBotHero> TableHeroes { get; set; } = new();
-	public string SelectedQuestName { get; set; }
+	public int? SelectedQuest { get; set; }
 
-    bool Loading = false;
-	IList<DFKBotHero> SelectedHeroes = new List<DFKBotHero>();
-	RadzenDataGrid<DFKBotHero> heroes;
+    public SfGrid<DFKBotHero> HeroGridReference { get; set; }
 
-	protected override void OnInitialized()
+    protected override void OnInitialized()
 	{
 		TableHeroes = Acc.Accounts.SelectMany(a => a.BotHeroes).ToList();
 		if (Acc.Accounts.Count == 0)
@@ -48,9 +47,14 @@ public partial class ControlCenter
 
 	public void SetQuestPreference()
 	{
-		foreach(DFKBotHero h in SelectedHeroes)
+		foreach(DFKBotHero h in HeroGridReference.SelectedRecords)
 		{
-			h.Quest = QuestContractDefinitions.GetQuestContract(SelectedQuestName);
+			if(SelectedQuest.HasValue)
+			{
+				h.Quest = QuestContractDefinitions.GetQuestContract(SelectedQuest.Value);
+				HeroGridReference.ForceUpdate = true;
+			}
 		}
+		StateHasChanged();
 	}
 }

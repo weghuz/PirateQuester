@@ -57,13 +57,14 @@
 		EnablePersistence="true"
 		AllowResizing="true"
 		AllowSorting="true"
+		AllowPaging="true"
 		AllowTextWrap="true"
 		AllowFiltering="true"
-		EnableVirtualization="true"
 		AllowExcelExport="true"
 		Height="250">
 		<GridColumns>
 			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
+			<GridPageSettings PageCount="10"></GridPageSettings>
 			<GridColumn Field="@nameof(QuestReward.QuestId)" HeaderText="Id">
 
 			</GridColumn>
@@ -114,12 +115,13 @@
 	EnablePersistence="true"
 	AllowTextWrap="true"
 	AllowFiltering="true"
+	AllowPaging="true"
 	AllowResizing="true"
-	EnableVirtualization="true"
 	AllowSorting="true"
 	AllowExcelExport="true" 
 	Height="210">
 		<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
+		<GridPageSettings PageCount="10"></GridPageSettings>
 		<GridColumns>
 			<GridColumn Field="@nameof(Quest.Id)" HeaderText="Id"></GridColumn>
 			<GridColumn Field="@nameof(Quest.QuestName)" HeaderText="Quest"></GridColumn>
