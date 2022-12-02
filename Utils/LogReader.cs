@@ -13,7 +13,7 @@ namespace PirateQuester.Utils
 		{
 			var block = await Functions.CurrentBlock(acc.Signer);
 			int attempt = 0;
-			bool retry = false;
+			bool retry = true;
 			List<EventLog<RewardMintedEventDTO>> questEvents = new();
 			while (retry)
 			{

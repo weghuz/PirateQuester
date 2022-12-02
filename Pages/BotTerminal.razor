@@ -57,14 +57,17 @@
 		EnablePersistence="true"
 		AllowResizing="true"
 		AllowSorting="true"
+		AllowTextWrap="true"
+		AllowFiltering="true"
 		EnableVirtualization="true"
 		AllowExcelExport="true"
 		Height="250">
 		<GridColumns>
-			<GridColumn Field="@nameof(QuestReward.QuestId)" AllowResizing="true" Width="120">
+			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
+			<GridColumn Field="@nameof(QuestReward.QuestId)" HeaderText="Id">
 
 			</GridColumn>
-			<GridColumn Field="@nameof(QuestReward.Heroes)" AllowResizing="true" Width="240">
+			<GridColumn Field="@nameof(QuestReward.Heroes)" HeaderText="Heroes">
 				<Template>
 					<div class="w-100 overflow-auto">
 						@{
@@ -74,7 +77,7 @@
 					</div>
 				</Template>
 			</GridColumn>
-			<GridColumn Field="@nameof(QuestReward.Rewards)" AllowResizing="true" Width="420">
+			<GridColumn Field="@nameof(QuestReward.Rewards)" HeaderText="Rewards">
 				<Template>
 					<div class="w-100 overflow-auto">
 						@{
@@ -109,16 +112,19 @@
 	<SfGrid DataSource="@Bots.RunningBots[BotId].RunningQuests"
 	ID="RunningQuestsGrid"
 	EnablePersistence="true"
+	AllowTextWrap="true"
+	AllowFiltering="true"
 	AllowResizing="true"
 	EnableVirtualization="true"
 	AllowSorting="true"
 	AllowExcelExport="true" 
-	Height="150">
+	Height="210">
+		<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
 		<GridColumns>
-			<GridColumn Field="@nameof(Quest.Id)"></GridColumn>
-			<GridColumn Field="@nameof(Quest.QuestName)"></GridColumn>
-			<GridColumn Field="@nameof(Quest.CompleteInText)"></GridColumn>
-			<GridColumn Field="@nameof(Quest.HeroesText)"></GridColumn>
+			<GridColumn Field="@nameof(Quest.Id)" HeaderText="Id"></GridColumn>
+			<GridColumn Field="@nameof(Quest.QuestName)" HeaderText="Quest"></GridColumn>
+			<GridColumn Field="@nameof(Quest.CompleteInText)" HeaderText="Complete In"></GridColumn>
+			<GridColumn Field="@nameof(Quest.HeroesText)" HeaderText="Heroes"></GridColumn>
 		</GridColumns>
 	</SfGrid>
 }
