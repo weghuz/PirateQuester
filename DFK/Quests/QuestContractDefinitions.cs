@@ -118,7 +118,7 @@ public static partial class QuestContractDefinitions
             Category = "Mining",
             Subcategory = "Gold",
             Level = 0,
-			AvailableAttempts = (hero) => 1,
+			AvailableAttempts = (hero) => hero.StaminaCurrent(),
 			BlocksPerAttempt = (hero) => (ulong)(hero.profession == "mining" ? hero.StaminaCurrent() * 30 : hero.StaminaCurrent() * 36)
 		},
         new QuestContract
@@ -129,7 +129,7 @@ public static partial class QuestContractDefinitions
             Category = "Mining",
             Subcategory = "Crystal",
             Level = 0,
-			AvailableAttempts = (hero) => 1,
+			AvailableAttempts = (hero) => hero.StaminaCurrent(),
 			BlocksPerAttempt = (hero) => (ulong)(hero.profession == "mining" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
 		},
         new QuestContract
@@ -162,7 +162,7 @@ public static partial class QuestContractDefinitions
             Category = "Gardening",
             Subcategory = "Crystal-Avax",
             Level = 0,
-			AvailableAttempts = (hero) => 1,
+			AvailableAttempts = (hero) => hero.StaminaCurrent(),
 			BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
 		},
         new QuestContract
@@ -173,8 +173,8 @@ public static partial class QuestContractDefinitions
             Category = "Gardening",
             Subcategory = "Crystal-wJewel",
             Level = 0,
-			AvailableAttempts = (hero) => 1,
-			BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+            AvailableAttempts = (hero) => hero.StaminaCurrent(),
+            BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
 		},
         new QuestContract
         {
@@ -184,7 +184,7 @@ public static partial class QuestContractDefinitions
             Category = "Gardening",
             Subcategory = "Crystal-USDC",
             Level = 0,
-			AvailableAttempts = (hero) => 1,
+			AvailableAttempts = (hero) => hero.StaminaCurrent(),
 			BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
 		},
         new QuestContract
@@ -195,7 +195,7 @@ public static partial class QuestContractDefinitions
             Category = "Gardening",
             Subcategory = "Eth-USDC",
             Level = 0,
-			AvailableAttempts = (hero) => 1,
+			AvailableAttempts = (hero) => hero.StaminaCurrent(),
 			BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
 		},
         new QuestContract
@@ -206,7 +206,7 @@ public static partial class QuestContractDefinitions
             Category = "Gardening",
             Subcategory = "wJewel-USDC",
             Level = 0,
-			AvailableAttempts = (hero) => 1,
+			AvailableAttempts = (hero) => hero.StaminaCurrent(),
 			BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
 		},
         new QuestContract
@@ -217,7 +217,7 @@ public static partial class QuestContractDefinitions
             Category = "Gardening",
             Subcategory = "Crystal-Eth",
             Level = 0,
-			AvailableAttempts = (hero) => 1,
+			AvailableAttempts = (hero) => hero.StaminaCurrent(),
 			BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
 		},
         new QuestContract
@@ -228,7 +228,7 @@ public static partial class QuestContractDefinitions
             Category = "Gardening",
             Subcategory = "Crystal-Btc.b",
             Level = 0,
-			AvailableAttempts = (hero) => 1,
+			AvailableAttempts = (hero) => hero.StaminaCurrent(),
 			BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
 		},
         new QuestContract
@@ -239,7 +239,7 @@ public static partial class QuestContractDefinitions
             Category = "Gardening",
             Subcategory = "Crystal-Klay",
             Level = 0,
-			AvailableAttempts = (hero) => 1,
+			AvailableAttempts = (hero) => hero.StaminaCurrent(),
 			BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
 		},
         new QuestContract
@@ -250,7 +250,7 @@ public static partial class QuestContractDefinitions
             Category = "Gardening",
             Subcategory = "Jewel-Klay",
             Level = 0,
-			AvailableAttempts = (hero) => 1,
+			AvailableAttempts = (hero) => hero.StaminaCurrent(),
 			BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
 		},
         new QuestContract
@@ -261,7 +261,7 @@ public static partial class QuestContractDefinitions
             Category = "Gardening",
             Subcategory = "Jewel-Avax",
             Level = 0,
-			AvailableAttempts = (hero) => 1,
+			AvailableAttempts = (hero) => hero.StaminaCurrent(),
 			BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
 		},
         new QuestContract
@@ -272,7 +272,7 @@ public static partial class QuestContractDefinitions
             Category = "Gardening",
             Subcategory = "Jewel-Btc.b",
             Level = 0,
-			AvailableAttempts = (hero) => 1,
+			AvailableAttempts = (hero) => hero.StaminaCurrent(),
 			BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
 		},
         new QuestContract
@@ -283,7 +283,7 @@ public static partial class QuestContractDefinitions
             Category = "Gardening",
             Subcategory = "Jewel-Eth",
             Level = 0,
-			AvailableAttempts = (hero) => 1,
+			AvailableAttempts = (hero) => hero.StaminaCurrent(),
 			BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
 		},
         new QuestContract
@@ -294,7 +294,7 @@ public static partial class QuestContractDefinitions
             Category = "Gardening",
             Subcategory = "Btc.b-USDC",
             Level = 0,
-			AvailableAttempts = (hero) => 1,
+			AvailableAttempts = (hero) => hero.StaminaCurrent(),
 			BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
 		},
     };

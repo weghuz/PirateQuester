@@ -271,7 +271,13 @@ public class DFKBot
 						}
 					}
 				}
+                if (heroBatch is null || heroBatch.Count() == 0)
+                {
+                    continue;
+                }
+				
                 int maxAttempts = heroBatch.Min(h => quest.AvailableAttempts(h));
+				
                 if(maxAttempts == 0)
                 {
                     Log("Available attempts too low.");

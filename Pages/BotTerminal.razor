@@ -65,10 +65,8 @@
 		<GridColumns>
 			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
 			<GridPageSettings PageCount="10"></GridPageSettings>
-			<GridColumn Field="@nameof(QuestReward.QuestId)" HeaderText="Id">
-
-			</GridColumn>
-			<GridColumn Field="@nameof(QuestReward.Heroes)" HeaderText="Heroes">
+			<GridColumn Field="QuestId" HeaderText="Id"></GridColumn>
+			<GridColumn Field="@nameof(QuestReward.Heroes)" HeaderText="Heroes" AllowFiltering="false" AllowSorting="false">
 				<Template>
 					<div class="w-100 overflow-auto">
 						@{
@@ -78,7 +76,7 @@
 					</div>
 				</Template>
 			</GridColumn>
-			<GridColumn Field="@nameof(QuestReward.Rewards)" HeaderText="Rewards">
+			<GridColumn Field="@nameof(QuestReward.Rewards)" HeaderText="Rewards" AllowFiltering="false" AllowSorting="false">
 				<Template>
 					<div class="w-100 overflow-auto">
 						@{
@@ -123,10 +121,10 @@
 		<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
 		<GridPageSettings PageCount="10"></GridPageSettings>
 		<GridColumns>
-			<GridColumn Field="@nameof(Quest.Id)" HeaderText="Id"></GridColumn>
-			<GridColumn Field="@nameof(Quest.QuestName)" HeaderText="Quest"></GridColumn>
-			<GridColumn Field="@nameof(Quest.CompleteInText)" HeaderText="Complete In"></GridColumn>
-			<GridColumn Field="@nameof(Quest.HeroesText)" HeaderText="Heroes"></GridColumn>
+			<GridColumn Field="Id" HeaderText="Id"></GridColumn>
+			<GridColumn Field="QuestName" HeaderText="Quest"></GridColumn>
+			<GridColumn Field="CompleteInText" HeaderText="Complete In"></GridColumn>
+			<GridColumn Field="HeroesText" HeaderText="Heroes"></GridColumn>
 		</GridColumns>
 	</SfGrid>
 }

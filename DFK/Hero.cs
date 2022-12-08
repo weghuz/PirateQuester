@@ -16,47 +16,8 @@ public class Hero
         generation = hero.Info.Generation;
         firstName = (int)hero.Info.FirstName;
         lastName = (int)hero.Info.LastName;
-        mainClass = hero.Info.Class switch {
-            1 => "knight",
-            2 => "thief",
-            3 => "archer",
-            4 => "priest",
-            5 => "wizard",
-            6 => "monk",
-            7 => "pirate",
-            8 => "berserker",
-            9 => "seer",
-            16 => "paladin",
-            17 => "darkknight",
-            18 => "summoner",
-            19 => "ninja",
-            20 => "shapeshifter",
-            24 => "dragoon",
-            25 => "sage",
-            28 => "dreadknight",
-			_ => "warrior"
-		};
-        subClass = hero.Info.SubClass switch
-		{
-			1 => "knight",
-			2 => "thief",
-			3 => "archer",
-			4 => "priest",
-			5 => "wizard",
-			6 => "monk",
-			7 => "pirate",
-			8 => "berserker",
-			9 => "seer",
-			16 => "paladin",
-			17 => "darkknight",
-			18 => "summoner",
-			19 => "ninja",
-			20 => "shapeshifter",
-			24 => "dragoon",
-			25 => "sage",
-			28 => "dreadknight",
-			_ => "warrior"
-		};
+        mainClass = Constants.GetClass(hero.Info.Class);
+        subClass = Constants.GetClass(hero.Info.SubClass);
 
         staminaFullAt = (long)Functions.BigIntToLong(hero.State.StaminaFullAt);
         level = hero.State.Level;
@@ -71,36 +32,9 @@ public class Hero
         intelligence = hero.Stats.Intelligence;
         luck = hero.Stats.Luck;
         byte[] decodedGenes = decodeRecessiveGenes(hero.Info.StatGenes);
-
-		profession = decodedGenes[11] switch
-        {
-		    0 => "mining",
-            2 => "gardening",
-            4 => "fishing",
-            _ => "foraging"
-        };
-		statBoost1 = decodedGenes[31] switch 
-        {
-            2  => "AGI",
-            4  => "INT",
-            6  => "WIS",
-            8  => "LCK",
-            10 => "VIT",
-            12 => "END",
-            14 => "DEX",
-			_ => "STR",
-		};
-		statBoost2 = decodedGenes[35] switch
-		{
-			2 => "AGI",
-			4 => "INT",
-			6 => "WIS",
-			8 => "LCK",
-			10 => "VIT",
-			12 => "END",
-			14 => "DEX",
-			_ => "STR",
-		};
+		profession = Constants.GetProfession(decodedGenes[11]);
+		statBoost1 = Constants.GetStatBoost(decodedGenes[31]);
+		statBoost2 = Constants.GetStatBoost(decodedGenes[35]);
 		stamina = hero.Stats.Stamina;
 	}
 
