@@ -24,22 +24,8 @@ namespace PirateQuester.Utils
             Balance += Web3.Convert.FromWei(await Signer.Eth.GetBalance.SendRequestAsync(Account.Address));
         }
 
-        public async Task InitializeAccount(List<DFKStatAmount> minTrainingStats )
+        public async Task InitializeAccount(DFKBotSettings settings)
 		{
-			if(minTrainingStats is null)
-			{
-				minTrainingStats = new()
-				{
-					{ new(0, 30) },
-					{ new(1, 30) },
-					{ new(2, 30) },
-					{ new(3, 30) },
-					{ new(4, 30) },
-					{ new(5, 30) },
-					{ new(6, 30) },
-					{ new(7, 30) }
-				};
-			}
 			int attempt = 0;
 			bool retry = true;
 			while(retry)
@@ -108,7 +94,7 @@ namespace PirateQuester.Utils
 						Id = Account.Address
 					};
 				}
-				BotHeroes.Add(new DFKBotHero(h, minTrainingStats));
+				BotHeroes.Add(new DFKBotHero(h, settings));
 			}
 			UpdatedAccount?.Invoke();
 		}

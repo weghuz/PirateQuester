@@ -1,14 +1,7 @@
-﻿using DFKContracts.QuestCore.ContractDefinition;
-using Microsoft.AspNetCore.Components;
-using PirateQuester.Bot;
+﻿using Microsoft.AspNetCore.Components;
 using PirateQuester.Utils;
 using Radzen;
-using System.Net.NetworkInformation;
-using Radzen.Blazor;
 using PirateQuester.Services;
-using PirateQuester.DFK.Items;
-using Microsoft.JSInterop;
-using Newtonsoft.Json;
 
 namespace PirateQuester.Pages;
 

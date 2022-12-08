@@ -53,10 +53,13 @@ public class DFKBot
 		Log("Welcome to Pirate Quester Bot V0.1!");
 		Log("Booting up...");
 		Log($"Interval: {Settings.UpdateInterval}");
-
 		//account.Signer.Processing.Logs.CreateProcessor<QuestRewardEventDTO>((log) => Console.WriteLine(log.Log.Data));
+		
+		foreach(DFKBotHero hero in Account.BotHeroes.Where(h => h.Quest is not null))
+		{
 
-		await account.InitializeAccount(Settings.MinTrainingStats);
+			Console.WriteLine($"{hero.ID} Prefers {hero.Quest.Name}");
+		}
 		while (true)
 		{
 			await UpdateHeroes();
@@ -140,6 +143,7 @@ public class DFKBot
 		await UpdateCurrentBlock();
 		var quests = await GetUpdatedQuests();
 		RunningQuests = new(quests);
+		Log($"{RunningQuests.Count} Active quests.");
 		foreach (Quest q in quests)
 		{
 			q.StartDateTime = Functions.UnixTimeStampToDateTime(Functions.BigIntToLong(q.StartAtTime));
@@ -239,7 +243,7 @@ public class DFKBot
 		foreach (QuestContract quest in readyHeroes
 			.Select(r => r.GetActiveQuest())
 			.DistinctBy(q => q.Id)
-			.Where(q => Settings.QuestEnabled.All(qe => Settings.QuestEnabled[q.Id])))
+			.Where(q => Settings.QuestEnabled.All(qe => Settings.QuestEnabled[q.Id].Enabled)))
 		{
 			var questsOfType = RunningQuests.Where(rq => rq.QuestAddress == quest.Address);
 			if (questsOfType.Any(rq =>  rq.CompleteDateTime >= DateTime.UtcNow.AddMinutes(30)) || questsOfType.Count() >= 10)
@@ -271,7 +275,7 @@ public class DFKBot
 						}
 					}
 				}
-                if (heroBatch is null || heroBatch.Count() == 0)
+                if (heroBatch is null)
                 {
                     continue;
                 }

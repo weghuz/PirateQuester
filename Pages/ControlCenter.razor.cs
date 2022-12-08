@@ -1,13 +1,8 @@
-﻿using DFK;
-using PirateQuester.DFK.Contracts;
+﻿using PirateQuester.DFK.Contracts;
 using PirateQuester.Utils;
-using Radzen.Blazor;
 using Radzen;
-using System.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using Utils;
-using System.Numerics;
 using PirateQuester.Bot;
 using PirateQuester.Services;
 using Syncfusion.Blazor.Grids;
@@ -47,14 +42,45 @@ public partial class ControlCenter
 
 	public void SetQuestPreference()
 	{
-		foreach(DFKBotHero h in HeroGridReference.SelectedRecords)
+		foreach (DFKBotHero h in HeroGridReference.SelectedRecords)
 		{
-			if(SelectedQuest.HasValue)
+			if (SelectedQuest.HasValue)
 			{
+				
 				h.Quest = QuestContractDefinitions.GetQuestContract(SelectedQuest.Value);
-				HeroGridReference.ForceUpdate = true;
+				var setting = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
+				if (setting != null)
+				{
+					setting.QuestId = h.Quest.Id;
+				}
+				else
+				{
+					Bots.Settings.HeroQuestSettings.Add(new()
+					{
+						QuestId = h.Quest.Id,
+						HeroId = h.ID.ToString()
+					});
+				}
 			}
 		}
+		Bots.SaveSettings();
+		HeroGridReference.Refresh();
+		StateHasChanged();
+	}
+	public void ClearQuestPreference()
+	{
+		StateHasChanged();
+		foreach (DFKBotHero h in HeroGridReference.SelectedRecords)
+		{
+			h.Quest = null;
+			var setting = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
+			if(setting != null)
+			{
+				Bots.Settings.HeroQuestSettings.Remove(setting);
+			}
+		}
+		Bots.SaveSettings();
+		HeroGridReference.Refresh();
 		StateHasChanged();
 	}
 }

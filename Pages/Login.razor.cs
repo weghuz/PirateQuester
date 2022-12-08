@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using PirateQuester.Shared;
+using PirateQuester.Services;
 using PirateQuester.Utils;
 using PirateQuester.ViewModels;
-using Utils;
 
 namespace PirateQuester.Pages;
 
@@ -17,6 +16,8 @@ public partial class Login
 	public IJSInProcessRuntime JS { get; set; }
 	[Inject]
 	public AccountSettings AccSettings { get; set; }
+	[Inject]
+	public BotService Bots { get; set; }
 	private LoginViewModel Model { get; set; } = new();
 	public bool LoggingIn { get; set; } = false;
 
@@ -33,7 +34,7 @@ public partial class Login
 			JS.InvokeVoid("alert", "Password needs to be at least 8 characters");
 			LoggingIn = false;
 		}
-		if (await Acc.Login(Model))
+		if (await Acc.Login(Model, Bots.Settings))
 		{
 			Nav.NavigateTo("Bot");
 		}

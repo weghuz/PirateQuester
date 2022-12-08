@@ -10,16 +10,28 @@ namespace PirateQuester.Bot
 	{
 		public DFKBotSettings() 
 		{
-			QuestEnabled = Enumerable.Range(0, 25).Select(i => true).ToList();
+			QuestEnabled = Enumerable.Range(0, 25).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList();
 		}
-		public int CancelTxnDelay { get; set; } = 60000;
 
+		public int CancelTxnDelay { get; set; } = 60000;
 		public int UpdateInterval { get; set; } = 180;
         public int MinStamina { get; set; } = 20;
         public int MaxGasFeeGwei { get; set; } = 200;
         public bool LevelUp { get; set; } = true;
-        public List<bool> QuestEnabled { get; set; } = new();
-		public List<DFKStatAmount> MinTrainingStats { get; set; } = new();
+        public List<QuestEnabled> QuestEnabled { get; set; } = new();
+		public List<DFKStatAmount> MinTrainingStats { get; set; } = new()
+        {
+            { new(0, 30) },
+            { new(1, 30) },
+            { new(2, 30) },
+            { new(3, 30) },
+            { new(4, 30) },
+            { new(5, 30) },
+            { new(6, 30) },
+            { new(7, 30) }
+        };
+
+        public List<HeroQuestSetting> HeroQuestSettings { get; set; } = new();
 		public List<LevelUpSetting> LevelUpSettings { get; set; } = new()
 		{
 			new()

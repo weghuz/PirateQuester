@@ -51,15 +51,15 @@
 				<RadzenText Text="Professions" TextStyle="TextStyle.H5" />
 				@*First 8 quests are training quests*@
 				<div class="row">
-					@foreach(QuestContract quest in QuestContractDefinitions.DFKQuestContracts.Skip(8))
+					@foreach(QuestContract quest in QuestContractDefinitions.DFKQuestContracts.Skip(9))
 					{
 						<div class="col-md-4 col-lg-3">
 							<RadzenText Text="@($"{quest.Name}")"/>
 							<RadzenLabel Text="@($"Enabled:")" Component="@($"ProfessionEnabled{quest.Id}")" />
 							<RadzenCheckBox Name="@($"ProfessionEnabled{quest.Id}")"
 									TValue="bool"
-									Value="Bots.Settings.QuestEnabled[quest.Id-1]"
-									Change="@((val) => Bots.Settings.QuestEnabled[quest.Id-1] = val)" />
+									Value="Bots.Settings.QuestEnabled.First(qe => qe.QuestId == quest.Id).Enabled"
+									Change="@((val) => Bots.Settings.QuestEnabled.First(qe => qe.QuestId == quest.Id).Enabled = val)" />
 						</div>
 					}
 				</div>
@@ -73,8 +73,8 @@
 							<RadzenLabel Text="@($"Enabled:")" Component="@($"TrainingEnabled{stat.Id}")" />
 							<RadzenCheckBox Name="@($"TrainingEnabled{stat.Id}")" 
 								TValue="bool"
-								Value="Bots.Settings.QuestEnabled[Bots.Settings.MinTrainingStats.IndexOf(stat)]"
-								Change="@((val) => Bots.Settings.QuestEnabled[Bots.Settings.MinTrainingStats.IndexOf(stat)] = val)" />
+								Value="Bots.Settings.QuestEnabled[Bots.Settings.MinTrainingStats.IndexOf(stat)].Enabled"
+								Change="@((val) => Bots.Settings.QuestEnabled[Bots.Settings.MinTrainingStats.IndexOf(stat)].Enabled = val)" />
 							<br>
 							<RadzenLabel Text="@($"Min Value")" 
 								Component="@($"Training{stat.Id}")" />
@@ -98,12 +98,11 @@
 					<div class="row">
 						@foreach (string mainClass in Constants.Classes)
 						{
-							var suggested = Bots.Settings.SuggestedLevelUpSettings.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower());
 							var valueAttribute = Bots.Settings.LevelUpSettings.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower());
-							valueAttribute = suggested;
-							if(suggested is null)
+							
+							if(valueAttribute is null)
 							{
-								continue;
+								valueAttribute = Bots.Settings.SuggestedLevelUpSettings.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower());
 							}
 							
 							<RadzenText TextStyle="TextStyle.H6" class="text-center">@(mainClass) Levelup settings</RadzenText>

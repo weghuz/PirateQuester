@@ -7,10 +7,17 @@ namespace PirateQuester.Bot
 {
     public class DFKBotHero
     {
-        public DFKBotHero(Hero h, List<DFKStatAmount> minTrainingStats) 
+        public DFKBotHero(Hero h, DFKBotSettings settings) 
         { 
             Hero = h;
             ID = new BigInteger(long.Parse(h.id));
+			var questSettings = settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.id);
+			if(questSettings != null)
+			{
+				SuggestedQuest = QuestContractDefinitions.DFKQuestContracts[questSettings.QuestId];
+				Quest = QuestContractDefinitions.DFKQuestContracts[questSettings.QuestId];
+				return;
+			}
 			List<int> stats = new()
 			{
 				h.strength + (h.statBoost1 == "STR" ? 1 : 0) + (h.statBoost2 == "STR" ? 2 : 0),
@@ -24,7 +31,7 @@ namespace PirateQuester.Bot
 			};
 			int highestStat = stats.Max();
 
-			if (highestStat >= minTrainingStats[stats.IndexOf(highestStat)].Amount)
+			if (highestStat >= settings.MinTrainingStats[stats.IndexOf(highestStat)].Amount)
 			{
 				SuggestedQuest = QuestContractDefinitions.DFKQuestContracts[stats.IndexOf(highestStat)];
 			}
@@ -52,6 +59,7 @@ namespace PirateQuester.Bot
 				}
 			}
 		}
+
 		public BigInteger ID { get; set; }
 		public Hero Hero { get; set; }
         public QuestContract GetActiveQuest()
@@ -63,6 +71,7 @@ namespace PirateQuester.Bot
             return SuggestedQuest;
         }
         public QuestContract SuggestedQuest { get; set; }
-        public QuestContract Quest { get; set; }
-    }
+		private QuestContract quest;
+		public QuestContract Quest { get { return quest; } set { Console.WriteLine($"{ID} prefers {value?.Name ?? "Nothing"} over {quest?.Name ?? "Nothing"}"); quest = value; } }
+	}
 }
