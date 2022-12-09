@@ -1,11 +1,28 @@
-﻿using System.Net.NetworkInformation;
+﻿using PirateQuester.Utils.Chain;
+using System.Net.NetworkInformation;
 
 namespace PirateQuester.Utils
 {
 	public static class Constants
 	{
-		public static readonly string PagingSummaryFormat = "Displaying page {0} of {1} (total {2} records)";
-		public static List<DFKStat> DFKStats = new()
+        public static List<Chain.Chain> ChainsList { get; } = new()
+        {
+            new()
+            {
+                Id = 53935,
+                Name = "DFK",
+                RPC = "https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc",
+                Chains = Chains.DFK
+            },
+            new()
+            {
+                Id = 8217,
+                Name = "Klaytn",
+                RPC = "https://klaytn.rpc.defikingdoms.com",
+                Chains = Chains.Klaytn
+            }
+        };
+		public static List<DFKStat> DFKStats { get; } = new()
 		{
 			{ new(0, "Strength") },
 			{ new(1, "Dexterity") },
@@ -16,7 +33,7 @@ namespace PirateQuester.Utils
 			{ new(6, "Wisdom") },
 			{ new(7, "Luck") }
 		};
-        public static List<string> Classes = new()
+        public static List<string> Classes { get; } = new()
         {
             "Warrior",
             "Knight",

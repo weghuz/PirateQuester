@@ -7,6 +7,7 @@
 		Gold,
 		DFKTEARS,
 		Jewel,
+		Jade,
 		Crystal,
 		DFKBLUEEGG,
 		DFKGOLDEGG,

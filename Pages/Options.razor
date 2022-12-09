@@ -19,10 +19,30 @@
 <RadzenCard class="my-3">
     <div class="row">
         <div class="col-md-6">
+            @{
+                var dfk = AccSettings.ChainSettings.First(cs => cs.Name == "DFK");
+            }
             <RadzenText class="pb-2">
-                DFK CHAIN RPC
+                DFK Chain RPC
             </RadzenText>
-            <RadzenTextBox class="w-100" @bind-Value=@AccSettings.DFKChainRPC></RadzenTextBox>
+            <RadzenTextBox class="w-100" @bind-Value=@dfk.RPC></RadzenTextBox>
+            <RadzenText class="pb-2">
+                DFK Chain Enabled
+            </RadzenText>
+            <RadzenCheckBox @bind-Value=@dfk.Enabled></RadzenCheckBox>
+        </div>
+        <div class="col-md-6">
+            @{
+                var klaytn = AccSettings.ChainSettings.First(cs => cs.Name == "Klaytn");
+            }
+            <RadzenText class="pb-2">
+                Klaytn RPC
+            </RadzenText>
+            <RadzenTextBox class="w-100" @bind-Value=@klaytn.RPC></RadzenTextBox>
+            <RadzenText class="pb-2">
+                Klaytn Enabled
+            </RadzenText>
+            <RadzenCheckBox @bind-Value=@klaytn.Enabled></RadzenCheckBox>
         </div>
     </div>
 </RadzenCard>

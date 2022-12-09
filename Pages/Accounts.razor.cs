@@ -10,11 +10,21 @@ public partial class Accounts
 	AccountManager Acc { get; set; }
 	[Inject]
 	NavigationManager Nav { get; set; }
+	[Inject]
+	AccountSettings AccountSettings { get; set; }
 
 	Dictionary<string, bool> ShowPrivateKey = new();
+	public string Password { get; set; }
 
 	bool Initialized = false;
-
+	public void TryRevealKey(string name, string password)
+	{
+		if(Acc.CheckPassword(name, password))
+		{
+			ShowPrivateKey[name] = true;
+			StateHasChanged();
+		}
+	}
 	protected override void OnInitialized()
 	{
 		if (Acc.Accounts.Count == 0)

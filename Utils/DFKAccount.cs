@@ -5,7 +5,6 @@ using DFKContracts.QuestCore;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using PirateQuester.Bot;
-using Syncfusion.Blazor.Diagrams;
 using System.Numerics;
 
 namespace PirateQuester.Utils
@@ -104,9 +103,10 @@ namespace PirateQuester.Utils
 
 			Dictionary<HeroesArgument, string> args = new()
 			{
-				{ HeroesArgument.owner, Account.Address }
-			};
-			string request = API.HeroesRequestBuilder(args, "id owner {id name} rarity generation firstName lastName mainClass subClass staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina profession statBoost1 statBoost2 salePrice xp");
+				{ HeroesArgument.owner, Account.Address },
+                { HeroesArgument.network, Chain.Identifier }
+            };
+			string request = API.HeroesRequestBuilder(args, "id owner {id name} rarity generation firstName lastName mainClass subClass staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina profession statBoost1 statBoost2 salePrice xp network");
 			Heroes = (await API.GetHeroes(request)).ToList();
 		}
 
@@ -209,9 +209,10 @@ namespace PirateQuester.Utils
 		{
 			Dictionary<HeroesArgument, string> args = new()
 			{
-				{ HeroesArgument.owner, Account.Address }
+				{ HeroesArgument.owner, Account.Address },
+				{ HeroesArgument.network, Chain.Identifier }
 			};
-			string request = API.HeroesRequestBuilder(args, "id staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina salePrice xp");
+			string request = API.HeroesRequestBuilder(args, "id staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina salePrice xp network");
 			List<Hero> updates = (await API.GetHeroes(request)).ToList();
 			foreach (Hero h in updates)
 			{
@@ -225,19 +226,20 @@ namespace PirateQuester.Utils
 			}
 		}
 
-		public DFKAccount(string name, Account account, AccountSettings settings)
+		public DFKAccount(string name, Account account, Chain.Chain chain)
         {
             Name = name;
             Account = account;
-			Signer = new Web3(account, settings.DFKChainRPC);
+			Chain = chain;
+            Signer = new Web3(account, chain.RPC);
 			// Transactions may fail without this.
 			Signer.TransactionManager.UseLegacyAsDefault = true;
-			Quest = new QuestCoreService(Signer, "0xE9AbfBC143d7cef74b5b793ec5907fa62ca53154");
-			Hero = new HeroCoreService(Signer, "0xEb9B61B145D6489Be575D3603F4a704810e143dF");
-			Meditation = new DFKContracts.MeditationCircle.MeditationCircleService(Signer, "0xD507b6b299d9FC835a0Df92f718920D13fA49B47");
+			Quest = new QuestCoreService(Signer, chain.QuestAddress);
+			Hero = new HeroCoreService(Signer, chain.HeroAddress);
+			Meditation = new DFKContracts.MeditationCircle.MeditationCircleService(Signer, chain.MeditationAddress);
 		}
-
-		private decimal balance;
+        public Chain.Chain Chain { get; set; }
+        private decimal balance;
         public decimal Balance { get { return Math.Round(balance, 2); } set { balance = value;} }
         public Web3 Signer { get; set; }
         public Erc20Service Erc20 { get; set; }

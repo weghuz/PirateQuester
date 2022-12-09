@@ -53,7 +53,7 @@ public class DFKBot
 		Log("Welcome to Pirate Quester Bot V0.1!");
 		Log("Booting up...");
 		Log($"Interval: {Settings.UpdateInterval}");
-		//account.Signer.Processing.Logs.CreateProcessor<QuestRewardEventDTO>((log) => Console.WriteLine(log.Log.Data));
+
 		
 		foreach(DFKBotHero hero in Account.BotHeroes.Where(h => h.Quest is not null))
 		{
@@ -62,14 +62,21 @@ public class DFKBot
 		}
 		while (true)
 		{
-			await UpdateHeroes();
-			await Update();
-			await UpdateQuestRewards();
-			if (StopBot)
-                break;
-			await Task.Delay(1000 * Settings.UpdateInterval);
-			if (StopBot)
-				break;
+			try
+			{
+				await UpdateHeroes();
+				await Update();
+				await UpdateQuestRewards();
+				if (StopBot)
+					break;
+				await Task.Delay(1000 * Settings.UpdateInterval);
+				if (StopBot)
+					break;
+			}
+			catch(Exception e)
+			{
+				Log(e.Message + e.StackTrace);
+			}
 		}
 		IsRunning = false;
 		Log($"Bot for account {account.Account.Address} stopped...");
@@ -92,7 +99,11 @@ public class DFKBot
 					{
 						questReward.Heroes.Add(reward.HeroId);
 					}
-					var item = new DFKItem(ItemContractDefinitions.GetItem(reward.Reward));
+					var item = new DFKItem(ItemContractDefinitions.GetItem(new()
+                                {
+                                    Address = reward.Reward,
+                                    Chain = Account.Chain
+                                }));
 					if (item is not null)
 					{
 						item.Amount = ulong.Parse(reward.Amount.ToString());
@@ -102,7 +113,14 @@ public class DFKBot
 					{
 						questReward.Rewards.AddItem(new()
 						{
-							Address = reward.Reward,
+							Addresses = new()
+							{
+								new()
+								{
+                                    Address = reward.Reward,
+									Chain = Account.Chain
+                                }
+							},
 							Amount = ulong.Parse(reward.Amount.ToString())
 						});
 					}
@@ -245,8 +263,8 @@ public class DFKBot
 			.DistinctBy(q => q.Id)
 			.Where(q => Settings.QuestEnabled.All(qe => Settings.QuestEnabled[q.Id].Enabled)))
 		{
-			var questsOfType = RunningQuests.Where(rq => rq.QuestAddress == quest.Address);
-			if (questsOfType.Any(rq =>  rq.CompleteDateTime >= DateTime.UtcNow.AddMinutes(30)) || questsOfType.Count() >= 10)
+			var questsOfType = RunningQuests.Where(rq => quest.Addresses.Any(a => a.Address == rq.QuestAddress));
+			if (questsOfType.Any(rq =>  rq.CompleteDateTime >= DateTime.UtcNow.AddMinutes(180)) || questsOfType.Count() >= 10)
 			{
 				continue;
 			}

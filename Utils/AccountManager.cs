@@ -1,5 +1,6 @@
 using DFK;
 using Microsoft.JSInterop;
+using Nethereum.Model;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using Newtonsoft.Json;
@@ -26,29 +27,44 @@ public class AccountManager
         AccountNames = GetAccountNames();
     }
 
-    public async Task<bool> Login(LoginViewModel model, DFKBotSettings settings)
+	public bool CheckPassword(string accountName, string password)
+	{
+		try
+		{
+			string json = _js.Invoke<string>("localStorage.getItem", accountName);
+            Encrypt.GetAccount(password, json);
+            return true;
+		}
+		catch
+		{
+			_js.InvokeVoid("alert", $"Incorrect Password.");
+		}
+		return false;
+	}
+	public async Task<bool> Login(LoginViewModel model, DFKBotSettings settings)
     {
         try
         {
 			foreach (string name in model.SelectedAccounts)
             {
                 string json = _js.Invoke<string>("localStorage.getItem", name);
-				DFKAccount account = new(name, Encrypt.GetAccount(model.Password, json), AccSettings);
-
-				Accounts.Add(account);
-				
-				await account.InitializeAccount(settings);
-			}
+                foreach(Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled))
+                {
+                    DFKAccount account = new(name, Encrypt.GetAccount(model.Password, json), chain);
+                    Accounts.Add(account);
+                    await account.InitializeAccount(settings);
+                }
+            }
             return true;
         }
-        catch (Exception e)
+        catch
         {
-            _js.InvokeVoid("alert", $"{e.Message}.");
+            _js.InvokeVoid("alert", $"Incorrect Password.");
         }
         return false;
     }
 
-    public async Task Create(AccountViewModel model)
+    public async Task Create(AccountViewModel model, DFKBotSettings settings)
     {
         if (model.Password.Length < 8 || model.RecheckPassword.Length < 8)
         {
@@ -92,9 +108,12 @@ public class AccountManager
             json = Encrypt.CreateAccount(model.PrivateKey, model.Password);
             _js.InvokeVoid("localStorage.setItem", new string[] { model.Name, json });
         }
-        DFKAccount account = new(model.Name, Encrypt.GetAccount(model.Password, json), AccSettings);
-		Accounts.Add(account);
-		await account.InitializeAccount(null);
+        foreach (Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled))
+        {
+            DFKAccount account = new(model.Name, Encrypt.GetAccount(model.Password, json), chain);
+            Accounts.Add(account);
+            await account.InitializeAccount(settings);
+        }
 		return;
     }
 

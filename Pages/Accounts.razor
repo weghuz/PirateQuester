@@ -8,7 +8,7 @@
 	<div>
 		<div class="p-2">
 			<RadzenText TextStyle="TextStyle.H6">
-				Chain: DFK Chain
+				Chains: @string.Join(", ", AccountSettings.ChainSettings.Where(cs => cs.Enabled).Select(cs => cs.Name))
 			</RadzenText>
 		</div>
 		<div>
@@ -16,13 +16,13 @@
 			{
 				<RadzenCard class="my-3 overflow-auto text-wrap">
 					<RadzenText TextStyle="TextStyle.H4">
-						@acc.Name
+						@acc.Name on @acc.Chain.Name
 					</RadzenText>
 					<RadzenText TextStyle="TextStyle.H5">
 						Balance
 					</RadzenText>
 					<RadzenText TextStyle="TextStyle.H5">
-						<span class="ml-2">@acc.Balance <RadzenImage Path="Images/Jewel.png" Style="width: 18px; height:18px;" /></span>
+						<span class="ml-2">@acc.Balance <RadzenImage Path="@(acc.Chain.Name == "DFK" ? "Images/Jewel.png" : "Images/Klay.png")" Style="width: 18px; height:18px;" /></span>
 					</RadzenText>
 					<RadzenText TextStyle="TextStyle.H6">
 						Address
@@ -39,7 +39,10 @@
 					<RadzenLabel Text="Show Private Key" Component="ShowPrivateKey" class="font-weight-bold" />
 					@if (Initialized)
 					{
-						<RadzenCheckBox @bind-Value="ShowPrivateKey[acc.Name]" Name="ShowPrivateKey" TValue="bool" />
+						<form @onsubmit=@(() => TryRevealKey(acc.Name, Password))>
+							<RadzenPassword @bind-Value=@Password Placeholder="Re-enter Password" />
+							<RadzenButton Text="Show Private Key" ButtonType="ButtonType.Submit" />
+						</form>
 						@if (ShowPrivateKey[acc.Name])
 						{
 							<RadzenText TextStyle="TextStyle.H6">

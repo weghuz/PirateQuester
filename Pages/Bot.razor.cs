@@ -19,7 +19,7 @@ public partial class Bot
     [Inject]
     IJSInProcessRuntime JS { get; set; }
 
-	protected override void OnInitialized()
+    protected override void OnInitialized()
     {
         if(Acc.Accounts.Count == 0)
         {

@@ -12,7 +12,7 @@
 		Tooltip.Open(arg, ds => @<div>
 		<RadzenText Text=@(reward.Name) TextStyle="TextStyle.H6" />
 			<div>
-				<RadzenText Text=@(reward.Address) />
+				<RadzenText Text=@(string.Join(", ", reward.Addresses.Select(a => a.Address))) />
 			</div>
 			<div>
 				<RadzenText Text=@(reward.Description) />
@@ -30,7 +30,7 @@
 {
 	<PageTitle>Bot Terminal @BotId</PageTitle>
 	<RadzenText TextStyle="TextStyle.H5">
-		Bot Terminal @BotId for address @Bots.RunningBots[BotId].Account.Account.Address
+		Bot Terminal @BotId for address @Bots.RunningBots[BotId].Account.Account.Address on @Bots.RunningBots[BotId].Account.Chain.Name
 	</RadzenText>
 	<RadzenCard class="my-1"
 	   Style="background-color:var(--rz-black);
@@ -99,7 +99,7 @@
 								}
 								else
 								{
-									@reward.Address
+									@string.Join(", ", reward.Addresses.Select(a => a.Address));
 								}
 							}
 						}		

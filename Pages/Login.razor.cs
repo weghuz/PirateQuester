@@ -3,6 +3,7 @@ using Microsoft.JSInterop;
 using PirateQuester.Services;
 using PirateQuester.Utils;
 using PirateQuester.ViewModels;
+using Syncfusion.Blazor.QueryBuilder;
 
 namespace PirateQuester.Pages;
 
@@ -29,7 +30,7 @@ public partial class Login
     async Task LoginAccount()
 	{
 		LoggingIn = true;
-		if (Model.Password.Length < 8)
+		if (Model.Password is null || Model.Password.Length < 8)
 		{
 			JS.InvokeVoid("alert", "Password needs to be at least 8 characters");
 			LoggingIn = false;
