@@ -56,12 +56,19 @@
 @if (Acc.Accounts.Count > 0)
 {
 	<RadzenCard class="my-2">
-		<SfDropDownList 
-			TItem="QuestContract"
+		<RadzenText Text="Crystalvale Quests (DFK Chain)" />
+		<SfDropDownList TItem="QuestContract"
 			TValue="string"
-			@bind-Index="@SelectedQuest"
-			DataSource="@QuestContractDefinitions.DFKQuestContracts">
-            <DropDownListFieldSettings Value="Name"></DropDownListFieldSettings>
+			@bind-Index="@SelectedDFKQuest"
+			DataSource="@QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == "DFK").QuestContracts">
+			<DropDownListFieldSettings Value="Name"></DropDownListFieldSettings>
+		</SfDropDownList>
+		<RadzenText Text="Serendale Quests (Klaytn Chain)" />
+		<SfDropDownList TItem="QuestContract"
+			TValue="string"
+			@bind-Index="@SelectedKlaytnQuest"
+			DataSource="@QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == "Klaytn").QuestContracts">
+			<DropDownListFieldSettings Value="Name"></DropDownListFieldSettings>
 		</SfDropDownList>
 		<RadzenButton Click="@SetQuestPreference"
 			class="mt-2">

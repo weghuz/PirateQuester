@@ -1,8 +1,4 @@
-﻿using DFK;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using PirateQuester.Utils;
-using Microsoft.JSInterop;
+﻿using PirateQuester.Utils;
 
 namespace PirateQuester.Bot
 {
@@ -13,7 +9,7 @@ namespace PirateQuester.Bot
 			QuestEnabled = Enumerable.Range(0, 25).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList();
 		}
 
-		public int CancelTxnDelay { get; set; } = 60000;
+        public int CancelTxnDelay { get; set; } = 60000;
 		public int UpdateInterval { get; set; } = 180;
         public int MinStamina { get; set; } = 20;
         public int MaxGasFeeGwei { get; set; } = 200;

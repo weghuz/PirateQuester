@@ -10,12 +10,19 @@ namespace PirateQuester.Bot
         public DFKBotHero(Hero h, DFKBotSettings settings) 
         { 
             Hero = h;
+			Account = h.DFKAccount;
             ID = new BigInteger(long.Parse(h.id));
-			var questSettings = settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.id);
+			var questSettings = settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.id && hqs.ChainIdentifier == Account.Chain.Identifier);
 			if(questSettings != null)
 			{
-				SuggestedQuest = QuestContractDefinitions.DFKQuestContracts[questSettings.QuestId];
-				Quest = QuestContractDefinitions.DFKQuestContracts[questSettings.QuestId];
+				SuggestedQuest = QuestContractDefinitions
+					.DFKQuestContracts
+					.First(qc => qc.Chain.Id == Account.Chain.Id)
+					.QuestContracts[questSettings.QuestId];
+				Quest = QuestContractDefinitions.DFKQuestContracts
+					.First(qc => qc.Chain.Id == Account.Chain.Id)
+					.QuestContracts[questSettings.QuestId];
+				
 				return;
 			}
 			List<int> stats = new()
@@ -33,11 +40,13 @@ namespace PirateQuester.Bot
 
 			if (highestStat >= settings.MinTrainingStats[stats.IndexOf(highestStat)].Amount)
 			{
-				SuggestedQuest = QuestContractDefinitions.DFKQuestContracts[stats.IndexOf(highestStat)];
+				SuggestedQuest = QuestContractDefinitions.DFKQuestContracts
+					.First(qc => qc.Chain.Id == Account.Chain.Id)
+					.QuestContracts[stats.IndexOf(highestStat)];
 			}
 			else
 			{
-				SuggestedQuest = QuestContractDefinitions.DFKQuestContracts.FirstOrDefault(q => q.Name.ToLower().Contains(h.profession));
+				SuggestedQuest = QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Id == Account.Chain.Id).QuestContracts.FirstOrDefault(q => q.Name.ToLower().Contains(h.profession));
 				if (SuggestedQuest.Category == "Gardening")
 				{
 					int assigned = Hero.DFKAccount.BotHeroes.Where(botHero => botHero.SuggestedQuest.Id == SuggestedQuest.Id).Count();
@@ -45,7 +54,9 @@ namespace PirateQuester.Bot
 					{
 						return;
 					}
-					foreach (QuestContract quest in QuestContractDefinitions.DFKQuestContracts.Where(q => q.Category == "Gardening"))
+					foreach (QuestContract quest in QuestContractDefinitions.DFKQuestContracts
+						.First(qc => qc.Chain.Id == Account.Chain.Id).QuestContracts
+						.Where(q => q.Category == "Gardening"))
 					{
 						int currentQuestAssigned = Hero.DFKAccount.BotHeroes.Where(botHero => botHero.SuggestedQuest.Id == quest.Id).Count();
 
@@ -60,7 +71,8 @@ namespace PirateQuester.Bot
 			}
 		}
 
-		public BigInteger ID { get; set; }
+        public DFKAccount Account { get; set; }
+        public BigInteger ID { get; set; }
 		public Hero Hero { get; set; }
         public QuestContract GetActiveQuest()
         {

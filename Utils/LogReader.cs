@@ -19,7 +19,7 @@ namespace PirateQuester.Utils
 			{
 				try
 				{
-					var questRewardEvent = acc.Signer.Eth.GetEvent<RewardMintedEventDTO>("0x08D93Db24B783F8eBb68D7604bF358F5027330A6");
+					var questRewardEvent = acc.Signer.Eth.GetEvent<RewardMintedEventDTO>(acc.Chain.QuestRewarder );
 					questEvents = await questRewardEvent
 						.GetAllChangesAsync(questRewardEvent.CreateFilterInput(null,
 							new[] { acc.Account.Address },

@@ -135,7 +135,7 @@ public class Hero
 
 	public string GetCurrentQuestName()
 	{
-        QuestContract quest = QuestContractDefinitions.DFKQuestContracts.FirstOrDefault(quest => quest.Addresses.Any(a => a.Address == currentQuest));
+        QuestContract quest = QuestContractDefinitions.DFKQuestContracts.SelectMany(qc => qc.QuestContracts).FirstOrDefault(quest => quest.Address == currentQuest);
         if (quest is not null)
         {
             return $"{quest.Category}{(quest.Subcategory != quest.Category ? $":{quest.Subcategory}" : "")}";

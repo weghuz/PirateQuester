@@ -23,9 +23,9 @@ public partial class ControlCenter
 	[Inject]
 	public BotService Bots { get; set; }
 	public List<DFKBotHero> TableHeroes { get; set; } = new();
-	public int? SelectedQuest { get; set; }
-
-    public SfGrid<DFKBotHero> HeroGridReference { get; set; }
+	public int? SelectedDFKQuest { get; set; }
+	public int? SelectedKlaytnQuest { get; set; }
+	public SfGrid<DFKBotHero> HeroGridReference { get; set; }
 
     protected override void OnInitialized()
 	{
@@ -44,20 +44,22 @@ public partial class ControlCenter
 	{
 		foreach (DFKBotHero h in HeroGridReference.SelectedRecords)
 		{
-			if (SelectedQuest.HasValue)
+			var selectedQuest = h.Account.Chain.Name == "DFK" ? SelectedDFKQuest : SelectedKlaytnQuest;
+			if (selectedQuest.HasValue)
 			{
-				
-				h.Quest = QuestContractDefinitions.GetQuestContract(SelectedQuest.Value);
+				h.Quest = QuestContractDefinitions.GetQuestContract(selectedQuest.Value, h.Account.Chain.ChainEnum);
 				var setting = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
 				if (setting != null)
 				{
 					setting.QuestId = h.Quest.Id;
+					setting.ChainIdentifier = h.Account.Chain.Identifier;
 				}
 				else
 				{
 					Bots.Settings.HeroQuestSettings.Add(new()
 					{
 						QuestId = h.Quest.Id,
+						ChainIdentifier = h.Account.Chain.Identifier,
 						HeroId = h.ID.ToString()
 					});
 				}

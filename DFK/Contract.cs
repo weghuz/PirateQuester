@@ -6,6 +6,6 @@ public class Contract
 {
 
     public int Id;
-	public List<ChainContract> Addresses { get; set; } = new();
+	public string Address { get; set; }
 	public string Name { get; set; }
 }

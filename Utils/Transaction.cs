@@ -89,28 +89,28 @@ public static class Transaction
 		TransactionAdded?.Invoke();
 		try
 		{
-			var DFKSHvas = new Erc20Service(account.Signer, ItemContractDefinitions.InventoryItems[(int)DFKItemEnum.DFKSHVAS].Addresses[account.Chain.Id].Address);
+			var DFKSHvas = new Erc20Service(account.Signer, ItemContractDefinitions.InventoryItems.First(item => item.ItemEnum == DFKItemEnum.DFKSHVAS).Addresses.First(a => a.Chain.Id == account.Chain.Id).Address);
 			if (await DFKSHvas.AllowanceQueryAsync(account.Account.Address, DFKSHvas.ContractHandler.ContractAddress) < 1)
 			{
 				Console.WriteLine($"DFKSHvas not allowed. Setting allowance for meditation circle to use..");
 				var approveERC20Function = new ApproveFunction()
 				{
 					Amount = new BigInteger(100000),
-					Spender = ItemContractDefinitions.InventoryItems[(int)DFKItemEnum.DFKSHVAS].Addresses[account.Chain.Id].Address,
+					Spender = ItemContractDefinitions.InventoryItems.First(item => item.ItemEnum == DFKItemEnum.DFKSHVAS).Addresses.First(a => a.Chain.Id == account.Chain.Id).Address,
 					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 					MaxPriorityFeePerGas = 0
 				};
 				var allowDFKShvasReceipt = await DFKSHvas.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(cancelDelay));
 				Console.WriteLine($"DFKSHvas was approved to be used in the meditation circle\n{allowDFKShvasReceipt.GasUsed} gas was used.");
 			}
-			var DFKMoksha = new Erc20Service(account.Signer, ItemContractDefinitions.InventoryItems[(int)DFKItemEnum.DFKMOKSHA].Addresses[account.Chain.Id].Address);
+			var DFKMoksha = new Erc20Service(account.Signer, ItemContractDefinitions.InventoryItems.First(item => item.ItemEnum == DFKItemEnum.DFKMOKSHA).Addresses.First(a => a.Chain.Id == account.Chain.Id).Address);
 			if (await DFKMoksha.AllowanceQueryAsync(account.Account.Address, DFKMoksha.ContractHandler.ContractAddress) < 1)
 			{
 				Console.WriteLine($"DFKMoksha not allowed. Setting allowance for meditation circle to use..");
 				var approveERC20Function = new ApproveFunction()
 				{
 					Amount = new BigInteger(100000),
-					Spender = ItemContractDefinitions.InventoryItems[(int)DFKItemEnum.DFKMOKSHA].Addresses[account.Chain.Id].Address,
+					Spender = ItemContractDefinitions.InventoryItems.First(item => item.ItemEnum == DFKItemEnum.DFKMOKSHA).Addresses.First(a => a.Chain.Id == account.Chain.Id).Address,
 					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 					MaxPriorityFeePerGas = 0
 				};
@@ -227,12 +227,12 @@ public static class Transaction
 	public static async Task<string> StartQuest(DFKAccount account, List<BigInteger> selectedHeroes, QuestContract quest, int attempts, int maxGasFeeGwei = 200, int cancelDelay = 60000)
 	{
         TransactionAdded?.Invoke();
-        bool isApproved = await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, quest.Addresses.First(a => a.Chain.Id == account.Chain.Id).Address);
+        bool isApproved = await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, quest.Address);
 		Console.WriteLine($"Is approved: {isApproved}");
 		
 		if (isApproved is false)
 		{
-			string approveAllResponse = await account.Hero.SetApprovalForAllRequestAsync(quest.Addresses.First(a => a.Chain.Id == account.Chain.Id).Address, true);
+			string approveAllResponse = await account.Hero.SetApprovalForAllRequestAsync(quest.Address, true);
 			Console.WriteLine($"Set Approved for {quest.Name}: {approveAllResponse}");
 		}
 		Console.WriteLine($"Starting quest {quest.Name} with {attempts} attempts.");
@@ -242,7 +242,7 @@ public static class Transaction
             var questStartFunc = new StartQuestFunction()
             {
 				HeroIds = selectedHeroes,
-                QuestAddress = quest.Addresses.First(a => a.Chain.Id == account.Chain.Id).Address,
+                QuestAddress = quest.Address,
                 Attempts = (byte)attempts,
                 Level = (byte)quest.Level,
 				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),

@@ -263,7 +263,7 @@ public class DFKBot
 			.DistinctBy(q => q.Id)
 			.Where(q => Settings.QuestEnabled.All(qe => Settings.QuestEnabled[q.Id].Enabled)))
 		{
-			var questsOfType = RunningQuests.Where(rq => quest.Addresses.Any(a => a.Address == rq.QuestAddress));
+			var questsOfType = RunningQuests.Where(rq => quest.Address == rq.QuestAddress);
 			if (questsOfType.Any(rq =>  rq.CompleteDateTime >= DateTime.UtcNow.AddMinutes(180)) || questsOfType.Count() >= 10)
 			{
 				continue;

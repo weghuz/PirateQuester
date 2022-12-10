@@ -6,6 +6,7 @@ namespace PirateQuester.Bot
 	{
         public HeroQuestSetting() { }
         public string HeroId { get; set; }
-        public int QuestId { get; set; }
-    }
+		public int QuestId { get; set; }
+		public string ChainIdentifier { get; set; }
+	}
 }

@@ -57,8 +57,9 @@ public class AccountManager
             }
             return true;
         }
-        catch
+        catch (Exception e)
         {
+            Console.WriteLine(e);
             _js.InvokeVoid("alert", $"Incorrect Password.");
         }
         return false;

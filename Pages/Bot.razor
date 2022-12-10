@@ -6,6 +6,10 @@
 @using PirateQuester.Utils;
 <PageTitle>PQ - Bot</PageTitle>
 <BotTerminalNavigation />
+@{
+	var DFKQuestContracts = QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == "DFK").QuestContracts;
+	var KlaytnQuestContracts = QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == "DFK").QuestContracts;
+}
 <RadzenCard class="my-1">
 	<EditForm Model="Bots.Settings">
 		<div class="my-1 text-center">
@@ -51,7 +55,7 @@
 				<RadzenText Text="Professions" TextStyle="TextStyle.H5" />
 				@*First 8 quests are training quests*@
 				<div class="row">
-					@foreach(QuestContract quest in QuestContractDefinitions.DFKQuestContracts.Skip(9))
+					@foreach (QuestContract quest in DFKQuestContracts.Skip(9))
 					{
 						<div class="col-md-4 col-lg-3">
 							<RadzenText Text="@($"{quest.Name}")"/>
