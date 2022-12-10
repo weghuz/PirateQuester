@@ -75,7 +75,7 @@ public class DFKBot
 			}
 			catch(Exception e)
 			{
-				Log(e.Message + e.StackTrace);
+				Log($"{account.Account.Address}\n{e.Message}\n{e.StackTrace}\n{e.InnerException?.Message}");
 			}
 		}
 		IsRunning = false;

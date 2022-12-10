@@ -81,6 +81,11 @@ namespace PirateQuester.Services
 			RunningBots = new List<DFKBot>();
 			foreach (DFKAccount acc in Acc.Accounts)
 			{
+				if(acc.Heroes.Count == 0)
+				{
+					Console.WriteLine($"No heroes for {acc.Name}:{acc.Account.Address}");
+					continue;
+				}
 				DFKBot bot = new();
 				RunningBots.Add(bot);
 				Console.WriteLine($"Bot added for Account: {acc.Account.Address}");
