@@ -41,6 +41,7 @@ public class AccountManager
 		}
 		return false;
 	}
+    
 	public async Task<bool> Login(LoginViewModel model, DFKBotSettings settings)
     {
         try
@@ -48,7 +49,7 @@ public class AccountManager
 			foreach (string name in model.SelectedAccounts)
             {
                 string json = _js.Invoke<string>("localStorage.getItem", name);
-                foreach(Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled))
+                foreach (Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled))
                 {
                     DFKAccount account = new(name, Encrypt.GetAccount(model.Password, json), chain);
                     Accounts.Add(account);

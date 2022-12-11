@@ -172,6 +172,19 @@ public class DFKBot
 			{
 				try
 				{
+					List<BigInteger> onSaleHeroIds = new();
+					foreach(DFKBotHero h in Account.BotHeroes.Where(bh => q.Heroes.Any(qh => qh == bh.ID)))
+					{
+						if(h.Hero.salePrice is not null)
+						{
+							onSaleHeroIds.Add(h.ID);
+						}
+					}
+					if(onSaleHeroIds.Count > 0)
+					{
+						Log($"{(onSaleHeroIds.Count == 1 ? "Hero" : "Heroes")} #{string.Join(", #", onSaleHeroIds)} {(onSaleHeroIds.Count == 1 ? "is" : "are")} on sale, can not complete quest.");
+						continue;
+					}
 					Log($"Quest #{q.Id} {q.QuestName} is ready to complete, completing...");
 					string okMessage = await Transaction.CompleteQuest(Account, q.Heroes.First(), Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
 					Log(okMessage);

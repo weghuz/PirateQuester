@@ -12,18 +12,25 @@
 			</RadzenText>
 		</div>
 		<div>
-			@foreach(DFKAccount acc in Acc.Accounts)
+			@foreach(DFKAccount acc in Acc.Accounts.DistinctBy(a => a.Account.Address))
 			{
 				<RadzenCard class="my-3 overflow-auto text-wrap">
-					<RadzenText TextStyle="TextStyle.H4">
-						@acc.Name on @acc.Chain.Name
-					</RadzenText>
-					<RadzenText TextStyle="TextStyle.H5">
-						Balance
-					</RadzenText>
-					<RadzenText TextStyle="TextStyle.H5">
-						<span class="ml-2">@acc.Balance <RadzenImage Path="@(acc.Chain.Name == "DFK" ? "Images/Jewel.png" : "Images/Klay.png")" Style="width: 18px; height:18px;" /></span>
-					</RadzenText>
+					<div class="row">
+						@foreach (DFKAccount acc2 in Acc.Accounts.Where(a => a.Account.Address == acc.Account.Address))
+						{
+							<div class="col-6">
+								<RadzenText TextStyle="TextStyle.H4">
+									@acc2.Name on @acc2.Chain.Name
+								</RadzenText>
+								<RadzenText TextStyle="TextStyle.H5">
+									Balance
+								</RadzenText>
+								<RadzenText TextStyle="TextStyle.H5">
+									<span class="ml-2">@acc2.Balance <RadzenImage Path="@(acc2.Chain.Name == "DFK" ? "Images/Jewel.png" : "Images/Klay.png")" Style="width: 18px; height:18px;" /></span>
+								</RadzenText>
+							</div>
+						}
+					</div>
 					<RadzenText TextStyle="TextStyle.H6">
 						Address
 					</RadzenText>
