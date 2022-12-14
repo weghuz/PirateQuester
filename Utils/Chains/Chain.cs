@@ -23,7 +23,8 @@
         public string QuestAddress { get; set; }
         public string MeditationAddress { get; set; }
         public string QuestRewarder { get; set; }
-		public AccountSettings SettingsManager { get; internal set; }
+        public string NativeToken { get; set; }
+        public AccountSettings SettingsManager { get; internal set; }
 		public void Save()
 		{
 			if (SettingsManager is null)

@@ -97,10 +97,9 @@ namespace PirateQuester.Utils
 			}
 			UpdatedAccount?.Invoke();
 		}
-
+		
 		public async Task APIInitializeHeroes()
 		{
-
 			Dictionary<HeroesArgument, string> args = new()
 			{
 				{ HeroesArgument.owner, Account.Address },

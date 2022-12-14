@@ -17,7 +17,7 @@ public class AccountSettings
 		if (json is not null)
         {
             dtos = JsonConvert.DeserializeObject<List<ChainDTO>>(json);
-		} 
+		}
         
         ChainSettings = new()
         {
@@ -26,13 +26,14 @@ public class AccountSettings
                 Id = 53935,
                 Name = "DFK",
                 Identifier = "dfk",
-				RPC = dtos.Count > 0 ? dtos.First(dto => dto.Name == "DFK").RPC : "https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc",
+				RPC = dtos.Count > 0 ? dtos.FirstOrDefault(dto => dto.Name == "DFK")?.RPC ?? "https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc": "https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc",
                 ChainEnum = ChainEnum.DFK,
-				Enabled = dtos.Count > 0 ? dtos.First(dto => dto.Name == "DFK").Enabled : true,
+				Enabled = dtos.Count > 0 ? dtos.FirstOrDefault(dto => dto.Name == "DFK")?.Enabled ?? true : true,
 				HeroAddress = "0xEb9B61B145D6489Be575D3603F4a704810e143dF",
                 QuestAddress = "0xE9AbfBC143d7cef74b5b793ec5907fa62ca53154",
                 MeditationAddress = "0xD507b6b299d9FC835a0Df92f718920D13fA49B47",
                 QuestRewarder = "0x08D93Db24B783F8eBb68D7604bF358F5027330A6",
+                NativeToken = "0x04b9dA42306B023f3572e106B11D82aAd9D32EBb",
 				SettingsManager = this
 			},
             new()
@@ -40,14 +41,15 @@ public class AccountSettings
                 Id = 8217,
                 Name = "Klaytn",
                 Identifier = "kla",
-				RPC = dtos.Count > 0 ? dtos.First(dto => dto.Name == "Klaytn").RPC : "https://klaytn.rpc.defikingdoms.com",
+				RPC = dtos.Count > 0 ? dtos.FirstOrDefault(dto => dto.Name == "Klaytn")?.RPC ?? "https://klaytn.rpc.defikingdoms.com" : "https://klaytn.rpc.defikingdoms.com",
                 ChainEnum = ChainEnum.Klaytn,
-				Enabled = dtos.Count > 0 ? dtos.First(dto => dto.Name == "Klaytn").Enabled : true,
+				Enabled = dtos.Count > 0 ? dtos.FirstOrDefault(dto => dto.Name == "Klaytn")?.Enabled ?? true : true,
 				HeroAddress = "0x268CC8248FFB72Cd5F3e73A9a20Fa2FF40EfbA61",
                 QuestAddress = "0x8dc58d6327E1f65b18B82EDFb01A361f3AAEf624",
                 MeditationAddress = "0xdbEE8C336B06f2d30a6d2bB3817a3Ae0E34f4900",
                 QuestRewarder = "0x3fAB563BD19CaFbf8717Cd99a605b3661Cf3391f",
-				SettingsManager = this
+                NativeToken = "0xB3F5867E277798b50ba7A71C0b24FDcA03045eDF",
+                SettingsManager = this
 		    }
         };
 	}

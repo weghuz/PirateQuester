@@ -37,7 +37,7 @@
                                     @Acc.Accounts.Count Accounts
                                 </RadzenButton>
                             }
-                            else if (Acc.AccountNames.Count > 0)
+                            else if (Acc.AccountNames.Count() > 0)
                             {
                                 <br />
                                 <RadzenLink Path="Login" Text="Login" Style="white-space:nowrap;" />
@@ -47,7 +47,7 @@
                                 <RadzenLink Path="CreateAccount" Text="Create Account" Style="white-space:nowrap;" />
                             }
                         </div>
-                        <RadzenText Text="Pirate Quester 🏴‍☠️ V0.1" Style="white-space:nowrap;" class="d-inline-block mx-5" />
+                        <RadzenText Text="Pirate Quester 🏴‍☠️ V0.1.1" Style="white-space:nowrap;" class="d-inline-block mx-5" />
                         <RadzenButton class="d-inline-block" Click="@OpenTransactionWindow">
                             @Transaction.FinishedTransactions.Count() Transactions
                         </RadzenButton>
@@ -65,7 +65,10 @@
                             <RadzenPanelMenuItem Text="Bot" Icon="android" Path="/Bot" />
                             <RadzenPanelMenuItem Text="Accounts" Path="/Accounts" Icon="account_circle"></RadzenPanelMenuItem>
                         }
-                        <RadzenPanelMenuItem Text="Login" Path="/Login" Icon="account_circle"></RadzenPanelMenuItem>
+                        else if(Acc.AccountNames.Count() != Acc.Accounts.Count())
+                        {
+                            <RadzenPanelMenuItem Text="Login" Path="/Login" Icon="account_circle"></RadzenPanelMenuItem>
+                        }
                     }
                     <RadzenPanelMenuItem Text="Create Account" Path="/CreateAccount" Icon="account_box"></RadzenPanelMenuItem>
                     <RadzenPanelMenuItem Path="Options" Text="Options" Icon="build" />

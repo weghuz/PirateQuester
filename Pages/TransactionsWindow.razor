@@ -10,9 +10,12 @@
                 <div style="word-break:break-word;">
                     @t.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss");
                     @t.Name
-                    <a target="_blank" href="https://avascan.info/blockchain/dfk/tx/@(t.TransactionHash)">
-                        Open transaction in explorer
-                    </a>
+                    @if (t.TransactionHash is not null)
+                    {
+                        <a target="_blank" href="https://avascan.info/blockchain/dfk/tx/@(t.TransactionHash)">
+                            Open transaction in explorer
+                        </a>
+                    }
                 </div>
             </div>
         </RadzenCard>
@@ -23,9 +26,12 @@
                 <div style="word-break:break-word;">
                     @t.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss");
                     @t.Name
-                    <a target="_blank" href="https://avascan.info/blockchain/dfk/tx/@(t.TransactionHash)">
-                        Open transaction in explorer
-                    </a>
+                    @if(t.TransactionHash is not null)
+                    {
+                        <a target="_blank" href="https://avascan.info/blockchain/dfk/tx/@(t.TransactionHash)">
+                            Open transaction in explorer
+                        </a>
+                    }
                 </div>
             </div>
         </RadzenCard>

@@ -90,39 +90,56 @@ public static class Transaction
 		try
 		{
 			var DFKSHvas = new Erc20Service(account.Signer, ItemContractDefinitions.InventoryItems.First(item => item.ItemEnum == DFKItemEnum.DFKSHVAS).Addresses.First(a => a.Chain.Id == account.Chain.Id).Address);
-			if (await DFKSHvas.AllowanceQueryAsync(account.Account.Address, DFKSHvas.ContractHandler.ContractAddress) < 1)
+			var shvasAllowance = await DFKSHvas.AllowanceQueryAsync(account.Account.Address, account.Meditation.ContractHandler.ContractAddress);
+            if (shvasAllowance < new BigInteger(100))
 			{
-				Console.WriteLine($"DFKSHvas not allowed. Setting allowance for meditation circle to use..");
+				Console.WriteLine($"DFKSHvas not allowed. Setting allowance for meditation circle to use.");
 				var approveERC20Function = new ApproveFunction()
 				{
-					Amount = new BigInteger(100000),
-					Spender = ItemContractDefinitions.InventoryItems.First(item => item.ItemEnum == DFKItemEnum.DFKSHVAS).Addresses.First(a => a.Chain.Id == account.Chain.Id).Address,
+					Amount = new BigInteger(1000),
+					Spender = account.Meditation.ContractHandler.ContractAddress,
 					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 					MaxPriorityFeePerGas = 0
 				};
 				var allowDFKShvasReceipt = await DFKSHvas.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(cancelDelay));
 				Console.WriteLine($"DFKSHvas was approved to be used in the meditation circle\n{allowDFKShvasReceipt.GasUsed} gas was used.");
-			}
-			var DFKMoksha = new Erc20Service(account.Signer, ItemContractDefinitions.InventoryItems.First(item => item.ItemEnum == DFKItemEnum.DFKMOKSHA).Addresses.First(a => a.Chain.Id == account.Chain.Id).Address);
-			if (await DFKMoksha.AllowanceQueryAsync(account.Account.Address, DFKMoksha.ContractHandler.ContractAddress) < 1)
-			{
-				Console.WriteLine($"DFKMoksha not allowed. Setting allowance for meditation circle to use..");
-				var approveERC20Function = new ApproveFunction()
-				{
-					Amount = new BigInteger(100000),
-					Spender = ItemContractDefinitions.InventoryItems.First(item => item.ItemEnum == DFKItemEnum.DFKMOKSHA).Addresses.First(a => a.Chain.Id == account.Chain.Id).Address,
-					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
-					MaxPriorityFeePerGas = 0
-				};
-				var allowDFKMokshaReceipt = await DFKMoksha.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(cancelDelay));
-				Console.WriteLine($"DFKMoksha was approved to be used in the meditation circle.\n{allowDFKMokshaReceipt.GasUsed} gas was used.");
-			}
-			if (!await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, "0xD507b6b299d9FC835a0Df92f718920D13fA49B47"))
+            }
+            var DFKMoksha = new Erc20Service(account.Signer, ItemContractDefinitions.InventoryItems.First(item => item.ItemEnum == DFKItemEnum.DFKMOKSHA).Addresses.First(a => a.Chain.Id == account.Chain.Id).Address);
+            var mokshaAllowance = await DFKMoksha.AllowanceQueryAsync(account.Account.Address, account.Meditation.ContractHandler.ContractAddress);
+            if (mokshaAllowance < new BigInteger(100))
+            {
+                Console.WriteLine($"DFKMoksha not allowed. Setting allowance for meditation circle to use.");
+                var approveERC20Function = new ApproveFunction()
+                {
+                    Amount = new BigInteger(1000),
+                    Spender = account.Meditation.ContractHandler.ContractAddress,
+                    MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
+                    MaxPriorityFeePerGas = 0
+                };
+                var allowDFKMokshaReceipt = await DFKMoksha.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(cancelDelay));
+                Console.WriteLine($"DFKMoksha was approved to be used in the meditation circle.\n{allowDFKMokshaReceipt.GasUsed} gas was used.");
+            }
+            var nativeToken = new Erc20Service(account.Signer, account.Chain.NativeToken);
+            var nativeTokenAllowance = await nativeToken.AllowanceQueryAsync(account.Account.Address, account.Meditation.ContractHandler.ContractAddress);
+            if (nativeTokenAllowance < Web3.Convert.ToWei(999))
+            {
+                Console.WriteLine($"Native Token not allowed. Setting allowance for meditation circle to use.");
+                var approveERC20Function = new ApproveFunction()
+                {
+                    Amount = Web3.Convert.ToWei(9999),
+                    Spender = account.Meditation.ContractHandler.ContractAddress,
+                    MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
+                    MaxPriorityFeePerGas = 0
+                };
+                var alowNativeTokenReceipt = await nativeToken.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(cancelDelay));
+                Console.WriteLine($"Native Token was approved to be used in the meditation circle.\n{alowNativeTokenReceipt.GasUsed} gas was used.");
+            }
+            if (!await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, account.Meditation.ContractHandler.ContractAddress))
 			{
 				Console.WriteLine($"Heroes not approved for meditation (Level up).\nTrying to approve Meditation of heroes.");
 				var approvalForAllFunc = new DFKContracts.HeroCore.ContractDefinition.SetApprovalForAllFunction()
 				{
-					Operator = "0xD507b6b299d9FC835a0Df92f718920D13fA49B47",
+					Operator = account.Meditation.ContractHandler.ContractAddress,
 					Approved = true,
 					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 					MaxPriorityFeePerGas = 0
