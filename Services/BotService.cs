@@ -81,6 +81,12 @@ namespace PirateQuester.Services
 			RunningBots = new List<DFKBot>();
 			foreach (DFKAccount acc in Acc.Accounts)
 			{
+				Console.WriteLine(acc.PQTBalance);
+				if (acc.PQTBalance < 1)
+				{
+					Console.WriteLine($"No PQT Balance to run account {acc.Name}");
+					continue;
+				}
 				if(acc.Heroes.Count == 0)
 				{
 					Console.WriteLine($"No heroes for {acc.Name}:{acc.Account.Address}");

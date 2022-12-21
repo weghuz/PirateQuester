@@ -18,6 +18,7 @@ public partial class Bot
     BotService Bots { get; set; }
     [Inject]
     IJSInProcessRuntime JS { get; set; }
+    public List<DFKAccount> AccountsMissingPQT { get; set; }
 
     protected override void OnInitialized()
     {
@@ -25,6 +26,11 @@ public partial class Bot
         {
             Nav.NavigateTo("CreateAccount");
 		}
+        else if (Acc.Accounts.Any(acc => acc.PQTBalance < 1))
+        {
+            AccountsMissingPQT = Acc.Accounts.Where(acc => acc.PQTBalance < 1).ToList();
+        }
+        
         Bots.UpdatedBot += StateHasChanged;
     }
 }

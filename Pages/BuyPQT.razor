@@ -1,0 +1,48 @@
+﻿@page "/BuyPQT"
+@using PirateQuester.Utils;
+<PageTitle>PQT Buy</PageTitle>
+
+<RadzenCard class="my-3">
+    <div class="row">
+        <div class="col-12 text-center">
+            <RadzenText TextStyle="TextStyle.H6">Buying PQT for @Account.Name</RadzenText>
+            <RadzenText TextStyle="TextStyle.Body1">PQT Balance: @Account.PQTBalance</RadzenText>
+            <RadzenText TextStyle="TextStyle.Body1" class="mt-2">For more information about the PQT token, visit: </RadzenText>
+            <ul>
+                <li>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        <a href="https://dfk-project.gitbook.io/pirate-quester/" target="_blank">The docs</a>
+                    </RadzenText>
+                </li>
+                <li>
+                    <RadzenText TextStyle="TextStyle.Body1" class="mb-2">
+                        <a href="https://snowtrace.io/address/0xAC2b4Ffe04AB34e43e780Dad5C8DEac47B7db775" target="_blank">The contract on snowtrace (Avalanche Explorer)</a>
+                    </RadzenText>
+                </li>
+            </ul>
+            
+            <RadzenText TextStyle="TextStyle.H6">AVAX balance: @(Account.AvaxBalance)</RadzenText>
+            <label for="PQTBuyAmount">Amount to buy: 
+                <RadzenNumeric TValue="int" id="PQTBuyAmount" @bind-Value=BuyAmount Min="1" />
+            </label>
+            <RadzenText TextStyle="TextStyle.H5">Price per PQT: @PQTPrice</RadzenText>
+            @if (PQTPrice == 0)
+            {
+                <RadzenText TextStyle="TextStyle.Body1">Couldn't load PQT Price correctly.</RadzenText>
+            }
+            else if (Account.AvaxBalance < PQTPrice)
+            {
+                <RadzenText TextStyle="TextStyle.Body1">Not enought AVAX to buy PQT.</RadzenText>
+            }
+            <RadzenButton Click="OpenConfirmTransactionWindow" ButtonStyle="ButtonStyle.Success" Disabled="PQTPrice == 0 || Account.AvaxBalance < PQTPrice">Buy</RadzenButton>
+        </div>
+    </div>
+</RadzenCard>
+@{
+    void OpenConfirmTransactionWindow()
+    {
+        ConfirmTransactionWindow.BuyAmount = BuyAmount;
+        Dialog.Open<ConfirmTransactionWindow>("Buy PQT");
+        StateHasChanged();
+    }
+}

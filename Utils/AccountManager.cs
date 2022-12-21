@@ -49,9 +49,9 @@ public class AccountManager
 			foreach (string name in model.SelectedAccounts)
             {
                 string json = _js.Invoke<string>("localStorage.getItem", name);
-                foreach (Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled))
+                foreach (Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled && cs.Name != "Avalanche"))
                 {
-                    DFKAccount account = new(name, Encrypt.GetAccount(model.Password, json), chain);
+                    DFKAccount account = new(name, Encrypt.GetAccount(model.Password, json), chain, AccSettings.ChainSettings.First(cs => cs.Name == "Avalanche"));
                     Accounts.Add(account);
                     await account.InitializeAccount(settings);
                 }
@@ -78,7 +78,7 @@ public class AccountManager
             _js.InvokeVoid("alert", "The passwords don't match.");
             return;
         }
-        if(model.PrivateKey.Length == 64)
+        if(model.PrivateKey is not null && model.PrivateKey.Length == 64)
         {
             model.PrivateKey = $"0x{model.PrivateKey}";
         }
@@ -110,9 +110,9 @@ public class AccountManager
             json = Encrypt.CreateAccount(model.PrivateKey, model.Password);
             _js.InvokeVoid("localStorage.setItem", new string[] { model.Name, json });
         }
-        foreach (Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled))
+        foreach (Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled && cs.Name != "Avalanche"))
         {
-            DFKAccount account = new(model.Name, Encrypt.GetAccount(model.Password, json), chain);
+            DFKAccount account = new(model.Name, Encrypt.GetAccount(model.Password, json), chain, AccSettings.ChainSettings.FirstOrDefault(cs => cs.Name == "Avalanche"));
             Accounts.Add(account);
             await account.InitializeAccount(settings);
         }

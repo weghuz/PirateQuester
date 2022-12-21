@@ -41,16 +41,26 @@ public class AccountSettings
                 Id = 8217,
                 Name = "Klaytn",
                 Identifier = "kla",
-				RPC = dtos.Count > 0 ? dtos.FirstOrDefault(dto => dto.Name == "Klaytn")?.RPC ?? "https://klaytn.rpc.defikingdoms.com" : "https://klaytn.rpc.defikingdoms.com",
+                RPC = dtos.Count > 0 ? dtos.FirstOrDefault(dto => dto.Name == "Klaytn")?.RPC ?? "https://klaytn.rpc.defikingdoms.com" : "https://klaytn.rpc.defikingdoms.com",
                 ChainEnum = ChainEnum.Klaytn,
-				Enabled = dtos.Count > 0 ? dtos.FirstOrDefault(dto => dto.Name == "Klaytn")?.Enabled ?? true : true,
-				HeroAddress = "0x268CC8248FFB72Cd5F3e73A9a20Fa2FF40EfbA61",
+                Enabled = dtos.Count > 0 ? dtos.FirstOrDefault(dto => dto.Name == "Klaytn")?.Enabled ?? true : true,
+                HeroAddress = "0x268CC8248FFB72Cd5F3e73A9a20Fa2FF40EfbA61",
                 QuestAddress = "0x8dc58d6327E1f65b18B82EDFb01A361f3AAEf624",
                 MeditationAddress = "0xdbEE8C336B06f2d30a6d2bB3817a3Ae0E34f4900",
                 QuestRewarder = "0x3fAB563BD19CaFbf8717Cd99a605b3661Cf3391f",
                 NativeToken = "0xB3F5867E277798b50ba7A71C0b24FDcA03045eDF",
                 SettingsManager = this
-		    }
+            },
+            new()
+            {
+                Id = 43114,
+                Name = "Avalanche",
+                Identifier = "ava",
+                RPC = dtos.Count > 0 ? dtos.FirstOrDefault(dto => dto.Name == "Avalanche")?.RPC ?? "https://api.avax.network/ext/bc/C/rpc" : "https://api.avax.network/ext/bc/C/rpc",
+                ChainEnum = ChainEnum.Avalanche,
+                Enabled = dtos.Count > 0 ? dtos.FirstOrDefault(dto => dto.Name == "Avalanche")?.Enabled ?? true : true,
+                SettingsManager = this
+            }
         };
 	}
     

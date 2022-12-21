@@ -5,6 +5,7 @@ namespace PirateQuester.Utils
 {
 	public static class Constants
 	{
+        public static string PQT_ADDRESS { get; } = "0xAC2b4Ffe04AB34e43e780Dad5C8DEac47B7db775";
         public static List<Chain.Chain> ChainsList { get; } = new()
 		{
 			new()
@@ -20,20 +21,22 @@ namespace PirateQuester.Utils
 				MeditationAddress = "0xD507b6b299d9FC835a0Df92f718920D13fA49B47",
 				QuestRewarder = "0x08D93Db24B783F8eBb68D7604bF358F5027330A6"
 			},
-			new()
-			{
-				Id = 8217,
-				Name = "Klaytn",
-				Identifier = "kla",
-				RPC = "https://klaytn.rpc.defikingdoms.com",
-				ChainEnum = ChainEnum.Klaytn,
-				Enabled = true,
-				HeroAddress = "0x268CC8248FFB72Cd5F3e73A9a20Fa2FF40EfbA61",
-				QuestAddress = "0x8dc58d6327E1f65b18B82EDFb01A361f3AAEf624",
-				MeditationAddress = "0xdbEE8C336B06f2d30a6d2bB3817a3Ae0E34f4900",
-				QuestRewarder = "0x3fAB563BD19CaFbf8717Cd99a605b3661Cf3391f"
-			}
-		};
+            new()
+            {
+                Id = 8217,
+                Name = "Klaytn",
+                Identifier = "kla",
+                RPC = "https://klaytn.rpc.defikingdoms.com",
+                ChainEnum = ChainEnum.Klaytn,
+                Enabled = true,
+                HeroAddress = "0x268CC8248FFB72Cd5F3e73A9a20Fa2FF40EfbA61",
+                QuestAddress = "0x8dc58d6327E1f65b18B82EDFb01A361f3AAEf624",
+                MeditationAddress = "0xdbEE8C336B06f2d30a6d2bB3817a3Ae0E34f4900",
+                QuestRewarder = "0x3fAB563BD19CaFbf8717Cd99a605b3661Cf3391f"
+            },
+
+        };
+
 		public static List<DFKStat> DFKStats { get; } = new()
 		{
 			{ new(0, "Strength") },

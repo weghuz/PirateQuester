@@ -17,6 +17,11 @@ public partial class Accounts
 	public string Password { get; set; }
 
 	bool Initialized = false;
+	void BuyPirateQuesterToken(int accountIndex)
+	{
+        BuyPQT.Account = Acc.Accounts[accountIndex];
+        Nav.NavigateTo($"/BuyPQT");
+	}
 	public void TryRevealKey(string name, string password)
 	{
 		if(Acc.CheckPassword(name, password))
@@ -25,7 +30,7 @@ public partial class Accounts
 			StateHasChanged();
 		}
 	}
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
 		if (Acc.Accounts.Count == 0)
 		{
@@ -42,6 +47,11 @@ public partial class Accounts
 		{
 			ShowPrivateKey.Add(name, false);
 		}
-		Initialized = true;
+        foreach (DFKAccount acc in Acc.Accounts)
+        {
+			await acc.UpdateBalance();
+        }
+		StateHasChanged();
+        Initialized = true;
 	}
 }

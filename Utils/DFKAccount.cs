@@ -5,6 +5,7 @@ using DFKContracts.QuestCore;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using PirateQuester.Bot;
+using PirateQuester.PirateQuesterToken;
 using System.Numerics;
 
 namespace PirateQuester.Utils
@@ -18,40 +19,39 @@ namespace PirateQuester.Utils
 		public static event AccountUpdated UpdatedAccount;
 		public async Task UpdateBalance()
         {
-            Balance = 0;
-
-            Balance += Web3.Convert.FromWei(await Signer.Eth.GetBalance.SendRequestAsync(Account.Address));
+            int attempt = 0;
+            bool retry = true;
+            while (retry)
+            {
+                try
+                {
+                    PQTBalance = Web3.Convert.FromWei(await PQT.BalanceOfQueryAsync(Account.Address));
+                    Balance = Web3.Convert.FromWei(await Signer.Eth.GetBalance.SendRequestAsync(Account.Address));
+                    AvaxBalance = Web3.Convert.FromWei(await AvalancheSigner.Eth.GetBalance.SendRequestAsync(Account.Address));
+                    retry = false;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine($"If the RPC fails too much, try changing RPCs in /Options");
+                    attempt++;
+                    if (attempt >= 5)
+                    {
+                        retry = false;
+                    }
+                    else
+                    {
+                        await Task.Delay(attempt * 100);
+                    }
+                }
+            }
         }
 
         public async Task InitializeAccount(DFKBotSettings settings)
 		{
+			await UpdateBalance();
 			int attempt = 0;
 			bool retry = true;
-			while(retry)
-			{
-				try
-				{
-					await UpdateBalance();
-					retry = false;
-				}
-				catch(Exception e)
-				{
-					Console.WriteLine(e.Message);
-					Console.WriteLine($"If the RPC fails too much, try changing RPCs in /Options");
-					attempt++;
-					if (attempt >= 5)
-					{
-						QueryOnChain = true;
-						retry = false;
-					}
-					else
-					{
-						await Task.Delay(attempt * 100);
-					}
-				}
-			}
-			attempt = 0;
-			retry = true;
 			while (retry)
 			{
 				try
@@ -225,7 +225,7 @@ namespace PirateQuester.Utils
 			}
 		}
 
-		public DFKAccount(string name, Account account, Chain.Chain chain)
+		public DFKAccount(string name, Account account, Chain.Chain chain, Chain.Chain Avalanche)
         {
             Name = name;
             Account = account;
@@ -235,15 +235,25 @@ namespace PirateQuester.Utils
 			Signer.TransactionManager.UseLegacyAsDefault = true;
 			Quest = new QuestCoreService(Signer, chain.QuestAddress);
 			Hero = new HeroCoreService(Signer, chain.HeroAddress);
+			AvalancheSigner = new Web3(account, Avalanche.RPC);
+            PQT = new PirateQuesterTokenService(AvalancheSigner, Constants.PQT_ADDRESS);
 			Meditation = new DFKContracts.MeditationCircle.MeditationCircleService(Signer, chain.MeditationAddress);
 		}
+
         public Chain.Chain Chain { get; set; }
         private decimal balance;
-        public decimal Balance { get { return Math.Round(balance, 2); } set { balance = value;} }
+        public decimal Balance { get { return Math.Round(balance, 2); } set { balance = value; } }
+        private decimal pqtBalance;
+        public decimal PQTBalance { get { return Math.Round(pqtBalance, 2); } set { pqtBalance = value; } }
+
+		public decimal avaxBalance;
+        public decimal AvaxBalance { get { return Math.Round(avaxBalance, 2); } set { avaxBalance = value; } }
+        public Web3 AvalancheSigner { get; set; }
         public Web3 Signer { get; set; }
         public Erc20Service Erc20 { get; set; }
         public HeroCoreService Hero { get; set; }
         public QuestCoreService Quest { get; set; }
+        public PirateQuesterTokenService PQT { get; set; }
         public DFKContracts.MeditationCircle.MeditationCircleService Meditation { get; set; }
         public Account Account { get; set; }
         public string Name { get; set; }

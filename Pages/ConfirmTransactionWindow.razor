@@ -1,0 +1,22 @@
+﻿@page "/ConfirmTransactionWindow"
+@using PirateQuester.Utils;
+<PageTitle>PQT Buy</PageTitle>
+
+<div class="row">
+    <div class="col-12 text-center">
+        <RadzenText TextStyle="TextStyle.DisplayH6">@BuyPQT.Account.Name</RadzenText>
+        <RadzenText TextStyle="TextStyle.Body1">PQT Balance: @BuyPQT.Account.AvaxBalance</RadzenText>
+        <RadzenText TextStyle="TextStyle.Body1">Buy @BuyAmount PQT?</RadzenText>
+        <RadzenText TextStyle="TextStyle.Body1">For @Math.Round(PQTPrice, 2) ?</RadzenText>
+        <RadzenText TextStyle="TextStyle.H6" class="danger">This will transfer @(BuyAmount * PQTPrice) AVAX to the contract.</RadzenText>
+        @if(PQTPrice == 0)
+        {
+            <RadzenText TextStyle="TextStyle.Body1" class="text-warning">Price not loaded correctly.</RadzenText>
+        }
+        @if(IsBuying)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" ProgressBarStyle="ProgressBarStyle.Success" />
+        }
+        <RadzenButton ButtonStyle="ButtonStyle.Primary" Click="BuyPirateQuesterToken" Disabled="PQTPrice == 0 || IsBuying">Buy</RadzenButton>
+    </div>
+</div>

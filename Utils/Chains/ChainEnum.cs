@@ -3,6 +3,7 @@
     public enum ChainEnum
     {
         DFK,
-        Klaytn
+        Klaytn,
+        Avalanche
     }
 }

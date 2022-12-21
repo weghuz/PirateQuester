@@ -4,8 +4,8 @@
 @inherits LayoutComponentBase
 <RadzenDialog />
 <RadzenTooltip />
-@code{
-    public void OpenTransactionWindow()
+@code {
+    public void OpenTransactionsWindow()
     {
         Dialog.Open<TransactionsWindow>("Transaction",
         new(),
@@ -34,7 +34,7 @@
                             else if (Acc.Accounts.Count > 1)
                             {
                                 <RadzenButton Click="@(() => Nav.NavigateTo("Accounts"))" Style="white-space:nowrap;">
-                                    @Acc.Accounts.Count Accounts
+                                    @Acc.Accounts.DistinctBy(a => a.Account.Address).Count() Accounts
                                 </RadzenButton>
                             }
                             else if (Acc.AccountNames.Count() > 0)
@@ -47,8 +47,8 @@
                                 <RadzenLink Path="CreateAccount" Text="Create Account" Style="white-space:nowrap;" />
                             }
                         </div>
-                        <RadzenText Text="Pirate Quester 🏴‍☠️ V0.1.1" Style="white-space:nowrap;" class="d-inline-block mx-5" />
-                        <RadzenButton class="d-inline-block" Click="@OpenTransactionWindow">
+                        <RadzenText Text="Pirate Quester 🏴‍☠️ V0.2.0" Style="white-space:nowrap;" class="d-inline-block mx-5" />
+                        <RadzenButton class="d-inline-block" Click="@OpenTransactionsWindow">
                             @Transaction.FinishedTransactions.Count() Transactions
                         </RadzenButton>
                     </div>

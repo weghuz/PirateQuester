@@ -14,6 +14,12 @@
             </RadzenText>
             <RadzenButton Click="ClearLocalStorage" Text="Clear Local Storage" ButtonStyle="ButtonStyle.Secondary" />
         </div>
+        <div class="col-md-6">
+            <RadzenText class="pb-2">
+                (Remove all Settings from memory, useful if you crash a lot)
+            </RadzenText>
+            <RadzenButton Click="ClearProblematicStorage" Text="Clear Local Settings" ButtonStyle="ButtonStyle.Secondary" />
+        </div>
     </div>
 </RadzenCard>
 <RadzenCard class="my-3">
@@ -43,6 +49,15 @@
                 Klaytn Enabled
             </RadzenText>
             <RadzenCheckBox @bind-Value=@klaytn.Enabled></RadzenCheckBox>
+        </div>
+        <div class="col-md-6">
+            @{
+                var avalanche = AccSettings.ChainSettings.First(cs => cs.Name == "Avalanche");
+            }
+            <RadzenText class="pb-2">
+                Avalanche RPC
+            </RadzenText>
+            <RadzenTextBox class="w-100" @bind-Value=@avalanche.RPC></RadzenTextBox>
         </div>
     </div>
 </RadzenCard>

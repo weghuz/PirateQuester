@@ -10,6 +10,16 @@ public partial class Options
     public IJSInProcessRuntime JS { get; set; }
     [Inject]
     public AccountSettings AccSettings { get; set; }
+    void ClearProblematicStorage()
+    {
+        JS.InvokeVoidAsync("localStorage.setItem", "DFKBotSettings", "");
+        JS.InvokeVoidAsync("localStorage.setItem", "gridRunningQuestsGrid", "");
+        JS.InvokeVoidAsync("localStorage.setItem", "gridQuestRewardsGrid", "");
+        JS.InvokeVoidAsync("localStorage.setItem", "gridControlCenterHeroGrid", "");
+        JS.InvokeVoidAsync("localStorage.setItem", "ChainSettings", "");
+        JS.InvokeVoid("location.reload");
+    }
+    
     void ClearLocalStorage()
     {
         if(JS.Invoke<bool>("confirm", "This will delete ALL your local accounts. Are you sure?"))

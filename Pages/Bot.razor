@@ -10,15 +10,27 @@
 	var DFKQuestContracts = QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == "DFK").QuestContracts;
 	var KlaytnQuestContracts = QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == "DFK").QuestContracts;
 }
+
 <RadzenCard class="my-1">
 	<EditForm Model="Bots.Settings">
 		<div class="my-1 text-center">
-			<RadzenButton Text="Run Bots" ButtonType="ButtonType.Submit" Disabled="Bots.CheckRunning()" Click="@Bots.RunBots" />
-			<RadzenButton Text="Stop Bots" ButtonType="ButtonType.Submit" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" Click="@Bots.StopBots" />
+			@if (Acc.Accounts.Any(acc => acc.PQTBalance > 0))
+			{
+				<RadzenButton Text="Run Bots" ButtonType="ButtonType.Submit" Disabled="Bots.CheckRunning()" Click="@Bots.RunBots" />
+				<RadzenButton Text="Stop Bots" ButtonType="ButtonType.Submit" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" Click="@Bots.StopBots" />
+			}
+			else
+			{
+				<h4 class="text-danger">
+                    You don't have PQT on any of your accounts.
+				</h4>
+				<h4 class="text-danger">
+                    Visit the <RadzenButton Click=@(() => Nav.NavigateTo("Accounts"))>Accounts</RadzenButton> page to add an account with PQT.
+				</h4>
+			}
 			<RadzenButton Text="Save Settings" ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Button" Click="@Bots.SaveSettings" />
 		</div>
 		<div class="row">
-
 			<div class="col-md-6">
 				<RadzenLabel Text="Update Frequency (Seconds)" Component="UpdateInterval" />
 				<RadzenNumeric Name="UpdateInterval" class="w-100 my-1" 

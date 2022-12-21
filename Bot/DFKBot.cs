@@ -57,14 +57,21 @@ public class DFKBot
 		
 		foreach(DFKBotHero hero in Account.BotHeroes.Where(h => h.Quest is not null))
 		{
-
 			Console.WriteLine($"{hero.ID} Prefers {hero.Quest.Name}");
 		}
 		while (true)
 		{
 			try
-			{
-				await UpdateHeroes();
+            {
+				await account.UpdateBalance();
+				Console.WriteLine($"PQT Balance: {account.PQTBalance} {account.Account.Address}");
+				if (account.PQTBalance < 1)
+                {
+                    Log("No PQT Balance, stopping bot.");
+                    StopBot = true;
+                    break;
+                }
+                await UpdateHeroes();
 				await Update();
 				await UpdateQuestRewards();
 				if (StopBot)

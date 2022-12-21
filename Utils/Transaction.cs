@@ -9,6 +9,7 @@ using DFKContracts.ERC20;
 using static PirateQuester.DFK.Contracts.QuestContractDefinitions;
 using Nethereum.Contracts;
 using PirateQuester.DFK.Items;
+using PirateQuester.PirateQuesterToken.ContractDefinition;
 
 namespace Utils;
 
@@ -56,7 +57,7 @@ public static class Transaction
 			FinishedTransactions.Add(new()
 			{
 				Name = $"Completed meditation For Hero: {heroId}",
-				TimeStamp = DateTime.UtcNow,
+				TimeStamp = DateTime.Now,
 				TransactionHash = receipt.TransactionHash,
 			});
 			TransactionAdded?.Invoke();
@@ -75,7 +76,7 @@ public static class Transaction
 			{
 				Success = false,
 				Name = $"Failed to completed meditating: {e.Message}",
-				TimeStamp = DateTime.UtcNow,
+				TimeStamp = DateTime.Now,
 				TransactionHash = null
 			});
 			Console.WriteLine($"{e.Message}");
@@ -94,7 +95,7 @@ public static class Transaction
             if (shvasAllowance < new BigInteger(100))
 			{
 				Console.WriteLine($"DFKSHvas not allowed. Setting allowance for meditation circle to use.");
-				var approveERC20Function = new ApproveFunction()
+				var approveERC20Function = new DFKContracts.ERC20.ContractDefinition.ApproveFunction()
 				{
 					Amount = new BigInteger(1000),
 					Spender = account.Meditation.ContractHandler.ContractAddress,
@@ -109,7 +110,7 @@ public static class Transaction
             if (mokshaAllowance < new BigInteger(100))
             {
                 Console.WriteLine($"DFKMoksha not allowed. Setting allowance for meditation circle to use.");
-                var approveERC20Function = new ApproveFunction()
+                var approveERC20Function = new DFKContracts.ERC20.ContractDefinition.ApproveFunction()
                 {
                     Amount = new BigInteger(1000),
                     Spender = account.Meditation.ContractHandler.ContractAddress,
@@ -124,7 +125,7 @@ public static class Transaction
             if (nativeTokenAllowance < Web3.Convert.ToWei(999))
             {
                 Console.WriteLine($"Native Token not allowed. Setting allowance for meditation circle to use.");
-                var approveERC20Function = new ApproveFunction()
+                var approveERC20Function = new DFKContracts.ERC20.ContractDefinition.ApproveFunction()
                 {
                     Amount = Web3.Convert.ToWei(9999),
                     Spender = account.Meditation.ContractHandler.ContractAddress,
@@ -165,7 +166,7 @@ public static class Transaction
 			FinishedTransactions.Add(new()
 			{
 				Name = $"Started meditation For Hero: {heroId}",
-				TimeStamp = DateTime.UtcNow,
+				TimeStamp = DateTime.Now,
 				TransactionHash = receipt.TransactionHash,
 			});
 			TransactionAdded?.Invoke();
@@ -184,7 +185,7 @@ public static class Transaction
 			{
 				Success = false,
 				Name = $"Failed to start meditating: {e.Message}",
-				TimeStamp = DateTime.UtcNow,
+				TimeStamp = DateTime.Now,
 				TransactionHash = null
 			});
 			Console.WriteLine($"{e.Message}");
@@ -213,7 +214,7 @@ public static class Transaction
 			FinishedTransactions.Add(new()
 			{
 				Name = $"Complete Quest For Hero: {heroId}",
-				TimeStamp = DateTime.UtcNow,
+				TimeStamp = DateTime.Now,
 				TransactionHash = receipt.TransactionHash,
 			});
 			TransactionAdded?.Invoke();
@@ -232,7 +233,7 @@ public static class Transaction
             {
                 Success = false,
                 Name = $"Failed Complete Quest: {e.Message}",
-                TimeStamp = DateTime.UtcNow,
+                TimeStamp = DateTime.Now,
                 TransactionHash = null
             });
             Console.WriteLine($"{e.Message}");
@@ -241,7 +242,54 @@ public static class Transaction
 		}
 	}
 
-	public static async Task<string> StartQuest(DFKAccount account, List<BigInteger> selectedHeroes, QuestContract quest, int attempts, int maxGasFeeGwei = 200, int cancelDelay = 60000)
+    public static async Task<string> BuyPirateQuesterToken(DFKAccount account, int quantity, int maxGasFeeGwei = 200, int cancelDelay = 60000)
+    {
+        TransactionAdded?.Invoke();
+		
+        try
+        {
+            var handler = account.AvalancheSigner.Eth.GetContractTransactionHandler<BuyFunction>();
+            var buyFunction = new BuyFunction()
+            {
+                AmountToSend = quantity * await account.PQT.PriceQueryAsync(),
+                Quantity = (byte)quantity,
+                MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
+                MaxPriorityFeePerGas = 0
+            };
+            var buyRequestResponse = await account.PQT.BuyRequestAndWaitForReceiptAsync(buyFunction, StopAfterDelay(cancelDelay));
+            Console.WriteLine($"Started Quest Txn: Gas: {buyRequestResponse.GasUsed.Value}");
+            //var startQuestEvent = questStartResponse.DecodeAllEvents<QuestStartedEventDTO>();
+            FinishedTransactions.Add(new()
+            {
+                Success = true,
+                Name = $"Bought one Pirate Quester Token! Have fun with the bot!",
+                TimeStamp = DateTime.Now,
+                TransactionHash = buyRequestResponse.TransactionHash
+            });
+            TransactionAdded?.Invoke();
+            if (buyRequestResponse.Status == new BigInteger(1))
+            {
+                return $"Bought one Pirate Quester Token!\nTransaction: {buyRequestResponse.TransactionHash}\nhttps://avascan.info/blockchain/dfk/tx/{buyRequestResponse.TransactionHash}\nGas Paid: {buyRequestResponse.GasUsed}";
+            }
+            else
+            {
+                return $"Failed to buy {quantity} Pirate Quester Token";
+            }
+        }
+        catch (Exception e)
+        {
+            FinishedTransactions.Add(new()
+            {
+                Success = false,
+                Name = $"Failed to buy {quantity} Pirate Quester Token: {e.Message}",
+                TimeStamp = DateTime.Now,
+                TransactionHash = null
+            });
+            TransactionAdded?.Invoke();
+            throw;
+        }
+    }
+    public static async Task<string> StartQuest(DFKAccount account, List<BigInteger> selectedHeroes, QuestContract quest, int attempts, int maxGasFeeGwei = 200, int cancelDelay = 60000)
 	{
         TransactionAdded?.Invoke();
         bool isApproved = await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, quest.Address);
@@ -272,7 +320,7 @@ public static class Transaction
             {
                 Success = true,
                 Name = $"Started Quest {quest.Name}",
-				TimeStamp = DateTime.UtcNow,
+				TimeStamp = DateTime.Now,
 				TransactionHash = questStartResponse.TransactionHash
 			});
             TransactionAdded?.Invoke();
@@ -291,7 +339,7 @@ public static class Transaction
 			{
 				Success = false,
 				Name = $"Failed Start Quest {quest.Name}: {e.Message}",
-				TimeStamp = DateTime.UtcNow,
+				TimeStamp = DateTime.Now,
 				TransactionHash = null
 			});
             TransactionAdded?.Invoke();

@@ -24,7 +24,10 @@ public partial class Login
 
     protected override void OnInitialized()
     {
-
+		if(Acc.AccountNames.Count == 0)
+		{
+            Nav.NavigateTo("CreateAccount");
+        }
     }
 
     async Task LoginAccount()
