@@ -313,12 +313,12 @@ public class DFKBot
 						}
 					}
 				}
-                if (heroBatch is null)
+                if (heroBatch is null || heroBatch.Count == 0)
                 {
                     continue;
                 }
 				
-                int maxAttempts = heroBatch.Min(h => quest.AvailableAttempts(h));
+                int maxAttempts = heroBatch.Select(h => quest.AvailableAttempts(h)).Min();
 				
                 if(maxAttempts == 0)
                 {

@@ -206,9 +206,9 @@ public static class Transaction
 				HeroId = heroId,
 				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 				MaxPriorityFeePerGas = 0
-			};
+            };
 
-			var receipt = await account.Quest.CompleteQuestRequestAndWaitForReceiptAsync(questCompleteFunc, StopAfterDelay(cancelDelay));
+            var receipt = await account.Quest.CompleteQuestRequestAndWaitForReceiptAsync(questCompleteFunc, StopAfterDelay(cancelDelay));
 			Console.WriteLine($"Completed Quest Txn: Gas: {receipt.GasUsed.Value}");
 			//var completeQuestEvent = receipt.DecodeAllEvents<QuestCompletedEventDTO>();
 			FinishedTransactions.Add(new()
@@ -229,6 +229,7 @@ public static class Transaction
         }
 		catch(Exception e)
         {
+			Console.WriteLine("Chain: " + account.Chain.Name);
             FinishedTransactions.Add(new()
             {
                 Success = false,
@@ -304,16 +305,19 @@ public static class Transaction
 		try
         {
 			var handler = account.Signer.Eth.GetContractTransactionHandler<StartQuestFunction>();
-            var questStartFunc = new StartQuestFunction()
-            {
+			var questStartFunc = new StartQuestFunction()
+			{
 				HeroIds = selectedHeroes,
-                QuestAddress = quest.Address,
-                Attempts = (byte)attempts,
-                Level = (byte)quest.Level,
+				QuestAddress = quest.Address,
+				Attempts = (byte)attempts,
+				Level = (byte)quest.Level,
 				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
-				MaxPriorityFeePerGas = 0
-			};
-			var questStartResponse = await account.Quest.StartQuestRequestAndWaitForReceiptAsync(questStartFunc, StopAfterDelay(cancelDelay));
+				MaxPriorityFeePerGas = 0,
+				GasPrice = await account.Signer.Eth.GasPrice.SendRequestAsync(),
+            };
+			questStartFunc.Gas = await handler.EstimateGasAsync(account.Quest.ContractHandler.ContractAddress, questStartFunc);
+
+            var questStartResponse = await account.Quest.StartQuestRequestAndWaitForReceiptAsync(questStartFunc, StopAfterDelay(cancelDelay));
 			Console.WriteLine($"Started Quest Txn: Gas: {questStartResponse.GasUsed.Value}");
 			//var startQuestEvent = questStartResponse.DecodeAllEvents<QuestStartedEventDTO>();
 			FinishedTransactions.Add(new()
@@ -335,6 +339,7 @@ public static class Transaction
         }
 		catch(Exception e)
         {
+			Console.WriteLine(account.Chain.Name);
 			FinishedTransactions.Add(new()
 			{
 				Success = false,
