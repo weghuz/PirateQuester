@@ -270,7 +270,7 @@ public static class Transaction
             TransactionAdded?.Invoke();
             if (buyRequestResponse.Status == new BigInteger(1))
             {
-                return $"Bought one Pirate Quester Token!\nTransaction: {buyRequestResponse.TransactionHash}\nhttps://avascan.info/blockchain/dfk/tx/{buyRequestResponse.TransactionHash}\nGas Paid: {buyRequestResponse.GasUsed}";
+                return $"Bought one Pirate Quester Token!\nTransaction: {buyRequestResponse.TransactionHash}\nhttps://snowtrace.io/tx/{buyRequestResponse.TransactionHash}\nGas Paid: {buyRequestResponse.GasUsed}";
             }
             else
             {
@@ -313,9 +313,7 @@ public static class Transaction
 				Level = (byte)quest.Level,
 				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
 				MaxPriorityFeePerGas = 0,
-				GasPrice = await account.Signer.Eth.GasPrice.SendRequestAsync(),
             };
-			questStartFunc.Gas = await handler.EstimateGasAsync(account.Quest.ContractHandler.ContractAddress, questStartFunc);
 
             var questStartResponse = await account.Quest.StartQuestRequestAndWaitForReceiptAsync(questStartFunc, StopAfterDelay(cancelDelay));
 			Console.WriteLine($"Started Quest Txn: Gas: {questStartResponse.GasUsed.Value}");

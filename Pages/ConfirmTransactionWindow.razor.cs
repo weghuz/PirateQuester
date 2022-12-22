@@ -31,8 +31,18 @@ public partial class ConfirmTransactionWindow
     public async void BuyPirateQuesterToken()
     {
         IsBuying = true;
-        JS.Invoke<string>("alert", await Transaction.BuyPirateQuesterToken(Account, BuyAmount.Value, Bots.Settings.MaxGasFeeGwei, Bots.Settings.CancelTxnDelay));
-        Dialog.Close();
+        string response = await Transaction.BuyPirateQuesterToken(Account, BuyAmount.Value, Bots.Settings.MaxGasFeeGwei, Bots.Settings.CancelTxnDelay);
+        IsBuying = false;
+        if (response.Contains("failed"))
+        {
+
+        }
+        else
+        {
+            JS.Invoke<string>("alert", "Thank you for buying a Pirate Quester Token!");
+            Dialog.Close();
+            Nav.NavigateTo("Accounts");
+        }
     }
     
     protected override async void OnInitialized()

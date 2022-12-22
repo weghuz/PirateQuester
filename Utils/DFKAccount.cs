@@ -230,9 +230,9 @@ namespace PirateQuester.Utils
             Name = name;
             Account = account;
 			Chain = chain;
-            AvalancheSigner = new Web3(account, Avalanche.RPC);
-            PQT = new PirateQuesterTokenService(AvalancheSigner, Constants.PQT_ADDRESS);
+            AvalancheSigner = new Web3(new Account(account.PrivateKey), Avalanche.RPC);
             Signer = new Web3(account, chain.RPC);
+            PQT = new PirateQuesterTokenService(AvalancheSigner, Constants.PQT_ADDRESS);
 			// Transactions may fail without this.
 			Signer.TransactionManager.UseLegacyAsDefault = true;
 			Quest = new QuestCoreService(Signer, chain.QuestAddress);
