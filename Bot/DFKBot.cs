@@ -196,7 +196,6 @@ public class DFKBot
 					Log($"Quest #{q.Id} {q.QuestName} is ready to complete, completing...");
 					string okMessage = await Transaction.CompleteQuest(Account, q.Heroes.First(), Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
 					Log(okMessage);
-					RunningQuests.RemoveAll(remQ => remQ.Id == q.Id);
 				}
 				catch (Exception e)
 				{
