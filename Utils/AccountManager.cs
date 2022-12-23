@@ -51,9 +51,9 @@ public class AccountManager
                 string json = _js.Invoke<string>("localStorage.getItem", name);
                 foreach (Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled && cs.Name != "Avalanche"))
                 {
-                    DFKAccount account = new(name, Encrypt.GetAccount(model.Password, json), chain, AccSettings.ChainSettings.First(cs => cs.Name == "Avalanche"));
+                    DFKAccount account = new(name, Encrypt.GetAccount(model.Password, json), chain, AccSettings.ChainSettings.First(cs => cs.Name == "Avalanche"), settings);
                     Accounts.Add(account);
-                    await account.InitializeAccount(settings);
+                    await account.InitializeAccount();
                 }
             }
             return true;
@@ -112,9 +112,9 @@ public class AccountManager
         }
         foreach (Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled && cs.Name != "Avalanche"))
         {
-            DFKAccount account = new(model.Name, Encrypt.GetAccount(model.Password, json), chain, AccSettings.ChainSettings.FirstOrDefault(cs => cs.Name == "Avalanche"));
+            DFKAccount account = new(model.Name, Encrypt.GetAccount(model.Password, json), chain, AccSettings.ChainSettings.FirstOrDefault(cs => cs.Name == "Avalanche"), settings);
             Accounts.Add(account);
-            await account.InitializeAccount(settings);
+            await account.InitializeAccount();
         }
 		return;
     }

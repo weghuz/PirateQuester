@@ -40,8 +40,9 @@ public class DFKBot
     public async Task UpdateHeroes()
     {
         Log("Updating Heroes...");
-		await Account.UpdateHeroes();
-		HeroesUpdated?.Invoke();
+		await Account.InitializeAccount();
+        Log($"Account updated with {Account.BotHeroes.Count} heroes.");
+        HeroesUpdated?.Invoke();
 	}
 
     public async void StartBot(DFKAccount account, DFKBotSettings settings)
@@ -273,7 +274,7 @@ public class DFKBot
 
 		List<DFKBotHero> readyHeroes = Account.BotHeroes
             .Where(h => h.Hero.StaminaCurrent() >= Settings.MinStamina
-            && h.Hero.currentQuest == QuestContractDefinitions.NULL_ADDRESS
+            && RunningQuests.SelectMany(rq => rq.Heroes).Contains(h.ID) is false
 			&& h.Hero.salePrice is null)
             .ToList();
         Log($"{readyHeroes.Count} heroes ready to quest");
@@ -284,7 +285,7 @@ public class DFKBot
 			.Where(q => Settings.QuestEnabled.All(qe => Settings.QuestEnabled[q.Id].Enabled)))
 		{
 			var questsOfType = RunningQuests.Where(rq => quest.Address == rq.QuestAddress);
-			if (questsOfType.Any(rq =>  rq.CompleteDateTime >= DateTime.UtcNow.AddMinutes(180)) || questsOfType.Count() >= 10)
+			if (questsOfType.Any(rq =>  rq.CompleteDateTime >= DateTime.UtcNow.AddHours(12)) || questsOfType.Count() >= 10)
 			{
 				continue;
 			}
@@ -298,7 +299,13 @@ public class DFKBot
 				
 				if (heroBatch.Count() < (quest.Category != "Gardening" ? 6 : 2))
 				{
-					List<Hero> heroesCatchingUp = Account.Heroes.Where(h => h.StaminaCurrent() > Settings.MinStamina - 5 && h.StaminaCurrent() < Settings.MinStamina && h.currentQuest == QuestContractDefinitions.NULL_ADDRESS).ToList();
+					List<Hero> heroesCatchingUp = Account.BotHeroes.Where(h =>
+						(h.Quest?.Id ?? h.SuggestedQuest.Id) == quest.Id
+						&& h.Hero.StaminaCurrent() > Settings.MinStamina - 5 
+						&& h.Hero.StaminaCurrent() < Settings.MinStamina 
+						&& h.Hero.currentQuest == QuestContractDefinitions.NULL_ADDRESS)
+						.Select(h => h.Hero)
+						.ToList();
 					if (heroesCatchingUp.Count() > 0)
 					{
 						Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.id))} to make a full sqad for {quest.Name}.");

@@ -47,7 +47,7 @@ namespace PirateQuester.Utils
             }
         }
 
-        public async Task InitializeAccount(DFKBotSettings settings)
+        public async Task InitializeAccount()
 		{
 			await UpdateBalance();
 			int attempt = 0;
@@ -93,7 +93,8 @@ namespace PirateQuester.Utils
 						Id = Account.Address
 					};
 				}
-				BotHeroes.Add(new DFKBotHero(h, settings));
+				
+				BotHeroes.Add(new DFKBotHero(h, Settings));
 			}
 			UpdatedAccount?.Invoke();
 		}
@@ -156,7 +157,8 @@ namespace PirateQuester.Utils
 				try
 				{
 					chainHeroes = await Hero.GetUserHeroesQueryAsync(Account.Address);
-					retry = false;
+					
+                    retry = false;
 				}
 				catch (Exception e)
 				{
@@ -225,8 +227,9 @@ namespace PirateQuester.Utils
 			}
 		}
 
-		public DFKAccount(string name, Account account, Chain.Chain chain, Chain.Chain Avalanche)
+		public DFKAccount(string name, Account account, Chain.Chain chain, Chain.Chain Avalanche, DFKBotSettings settings)
         {
+			Settings = settings;
             Name = name;
             Account = account;
 			Chain = chain;
@@ -240,6 +243,7 @@ namespace PirateQuester.Utils
 			Meditation = new DFKContracts.MeditationCircle.MeditationCircleService(Signer, chain.MeditationAddress);
 		}
 
+        public DFKBotSettings Settings { get; set; }
         public Chain.Chain Chain { get; set; }
         private decimal balance;
         public decimal Balance { get { return Math.Round(balance, 2); } set { balance = value; } }

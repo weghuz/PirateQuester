@@ -47,7 +47,7 @@
                                 <RadzenLink Path="CreateAccount" Text="Create Account" Style="white-space:nowrap;" />
                             }
                         </div>
-                        <RadzenText Text="Pirate Quester 🏴‍☠️ V0.2.1" Style="white-space:nowrap;" class="d-inline-block mx-5" />
+                        <RadzenText Text="Pirate Quester 🏴‍☠️ V0.2.2" Style="white-space:nowrap;" class="d-inline-block mx-5" />
                         <RadzenButton class="d-inline-block" Click="@OpenTransactionsWindow">
                             @Transaction.FinishedTransactions.Count() Transactions
                         </RadzenButton>
@@ -74,6 +74,8 @@
                     <RadzenPanelMenuItem Path="Options" Text="Options" Icon="build" />
                 </RadzenPanelMenu>
                 <div class="p-2">
+                    <RadzenLink Path="https://dfk-project.gitbook.io/pirate-quester/" Text="Docs" Target="_blank" /><br />
+                    <RadzenLink Path="https://discord.gg/kuy5tSrH9C" Text="Discord" Target="_blank" />
                     <RadzenText Text="Notepad" />
                     <RadzenTextArea @bind-Value="@NotePad" Change="@SaveNotepad" class="w-100" Rows="20" />
                 </div>
