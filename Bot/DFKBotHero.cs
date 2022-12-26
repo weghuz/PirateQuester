@@ -84,6 +84,6 @@ namespace PirateQuester.Bot
         }
         public QuestContract SuggestedQuest { get; set; }
 		private QuestContract quest;
-		public QuestContract Quest { get { return quest; } set { Console.WriteLine($"{ID} prefers {value?.Name ?? "Nothing"} over {quest?.Name ?? "Nothing"}"); quest = value; } }
+		public QuestContract Quest { get { return quest; } set { quest = value; } }
 	}
 }

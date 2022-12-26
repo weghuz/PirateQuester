@@ -20,9 +20,29 @@
 						<div class="row">
 							@foreach (DFKAccount acc2 in Acc.Accounts.Where(a => a.Account.Address == acc.Account.Address))
 							{
-								<div class="col-6">
+								<div class="col-md-4">
 									<RadzenText TextStyle="TextStyle.H5">
-										<span class="ml-2">@acc2.Balance <RadzenImage Path="@(acc2.Chain.Name == "DFK" ? "Images/Jewel.png" : "Images/Klay.png")" Style="width: 18px; height:18px;" /></span>
+										<span class="ml-2">
+											<RadzenImage Path="@(acc2.Chain.Name == "DFK" ? "Images/Jewel.png" : "Images/Klay.png")" Style="width: 18px; height:18px;" />
+											@acc2.Balance
+										</span>
+									</RadzenText>
+								</div>
+								<div class="col-md-4">
+									<RadzenText TextStyle="TextStyle.H5">
+										<span class="ml-2">
+											<RadzenImage Path="@(acc2.Chain.Name == "DFK" ? "Images/Crystal.png" : "Images/Jade.png")" Style="width: 18px; height:18px;" />
+											@acc2.PowerTokenBalance
+											</span>
+									</RadzenText>
+								</div>
+								<div class="col-md-4">
+									<RadzenText TextStyle="TextStyle.H5">
+										<span class="ml-2">
+											<RadzenImage Path="@("Images/Lock.png")" Style="width: 14px; height:18px; position: relative; top: 6px; left: 10px;" />
+											<RadzenImage Path="@(acc2.Chain.Name == "DFK" ? "Images/Crystal.png" : "Images/Jade.png")" Style="width: 18px; height:18px;" />
+											@acc2.LockedPowerTokenBalance
+										</span>
 									</RadzenText>
 								</div>
 							}
@@ -34,14 +54,17 @@
 								@acc.Name
 							</RadzenText>
 						</div>
-						<div class="col-6">
+						<div class="col-md-6">
 							<RadzenText TextStyle="TextStyle.H5">
-								<span class="ml-2">@acc.AvaxBalance <RadzenImage Path="@("Images/Avalanche.svg")" Style="width: 18px; height:18px;" /></span>
+								<span class="ml-2">
+									<RadzenImage Path="@("Images/Avalanche.svg")" Style="width: 18px; height:18px;" />
+									@acc.AvaxBalance
+								</span>
 							</RadzenText>
 						</div>
-						<div class="col-6">
+						<div class="col-md-6">
 							<RadzenText TextStyle="TextStyle.H5">
-								<span class="ml-2">@acc.PQTBalance PQT</span>
+								<span class="ml-2">PQT @acc.PQTBalance</span>
 							</RadzenText>
 							@if(acc.PQTBalance < 1)
 							{

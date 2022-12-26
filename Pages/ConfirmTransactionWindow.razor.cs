@@ -34,9 +34,10 @@ public partial class ConfirmTransactionWindow
         string response = await Transaction.BuyPirateQuesterToken(Account, BuyAmount.Value, Bots.Settings.MaxGasFeeGwei, Bots.Settings.CancelTxnDelay);
         IsBuying = false;
         if (response.Contains("failed"))
-        {
-
-        }
+		{
+			JS.Invoke<string>("alert", "The transaction failed, make sure you have enough AVAX to pay for gas on top of the price!");
+			StateHasChanged();
+		}
         else
         {
             JS.Invoke<string>("alert", "Thank you for buying a Pirate Quester Token!");

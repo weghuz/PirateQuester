@@ -23,17 +23,36 @@ namespace PirateQuester.Services
 			var settingsJson = JS.Invoke<string>("localStorage.getItem", "DFKBotSettings");
 			if (settingsJson is not null)
 			{
-				var settings = JsonConvert.DeserializeObject<DFKBotSettingsDTO>(settingsJson);
-				Settings.CancelTxnDelay = settings.CancelTxnDelay;
-				Settings.QuestEnabled = settings.QuestEnabled;
-				Settings.UpdateInterval = settings.UpdateInterval;
-				Settings.LevelUp = settings.LevelUp;
-				Settings.MaxGasFeeGwei = settings.MaxGasFeeGwei;
-				Settings.HeroQuestSettings = settings.HeroQuestSettings;
-				Settings.MinStamina = settings.MinStamina;
-				Settings.MinTrainingStats = settings.MinTrainingStats;
-				Settings.QuestEnabled = settings.QuestEnabled;
-				Settings.LevelUpSettings = settings.LevelUpSettings;
+				try
+				{
+					var settings = JsonConvert.DeserializeObject<DFKBotSettingsDTO>(settingsJson);
+					Settings.CancelTxnDelay = settings.CancelTxnDelay;
+					Settings.ChainQuestEnabled = settings.ChainQuestEnabled ?? new()
+					{
+						new()
+						{
+							Chain = Constants.ChainsList[0],
+							QuestEnabled = Enumerable.Range(0, 25).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList()
+						},
+						new ()
+						{
+							Chain = Constants.ChainsList[1],
+							QuestEnabled = Enumerable.Range(0, 23).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList()
+						}
+					};
+					Settings.UpdateInterval = settings.UpdateInterval;
+					Settings.LevelUp = settings.LevelUp;
+					Settings.MaxGasFeeGwei = settings.MaxGasFeeGwei;
+					Settings.HeroQuestSettings = settings.HeroQuestSettings;
+					Settings.MinStamina = settings.MinStamina;
+					Settings.MinTrainingStats = settings.MinTrainingStats;
+					Settings.LevelUpSettings = settings.LevelUpSettings;
+				}
+				catch(Exception e)
+				{
+					Console.WriteLine(e);
+					Settings = new();
+				}
 			}
 
 		}
@@ -42,13 +61,12 @@ namespace PirateQuester.Services
 		{
 			DFKBotSettingsDTO dto = new();
 			dto.CancelTxnDelay = Settings.CancelTxnDelay;
-			dto.QuestEnabled = Settings.QuestEnabled;
+			dto.ChainQuestEnabled = Settings.ChainQuestEnabled;
 			dto.UpdateInterval = Settings.UpdateInterval;
 			dto.LevelUp = Settings.LevelUp;
 			dto.MaxGasFeeGwei = Settings.MaxGasFeeGwei;
 			dto.MinStamina = Settings.MinStamina;
 			dto.MinTrainingStats = Settings.MinTrainingStats;
-			dto.QuestEnabled = Settings.QuestEnabled;
 			dto.LevelUpSettings = Settings.LevelUpSettings;
 			dto.HeroQuestSettings = Settings.HeroQuestSettings;
 			JS.InvokeVoid("localStorage.setItem", new string[] { "DFKBotSettings", JsonConvert.SerializeObject(dto) });

@@ -4,6 +4,25 @@
 @using Utils
 
 <PageTitle>PQ - Login</PageTitle>
+<RadzenCard class="my-1">
+    <RadzenText TextStyle="TextStyle.H5" Style="color:red">Important!</RadzenText>
+    <RadzenText TextStyle="TextStyle.Body1">Backup your accounts!</RadzenText>
+    <RadzenText TextStyle="TextStyle.Body1">
+        To read more about creating accounts safely read the documentation guide:
+        <a href="https://dfk-project.gitbook.io/pirate-quester/guides/accounts/creating-an-account-exporting-an-account-from-metamask" target="_blank">
+            Creating an account
+        </a>
+    </RadzenText>
+    <RadzenText TextStyle="TextStyle.Body1">
+        If you lose access to your keys, you've got noone to blame but yourself.
+    </RadzenText>
+    <RadzenText TextStyle="TextStyle.Body1">
+        Pirate Quester keeps no data backed up online, it's all on your device.
+    </RadzenText>
+    <RadzenText TextStyle="TextStyle.Body1">
+        It is self custodial through and through.
+    </RadzenText>
+</RadzenCard>
 <RadzenCard class="mt-2">
     <EditForm Model="@Model" OnSubmit="@LoginAccount">
 

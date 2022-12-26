@@ -6,6 +6,7 @@ using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using PirateQuester.Bot;
 using PirateQuester.PirateQuesterToken;
+using PirateQuester.PowerToken;
 using System.Numerics;
 
 namespace PirateQuester.Utils
@@ -26,8 +27,11 @@ namespace PirateQuester.Utils
                 try
                 {
                     PQTBalance = Web3.Convert.FromWei(await PQT.BalanceOfQueryAsync(Account.Address));
-                    Balance = Web3.Convert.FromWei(await Signer.Eth.GetBalance.SendRequestAsync(Account.Address));
-                    AvaxBalance = Web3.Convert.FromWei(await AvalancheSigner.Eth.GetBalance.SendRequestAsync(Account.Address));
+					Balance = Web3.Convert.FromWei(await Signer.Eth.GetBalance.SendRequestAsync(Account.Address));
+					PowerTokenBalance = Web3.Convert.FromWei(await PowerTokenService.BalanceOfQueryAsync(Account.Address));
+					LockedPowerTokenBalance = Web3.Convert.FromWei(await PowerTokenService.LockOfQueryAsync(Account.Address));
+					Console.WriteLine(Balance + " " + LockedPowerTokenBalance);
+					AvaxBalance = Web3.Convert.FromWei(await AvalancheSigner.Eth.GetBalance.SendRequestAsync(Account.Address));
                     retry = false;
                 }
                 catch (Exception e)
@@ -235,7 +239,8 @@ namespace PirateQuester.Utils
 			Chain = chain;
             AvalancheSigner = new Web3(new Account(account.PrivateKey), Avalanche.RPC);
             Signer = new Web3(account, chain.RPC);
-            PQT = new PirateQuesterTokenService(AvalancheSigner, Constants.PQT_ADDRESS);
+			PowerTokenService = new PowerTokenService(Signer, chain.NativeToken);
+			PQT = new PirateQuesterTokenService(AvalancheSigner, Constants.PQT_ADDRESS);
 			// Transactions may fail without this.
 			Signer.TransactionManager.UseLegacyAsDefault = true;
 			Quest = new QuestCoreService(Signer, chain.QuestAddress);
@@ -245,16 +250,21 @@ namespace PirateQuester.Utils
 
         public DFKBotSettings Settings { get; set; }
         public Chain.Chain Chain { get; set; }
-        private decimal balance;
-        public decimal Balance { get { return Math.Round(balance, 2); } set { balance = value; } }
-        private decimal pqtBalance;
+		private decimal balance;
+		public decimal Balance { get { return Math.Round(balance, 2); } set { balance = value; } }
+		private decimal powerTokenBalance;
+		public decimal PowerTokenBalance { get { return Math.Round(powerTokenBalance, 2); } set { powerTokenBalance = value; } }
+		public decimal lockedPowerTokenBalance;
+		public decimal LockedPowerTokenBalance { get { return Math.Round(lockedPowerTokenBalance, 2); } set { lockedPowerTokenBalance = value; } }
+		private decimal pqtBalance;
         public decimal PQTBalance { get { return Math.Round(pqtBalance, 2); } set { pqtBalance = value; } }
 
 		public decimal avaxBalance;
-        public decimal AvaxBalance { get { return Math.Round(avaxBalance, 2); } set { avaxBalance = value; } }
-        public Web3 AvalancheSigner { get; set; }
+		public decimal AvaxBalance { get { return Math.Round(avaxBalance, 2); } set { avaxBalance = value; } }
+		public Web3 AvalancheSigner { get; set; }
         public Web3 Signer { get; set; }
         public Erc20Service Erc20 { get; set; }
+		public PowerTokenService PowerTokenService { get; set; }
         public HeroCoreService Hero { get; set; }
         public QuestCoreService Quest { get; set; }
         public PirateQuesterTokenService PQT { get; set; }

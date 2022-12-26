@@ -6,7 +6,19 @@ namespace PirateQuester.Bot
 	{
 		public DFKBotSettings() 
 		{
-			QuestEnabled = Enumerable.Range(0, 25).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList();
+            ChainQuestEnabled = new()
+			{
+				new()
+                {
+                    Chain = Constants.ChainsList[0],
+                    QuestEnabled = Enumerable.Range(0, 25).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList()
+                },
+				new ()
+				{
+					Chain = Constants.ChainsList[1],
+					QuestEnabled = Enumerable.Range(0, 23).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList()
+				}
+			};
 		}
 
         public int CancelTxnDelay { get; set; } = 60000;
@@ -14,7 +26,7 @@ namespace PirateQuester.Bot
         public int MinStamina { get; set; } = 20;
         public int MaxGasFeeGwei { get; set; } = 200;
         public bool LevelUp { get; set; } = true;
-        public List<QuestEnabled> QuestEnabled { get; set; } = new();
+        public List<ChainQuestEnabled> ChainQuestEnabled { get; set; } = new();
 		public List<DFKStatAmount> MinTrainingStats { get; set; } = new()
         {
             { new(0, 30) },

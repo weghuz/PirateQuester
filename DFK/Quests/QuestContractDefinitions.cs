@@ -53,7 +53,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Strength",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent()/5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -65,7 +66,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Dexterity",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent()/5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -77,7 +79,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Agility",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent() / 5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -89,7 +92,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Vitality",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent() / 5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -101,7 +105,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Endurance",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent() / 5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -113,7 +118,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Intelligence",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent() / 5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -125,7 +131,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Wisdom",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent() / 5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -137,7 +144,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Luck",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent()/5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -149,7 +157,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Gold",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "mining" ? hero.StaminaCurrent() * 30 : hero.StaminaCurrent() * 36)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "mining" ? hero.StaminaCurrent() * 30 : hero.StaminaCurrent() * 36),
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -161,7 +170,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Crystal",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "mining" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "mining" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => (int)Math.Clamp(Math.Ceiling(account.LockedPowerTokenBalance / 833), 1, 6)
 				},
 				new QuestContract
 				{
@@ -173,7 +183,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Fishing",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.profession == "fishing" ? hero.StaminaCurrent()/5 : hero.StaminaCurrent()/7,
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -185,7 +196,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Foraging",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.profession == "foraging" ? hero.StaminaCurrent()/5 : hero.StaminaCurrent()/7,
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -197,7 +209,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Crystal-Avax",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -209,7 +222,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Crystal-wJewel",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -221,7 +235,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Crystal-USDC",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -233,7 +248,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Eth-USDC",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -245,7 +261,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "wJewel-USDC",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -257,7 +274,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Crystal-Eth",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -269,7 +287,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Crystal-Btc.b",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -281,7 +300,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Crystal-Klay",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -293,7 +313,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Jewel-Klay",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -305,7 +326,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Jewel-Avax",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -317,7 +339,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Jewel-Btc.b",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -329,7 +352,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Jewel-Eth",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -341,7 +365,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Btc.b-USDC",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 			}
 		},
@@ -359,7 +384,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Strength",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent()/5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -371,7 +397,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Dexterity",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent()/5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -383,7 +410,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Agility",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent() / 5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -395,7 +423,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Vitality",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent() / 5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -407,7 +436,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Endurance",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent() / 5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -419,7 +449,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Intelligence",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent() / 5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -431,7 +462,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Wisdom",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent() / 5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -443,7 +475,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Luck",
 					Level = 1,
 					AvailableAttempts = (hero) => Math.Clamp(hero.StaminaCurrent()/5, 0, 5),
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -455,7 +488,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Gold",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "mining" ? hero.StaminaCurrent() * 30 : hero.StaminaCurrent() * 36)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "mining" ? hero.StaminaCurrent() * 30 : hero.StaminaCurrent() * 36),
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -467,7 +501,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "JADE",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "mining" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "mining" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => (int)Math.Clamp(Math.Ceiling(account.LockedPowerTokenBalance / 833), 1, 6)
 				},
 				new QuestContract
 				{
@@ -479,7 +514,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Fishing",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.profession == "fishing" ? hero.StaminaCurrent()/5 : hero.StaminaCurrent()/7,
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -491,7 +527,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "Foraging",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.profession == "foraging" ? hero.StaminaCurrent()/5 : hero.StaminaCurrent()/7,
-					BlocksPerAttempt = (hero) => 10
+					BlocksPerAttempt = (hero) => 10,
+					MaxHeroesPerQuest = (account) => 6
 				},
 				new QuestContract
 				{
@@ -503,7 +540,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "JADE-JEWEL",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -515,7 +553,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "JADE-wKLAY",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -527,7 +566,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "JADE-AVAX",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -539,7 +579,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "JADE-oUSDT",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -551,7 +592,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "JADE-oBTC",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -563,7 +605,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "JADE-oETH",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -575,7 +618,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "JEWEL-wKLAY",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -587,7 +631,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "JEWEL-AVAX",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -599,7 +644,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "JEWEL-oUSDT",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -611,7 +657,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "JEWEL-oBTC",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 				new QuestContract
 				{
@@ -623,7 +670,8 @@ public static partial class QuestContractDefinitions
 					Subcategory = "JEWEL-oETH",
 					Level = 0,
 					AvailableAttempts = (hero) => hero.StaminaCurrent(),
-					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360)
+					BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+					MaxHeroesPerQuest = (account) => 2
 				},
 			}
 		}

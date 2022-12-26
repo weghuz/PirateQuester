@@ -4,12 +4,10 @@
 @using PirateQuester.Components
 @using PirateQuester.DFK.Contracts;
 @using PirateQuester.Utils;
+@using PirateQuester.Utils.Chain;
 <PageTitle>PQ - Bot</PageTitle>
 <BotTerminalNavigation />
-@{
-	var DFKQuestContracts = QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == "DFK").QuestContracts;
-	var KlaytnQuestContracts = QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == "DFK").QuestContracts;
-}
+
 
 <RadzenCard class="my-1">
 	<EditForm Model="Bots.Settings">
@@ -63,43 +61,88 @@
 					Value="Bots.Settings.CancelTxnDelay"
 					Change="@((val) => {Bots.Settings.CancelTxnDelay=val;Bots.SaveSettings();})" />
 			</div>
-			<div class="col-12">
-				<RadzenText Text="Professions" TextStyle="TextStyle.H5" />
-				@*First 8 quests are training quests*@
-				<div class="row">
-					@foreach (QuestContract quest in DFKQuestContracts.Skip(9))
+			<div class="col-12 text-center">
+				<RadzenButton Click="(() => ShowDFKQuests = !ShowDFKQuests)">
+					@if(ShowDFKQuests)
 					{
-						<div class="col-md-4 col-lg-3">
-							<RadzenText Text="@($"{quest.Name}")"/>
-							<RadzenLabel Text="@($"Enabled:")" Component="@($"ProfessionEnabled{quest.Id}")" />
-							<RadzenCheckBox Name="@($"ProfessionEnabled{quest.Id}")"
-									TValue="bool"
-									Value="Bots.Settings.QuestEnabled.First(qe => qe.QuestId == quest.Id).Enabled"
-									Change="@((val) => Bots.Settings.QuestEnabled.First(qe => qe.QuestId == quest.Id).Enabled = val)" />
+						<span>
+							Show Serendale Quests
+						</span>
+					}
+					else
+					{
+						<span>
+							Show Crystalvale Quests
+						</span>
+					}
+				</RadzenButton>
+				@foreach(Chain chain in Constants.ChainsList)
+                {
+					@if ((ShowDFKQuests && chain.Name == "DFK") || (ShowDFKQuests is false && chain.Name == "Klaytn"))
+					{
+						<div class="row">
+							<div class="col-12">
+								<RadzenText TextStyle="TextStyle.H5" Text="@($"{chain.Name} Quest Contracts")" />
+								@*First 8 quests are training quests*@
+								<div class="row">
+									@foreach (QuestContract quest in QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == chain.Name).QuestContracts.Skip(9))
+									{
+										var QuestEnabled = Bots.Settings.ChainQuestEnabled.Find(qe => qe.Chain.Name == chain.Name).QuestEnabled.First(qe => qe.QuestId == quest.Id);
+
+										<div class="col-md-4 col-lg-3">
+											<RadzenText Text="@($"{quest.Name}")"/>
+											<RadzenLabel
+												Text="@($"Enabled:")" 
+												Component="@($"ProfessionEnabled{chain.Name}{quest.Id}")" />
+											<RadzenCheckBox Name="@($"ProfessionEnabled{chain.Name}{quest.Id}")"
+													TValue="bool"
+													Value="QuestEnabled.Enabled"
+													Change="@((val) => QuestEnabled.Enabled = val)" />
+											<RadzenLabel class="w-100"
+												Text="@($"Min Stamina:")" 
+												Component="@($"ProfessionEnabled{chain.Name}{quest.Id}")" />
+											<RadzenNumeric Name="@($"MinStam{chain.Name}{quest.Id}")"
+												Placeholder="@(Bots.Settings.MinStamina.ToString())"
+												TValue="int?"
+												Value="QuestEnabled.MinStamina"
+												Change="@((val) => QuestEnabled.MinStamina = val)" />
+										</div>
+									}
+								</div>
+								<RadzenText TextStyle="TextStyle.H5" Text="@($"{chain.Name} Training Quests")" />
+								<div class="row">
+
+									@foreach (DFKStatAmount stat in Bots.Settings.MinTrainingStats)
+									{
+										var TQ = Bots.Settings.ChainQuestEnabled.Find(qe => qe.Chain.Name == chain.Name).QuestEnabled[Bots.Settings.MinTrainingStats.IndexOf(stat)];
+										<div class="col-md-6">
+											<RadzenText Text="@($"{stat.Name} training.")" />
+											<RadzenLabel Text="@($"Enabled:")" Component="@($"TrainingEnabled{chain.Name}{stat.Id}")" />
+											<RadzenCheckBox Name="@($"TrainingEnabled{chain.Name}{stat.Id}")"
+												TValue="bool"
+												Value="TQ.Enabled"
+												Change="@((val) => TQ.Enabled = val)" />
+											<RadzenLabel class="w-100" 
+												Text="@($"Min Stamina:")" 
+												Component="@($"ProfessionEnabled{chain.Name}{Bots.Settings.MinTrainingStats.IndexOf(stat)}")" />
+											<RadzenNumeric class="w-100 my-1"
+												Placeholder="@(Bots.Settings.MinStamina.ToString())"
+												Name="@($"MinStam{chain.Name}{Bots.Settings.MinTrainingStats.IndexOf(stat)}")"
+												TValue="int?"
+												Value="TQ.MinStamina"
+												Change="@((val) => TQ.MinStamina = val)" />
+											<br>
+											<RadzenLabel Text="@($"Min Value")" 
+												Component="@($"Training{stat.Id}")" />
+											<RadzenNumeric 
+												Name="@($"Training{stat.Id}")" class="w-100 my-1" @bind-Value=@stat.Amount />
+										</div>
+									}
+								</div>
+							</div>
 						</div>
 					}
-				</div>
-				<RadzenText Text="Training" TextStyle="TextStyle.H5" />
-				<div class="row">
-
-					@foreach (DFKStatAmount stat in Bots.Settings.MinTrainingStats)
-					{
-						<div class="col-md-6">
-							<RadzenText Text="@($"{stat.Name} training.")" />
-							<RadzenLabel Text="@($"Enabled:")" Component="@($"TrainingEnabled{stat.Id}")" />
-							<RadzenCheckBox Name="@($"TrainingEnabled{stat.Id}")" 
-								TValue="bool"
-								Value="Bots.Settings.QuestEnabled[Bots.Settings.MinTrainingStats.IndexOf(stat)].Enabled"
-								Change="@((val) => Bots.Settings.QuestEnabled[Bots.Settings.MinTrainingStats.IndexOf(stat)].Enabled = val)" />
-							<br>
-							<RadzenLabel Text="@($"Min Value")" 
-								Component="@($"Training{stat.Id}")" />
-							<RadzenNumeric 
-								Name="@($"Training{stat.Id}")" class="w-100 my-1" @bind-Value=@stat.Amount />
-						</div>
-					}
-				</div>
-
+				}
 			</div>
 
 			<div>

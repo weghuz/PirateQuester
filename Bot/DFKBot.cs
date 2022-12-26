@@ -23,6 +23,7 @@ public class DFKBot
 	public event AddBotLog BotLogAdded;
     public DFKAccount Account { get; set; }
     public DFKBotSettings Settings { get; set; }
+    public List<QuestEnabled> ChainQuestSettings { get; set; }
     public bool StopBot { get; set; }
 	public bool IsRunning { get; set; } = false;
     public void Log(string message)
@@ -55,11 +56,6 @@ public class DFKBot
 		Log("Booting up...");
 		Log($"Interval: {Settings.UpdateInterval}");
 
-		
-		foreach(DFKBotHero hero in Account.BotHeroes.Where(h => h.Quest is not null))
-		{
-			Console.WriteLine($"{hero.ID} Prefers {hero.Quest.Name}");
-		}
 		while (true)
 		{
 			try
@@ -164,8 +160,14 @@ public class DFKBot
 		return new();
 	}
 
+	public int GetMinStaminaBotHero(DFKBotHero h)
+	{
+		return ChainQuestSettings.FirstOrDefault(qs => qs.QuestId == (h.Quest?.Id ?? h.SuggestedQuest.Id))?.MinStamina ?? Settings.MinStamina;
+	}
+
 	public async Task Update()
     {
+		ChainQuestSettings = Settings.ChainQuestEnabled.Find(cqe => cqe.Chain.Name == Account.Chain.Name).QuestEnabled;
 		await UpdateCurrentBlock();
 		var quests = await GetUpdatedQuests();
 		RunningQuests = new(quests);
@@ -215,7 +217,7 @@ public class DFKBot
 			List<DFKBotHero> readyToLevelHeroes = Account.BotHeroes
 				.Where(h => h.Hero.xp >= h.Hero.XpToLevelUp()
 				&& h.Hero.currentQuest == QuestContractDefinitions.NULL_ADDRESS
-				&& h.Hero.StaminaCurrent() <= Settings.MinStamina
+				&& h.Hero.StaminaCurrent() <= GetMinStaminaBotHero(h)
 				&& h.Hero.salePrice is null
 				&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
 				.ToList();
@@ -272,16 +274,16 @@ public class DFKBot
 		}
 
 		List<DFKBotHero> readyHeroes = Account.BotHeroes
-            .Where(h => h.Hero.StaminaCurrent() >= Settings.MinStamina
+            .Where(h => h.Hero.StaminaCurrent() >= GetMinStaminaBotHero(h)
             && RunningQuests.SelectMany(rq => rq.Heroes).Contains(h.ID) is false
 			&& h.Hero.salePrice is null)
             .ToList();
         Log($"{readyHeroes.Count} heroes ready to quest");
-
+		var enabledQuests = Settings.ChainQuestEnabled.Find(cqe => cqe.Chain.Name == Account.Chain.Name).QuestEnabled.Where(q => q.Enabled).ToList();
 		foreach (QuestContract quest in readyHeroes
 			.Select(r => r.GetActiveQuest())
 			.DistinctBy(q => q.Id)
-			.Where(q => Settings.QuestEnabled.All(qe => Settings.QuestEnabled[q.Id].Enabled)))
+			.Where(q => enabledQuests.Select(qe => qe.QuestId).Contains(q.Id)))
 		{
 			var questsOfType = RunningQuests.Where(rq => quest.Address == rq.QuestAddress);
 			if (questsOfType.Any(rq =>  rq.CompleteDateTime >= DateTime.UtcNow.AddHours(12)) || questsOfType.Count() >= 10)
@@ -292,16 +294,16 @@ public class DFKBot
 				h.GetActiveQuest().Id == quest.Id)
 					.Select(h => h.Hero).ToList();
 			Log($"Found {readyQuestHeroes.Count} heroes ready to start {quest.Name}.");
-            for(int i = 0; i <= readyQuestHeroes.Count; i+= quest.Category != "Gardening" ? 6 : 2)
+            for(int i = 0; i <= readyQuestHeroes.Count; i+= quest.MaxHeroesPerQuest(Account))
 			{
-                List<Hero> heroBatch = readyQuestHeroes.Skip(i).Take(quest.Category != "Gardening" ? 6 : 2).ToList();
+                List<Hero> heroBatch = readyQuestHeroes.Skip(i).Take(quest.MaxHeroesPerQuest(Account)).ToList();
 				
-				if (heroBatch.Count() < (quest.Category != "Gardening" ? 6 : 2))
+				if (heroBatch.Count() < quest.MaxHeroesPerQuest(Account))
 				{
 					List<Hero> heroesCatchingUp = Account.BotHeroes.Where(h =>
 						(h.Quest?.Id ?? h.SuggestedQuest.Id) == quest.Id
-						&& h.Hero.StaminaCurrent() > Settings.MinStamina - 5 
-						&& h.Hero.StaminaCurrent() < Settings.MinStamina 
+						&& h.Hero.StaminaCurrent() > GetMinStaminaBotHero(h) - 5 
+						&& h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h)
 						&& h.Hero.currentQuest == QuestContractDefinitions.NULL_ADDRESS)
 						.Select(h => h.Hero)
 						.ToList();
@@ -323,6 +325,12 @@ public class DFKBot
                 {
                     continue;
                 }
+				
+				//Order for optimal mining if mining
+				if(quest.Category == "Mining")
+				{
+					heroBatch = heroBatch.OrderBy(h => h.mining + (h.strength / 10) + (h.endurance / 10)).ToList();
+				}
 				
                 int maxAttempts = heroBatch.Select(h => quest.AvailableAttempts(h)).Min();
 				

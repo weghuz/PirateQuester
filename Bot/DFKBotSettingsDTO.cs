@@ -11,7 +11,7 @@ namespace PirateQuester.Bot
 		public int MaxGasFeeGwei { get; set; }
 		public bool LevelUp { get; set; }
 		public List<HeroQuestSetting> HeroQuestSettings { get; set; } = new();
-		public List<QuestEnabled> QuestEnabled { get; set; }
+		public List<ChainQuestEnabled> ChainQuestEnabled { get; set; }
 		public List<LevelUpSetting> LevelUpSettings { get; set; }
 	}
 }

@@ -3,6 +3,7 @@ using PirateQuester.Utils;
 using Radzen;
 using PirateQuester.Services;
 using Microsoft.JSInterop;
+using PirateQuester.Utils.Chain;
 
 namespace PirateQuester.Pages;
 
@@ -19,6 +20,7 @@ public partial class Bot
     [Inject]
     IJSInProcessRuntime JS { get; set; }
     public List<DFKAccount> AccountsMissingPQT { get; set; }
+    public bool ShowDFKQuests { get; set; }
 
     protected override void OnInitialized()
     {
