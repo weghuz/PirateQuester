@@ -1,63 +1,69 @@
 ﻿@page "/Options"
-<h3>Options</h3>
-
 <PageTitle>PQ - Options</PageTitle>
-<RadzenCard>
-    <div class="row">
 
-        <div class="col-md-6 my-2">
-            <RadzenButton Click="ToggleDarkMode" Text="Dark Mode" ButtonStyle="ButtonStyle.Secondary" />
+<RadzenText TextStyle="TextStyle.H4" class="text-center">Options</RadzenText>
+
+<div class="container">
+    <RadzenCard>
+        <div class="row">
+            <div class="col-md-6">
+                <RadzenText class="mb-1" TextStyle="TextStyle.Subtitle2">
+                    (Remove all Accounts from memory)
+                </RadzenText>
+                <RadzenButton Click="ClearLocalStorage" Text="Clear Local Storage" ButtonStyle="ButtonStyle.Secondary" />
+            </div>
+            <div class="col-md-6">
+                <RadzenText class="mb-1" TextStyle="TextStyle.Subtitle2">
+                    (Remove all Settings from memory, useful if you crash a lot)
+                </RadzenText>
+                <RadzenButton Click="ClearProblematicStorage" Text="Clear Local Settings" ButtonStyle="ButtonStyle.Secondary" />
+            </div>
+            <div class="col-md-6 mt-4">
+                <RadzenButton Click="ToggleDarkMode" Text="Toggle Dark Mode" ButtonStyle="ButtonStyle.Secondary" />
+            </div>
         </div>
-        <div class="col-md-6">
-            <RadzenText class="pb-2">
-                (Remove all Accounts from memory)
-            </RadzenText>
-            <RadzenButton Click="ClearLocalStorage" Text="Clear Local Storage" ButtonStyle="ButtonStyle.Secondary" />
+    </RadzenCard>
+    <RadzenCard class="my-3">
+        <div class="row">
+            <div class="col-md-6">
+                @{
+                    var dfk = AccSettings.ChainSettings.First(cs => cs.Name == "DFK");
+                }
+                <RadzenText class="mb-1" TextStyle="TextStyle.H6">
+                    DFK Chain RPC
+                </RadzenText>
+                <RadzenTextBox class="w-100" @bind-Value=@dfk.RPC></RadzenTextBox>
+                <label class="text-center my-2">
+                    <RadzenText class="mb-1" TextStyle="TextStyle.H6">
+                        DFK Chain Enabled
+                    </RadzenText>
+                    <RadzenCheckBox @bind-Value=@dfk.Enabled></RadzenCheckBox>
+                </label>
+            </div>
+            <div class="col-md-6">
+                @{
+                    var klaytn = AccSettings.ChainSettings.First(cs => cs.Name == "Klaytn");
+                }
+                <RadzenText class="mb-1" TextStyle="TextStyle.H6">
+                    Klaytn RPC
+                </RadzenText>
+                <RadzenTextBox class="w-100" @bind-Value=@klaytn.RPC></RadzenTextBox>
+                <label class="text-center my-2">
+                    <RadzenText class="mb-1" TextStyle="TextStyle.H6">
+                        Klaytn Enabled
+                    </RadzenText>
+                    <RadzenCheckBox @bind-Value=@klaytn.Enabled></RadzenCheckBox>
+                </label>
+            </div>
+            <div class="col-md-6">
+                @{
+                    var avalanche = AccSettings.ChainSettings.First(cs => cs.Name == "Avalanche");
+                }
+                <RadzenText class="mb-1" TextStyle="TextStyle.H6">
+                    Avalanche RPC
+                </RadzenText>
+                <RadzenTextBox class="w-100" @bind-Value=@avalanche.RPC></RadzenTextBox>
+            </div>
         </div>
-        <div class="col-md-6">
-            <RadzenText class="pb-2">
-                (Remove all Settings from memory, useful if you crash a lot)
-            </RadzenText>
-            <RadzenButton Click="ClearProblematicStorage" Text="Clear Local Settings" ButtonStyle="ButtonStyle.Secondary" />
-        </div>
-    </div>
-</RadzenCard>
-<RadzenCard class="my-3">
-    <div class="row">
-        <div class="col-md-6">
-            @{
-                var dfk = AccSettings.ChainSettings.First(cs => cs.Name == "DFK");
-            }
-            <RadzenText class="pb-2">
-                DFK Chain RPC
-            </RadzenText>
-            <RadzenTextBox class="w-100" @bind-Value=@dfk.RPC></RadzenTextBox>
-            <RadzenText class="pb-2">
-                DFK Chain Enabled
-            </RadzenText>
-            <RadzenCheckBox @bind-Value=@dfk.Enabled></RadzenCheckBox>
-        </div>
-        <div class="col-md-6">
-            @{
-                var klaytn = AccSettings.ChainSettings.First(cs => cs.Name == "Klaytn");
-            }
-            <RadzenText class="pb-2">
-                Klaytn RPC
-            </RadzenText>
-            <RadzenTextBox class="w-100" @bind-Value=@klaytn.RPC></RadzenTextBox>
-            <RadzenText class="pb-2">
-                Klaytn Enabled
-            </RadzenText>
-            <RadzenCheckBox @bind-Value=@klaytn.Enabled></RadzenCheckBox>
-        </div>
-        <div class="col-md-6">
-            @{
-                var avalanche = AccSettings.ChainSettings.First(cs => cs.Name == "Avalanche");
-            }
-            <RadzenText class="pb-2">
-                Avalanche RPC
-            </RadzenText>
-            <RadzenTextBox class="w-100" @bind-Value=@avalanche.RPC></RadzenTextBox>
-        </div>
-    </div>
-</RadzenCard>
+    </RadzenCard>
+</div>

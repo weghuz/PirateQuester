@@ -329,7 +329,7 @@ public class DFKBot
 				//Order for optimal mining if mining
 				if(quest.Category == "Mining")
 				{
-					heroBatch = heroBatch.OrderBy(h => h.mining + (h.strength / 10) + (h.endurance / 10)).ToList();
+					heroBatch = heroBatch.OrderByDescending(h => h.mining + h.strength + h.endurance).ToList();
 				}
 				
                 int maxAttempts = heroBatch.Select(h => quest.AvailableAttempts(h)).Min();

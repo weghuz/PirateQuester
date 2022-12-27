@@ -15,96 +15,109 @@
 			@foreach(DFKAccount acc in Acc.Accounts.DistinctBy(a => a.Account.Address))
 			{
 				<RadzenCard class="my-3 overflow-auto text-wrap">
-					@if (acc.PQTBalance > 0)
-					{
-						<div class="row">
+					<div class="row">
+						<div class="col-12 text-center">
+							<RadzenText TextStyle="TextStyle.H4">
+								@acc.Name
+							</RadzenText>
+						</div>
+						@if (acc.PQTBalance > 0)
+						{
 							@foreach (DFKAccount acc2 in Acc.Accounts.Where(a => a.Account.Address == acc.Account.Address))
 							{
-								<div class="col-md-4">
-									<RadzenText TextStyle="TextStyle.H5">
-										<span class="ml-2">
+								<div class="col-md-3">
+									<RadzenText TextStyle="TextStyle.DisplayH6">
+                                        @acc2.Chain.Name
+									</RadzenText>
+								</div>
+								<div class="col-md-3">
+									<RadzenText TextStyle="TextStyle.H6">
+										<span class="">
 											<RadzenImage Path="@(acc2.Chain.Name == "DFK" ? "Images/Jewel.png" : "Images/Klay.png")" Style="width: 18px; height:18px;" />
 											@acc2.Balance
 										</span>
 									</RadzenText>
 								</div>
-								<div class="col-md-4">
-									<RadzenText TextStyle="TextStyle.H5">
-										<span class="ml-2">
+								<div class="col-md-3">
+									<RadzenText TextStyle="TextStyle.H6">
+										<span class="">
 											<RadzenImage Path="@(acc2.Chain.Name == "DFK" ? "Images/Crystal.png" : "Images/Jade.png")" Style="width: 18px; height:18px;" />
 											@acc2.PowerTokenBalance
 											</span>
 									</RadzenText>
 								</div>
-								<div class="col-md-4">
-									<RadzenText TextStyle="TextStyle.H5">
-										<span class="ml-2">
-											<RadzenImage Path="@("Images/Lock.png")" Style="width: 14px; height:18px; position: relative; top: 6px; left: 10px;" />
+								<div class="col-md-3">
+									<RadzenText TextStyle="TextStyle.H6">
+										<span class="">
+											<div style="position:relative;width:0;height:0;">
+												<RadzenImage Path="@("Images/Lock.png")" Style="width: 14px; height:18px; position: relative; top: 6px; left: -8px;" />
+											</div>
 											<RadzenImage Path="@(acc2.Chain.Name == "DFK" ? "Images/Crystal.png" : "Images/Jade.png")" Style="width: 18px; height:18px;" />
 											@acc2.LockedPowerTokenBalance
 										</span>
 									</RadzenText>
 								</div>
 							}
-						</div>
-					}
-					<div class="row">
-						<div class="col-12">
-							<RadzenText TextStyle="TextStyle.H4">
-								@acc.Name
-							</RadzenText>
-						</div>
-						<div class="col-md-6">
-							<RadzenText TextStyle="TextStyle.H5">
-								<span class="ml-2">
-									<RadzenImage Path="@("Images/Avalanche.svg")" Style="width: 18px; height:18px;" />
-									@acc.AvaxBalance
-								</span>
-							</RadzenText>
-						</div>
-						<div class="col-md-6">
-							<RadzenText TextStyle="TextStyle.H5">
-								<span class="ml-2">PQT @acc.PQTBalance</span>
-							</RadzenText>
-							@if(acc.PQTBalance < 1)
-							{
-								<RadzenText class="text-warning" TextStyle="TextStyle.DisplayH6">
-									No Pirate Quester Token to run the bot
-								</RadzenText>
-								<RadzenButton ButtonStyle="ButtonStyle.Success" Click="(() => BuyPirateQuesterToken(Acc.Accounts.IndexOf(acc)))">
-									Buy PQT
-								</RadzenButton>
-							}
-							else
-							{
-								<RadzenText class="text-success" TextStyle="TextStyle.Body2">
-									Buy additional tokens to send to your other wallets.
-								</RadzenText>
-								<RadzenText class="text-success" TextStyle="TextStyle.Body2">
-									Or give to friends, you're supporting further developement of the bot by buying.
-								</RadzenText>
-								<RadzenText class="text-success" TextStyle="TextStyle.Body2">
-									Thank you! 🎉🎉🎉
-								</RadzenText>
-								<RadzenButton ButtonStyle="ButtonStyle.Success" Click="(() => BuyPirateQuesterToken(Acc.Accounts.IndexOf(acc)))">
-									Buy PQT
-								</RadzenButton>
-							}
+						}
+						<div class="col-12 pb-2">
+							<div class="row">
+								<div class="col-md-3">
+									<RadzenText TextStyle="TextStyle.DisplayH6">
+										Avalanche
+									</RadzenText>
+								</div>
+								<div class="col-md-3">
+									<RadzenText TextStyle="TextStyle.H6">
+										<span>
+											<RadzenImage Path="@("Images/Avalanche.svg")" Style="width: 18px; height:18px;" />
+											@acc.AvaxBalance
+										</span>
+									</RadzenText>
+								</div>
+								<div class="col-md-3">
+									<RadzenText TextStyle="TextStyle.H6">
+										<span class="">PQT @acc.PQTBalance</span>
+									</RadzenText>
+								</div>
+								@if(acc.PQTBalance < 1)
+								{
+									<div class="col-md-3">
+										<RadzenText class="text-warning d-inline" TextStyle="TextStyle.DisplayH6">
+											No Pirate Quester Token to run the bot
+										</RadzenText>
+										<RadzenButton ButtonStyle="ButtonStyle.Success" Click="(() => BuyPirateQuesterToken(Acc.Accounts.IndexOf(acc)))" class="d-inline">
+											Buy PQT
+										</RadzenButton>
+									</div>
+								}
+								else
+								{
+
+									<div class="col-md-3">
+										<RadzenButton class="" ButtonStyle="ButtonStyle.Success" Click="(() => BuyPirateQuesterToken(Acc.Accounts.IndexOf(acc)))">
+											Buy PQT
+										</RadzenButton>
+									</div>
+								}
+
+							</div>
 						</div>
 					</div>
-					<RadzenText TextStyle="TextStyle.H6">
+					<RadzenText TextStyle="TextStyle.H6" class="mb-0 mt-2">
 						Address
 					</RadzenText>
-					<RadzenText>
+					<RadzenText TextStyle="TextStyle.Body1" Style="word-break: break-word;">
 						@acc.Account.Address
 					</RadzenText>
-					<RadzenText TextStyle="TextStyle.H6">
+					<RadzenText TextStyle="TextStyle.H6" class="mb-0 mt-2">
 						Public Key
 					</RadzenText>
-					<RadzenText TextStyle="TextStyle.Body2" Style="max-width:100%;">
+					<RadzenText TextStyle="TextStyle.Body1" Style="word-break: break-word;">
 						@acc.Account.PublicKey
 					</RadzenText>
-					<RadzenLabel Text="Show Private Key" Component="ShowPrivateKey" class="font-weight-bold" />
+					<RadzenText TextStyle="TextStyle.H6" class="mb-0 mt-2">
+						Show Private Key
+					</RadzenText>
 					@if (Initialized)
 					{
 						<form @onsubmit=@(() => TryRevealKey(acc.Name, Password))>

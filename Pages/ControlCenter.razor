@@ -71,13 +71,28 @@
 			<DropDownListFieldSettings Value="Name"></DropDownListFieldSettings>
 		</SfDropDownList>
 		<RadzenButton Click="@SetQuestPreference"
+		  Disabled="SelectedHeroCount == 0"
+		  ButtonStyle="ButtonStyle.Success"
 			class="mt-2">
 			Set preference
 		</RadzenButton>
 		<RadzenButton Click="@ClearQuestPreference"
+            ButtonStyle="ButtonStyle.Danger"
+			Disabled="SelectedHeroCount == 0"
 		  class="mt-2">
 			Clear
 		</RadzenButton>
+		<RadzenButton Click="@(() => 
+		{
+			Acc.Accounts.ForEach(async acc => await acc.InitializeAccount());
+			StateHasChanged();
+		})"
+		  class="mt-2">
+			Refresh Heroes
+		</RadzenButton>
+		<RadzenText TextStyle="TextStyle.H6" class="d-inline ml-2">
+			@($"{SelectedHeroCount} Selected Heroes")
+		</RadzenText>
 	</RadzenCard>
 }
 <SfGrid 
@@ -94,6 +109,7 @@
 	AllowSorting="true"
 	AllowExcelExport="true"
 	Height="650px">
+	<GridEvents RowSelecting="RowSelectingHandler" RowDeselected="RowDeselectHandler" TValue="DFKBotHero"></GridEvents>
 	<GridSelectionSettings EnableSimpleMultiRowSelection="true" Type="SelectionType.Multiple" AllowDragSelection="true" ></GridSelectionSettings>
 
 	<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
@@ -136,6 +152,10 @@
 		<GridColumn Field="Hero.mainClass" HeaderText="Class" Width="120"></GridColumn>
 		<GridColumn Field="Hero.subClass" HeaderText="Subclass" Width="120"></GridColumn>
 		<GridColumn Field="Hero.profession" HeaderText="Profession" Width="130"></GridColumn>
+		<GridColumn Field="Hero.mining" HeaderText="Mining" Width="120"></GridColumn>
+		<GridColumn Field="Hero.gardening" HeaderText="Gardening" Width="130"></GridColumn>
+		<GridColumn Field="Hero.foraging" HeaderText="Foraging" Width="120"></GridColumn>
+		<GridColumn Field="Hero.fishing" HeaderText="Fishing" Width="120"></GridColumn>
 		<GridColumn Field="Hero.currentQuest" HeaderText="Current Quest" Width="280">
 			<Template>
 				<div>

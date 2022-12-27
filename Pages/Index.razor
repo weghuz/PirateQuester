@@ -1,39 +1,63 @@
 ﻿@page "/"
 <PageTitle>PQ - Home</PageTitle>
-<RadzenText TextStyle="TextStyle.DisplayH5" class="text-center">Welcome to Pirate Quester!</RadzenText>
-<RadzenCard class="my-1">
-	<RadzenText TextStyle="TextStyle.Body1">
-		Pirate Quester is a place where you can get the everyday clicking out of the way and start managing your DFK Heroes.
-	</RadzenText>
-	<RadzenText TextStyle="TextStyle.Body1">
-		Built to give you control over your heroes. Bring back your control and get Managing!
-	</RadzenText>
-</RadzenCard>
-<RadzenCard class="my-1">
-	<RadzenText TextStyle="TextStyle.H6" Style="color:red;">Warning!</RadzenText>
-	<RadzenText TextStyle="TextStyle.Body1">
-		Use this software at your own risk. For feedback/suggestions visit the <a href="https://discord.com/invite/kuy5tSrH9C" target="_blank">DFKAnalytics/Piratequester Discord</a>.
-	</RadzenText>
-	<RadzenText TextStyle="TextStyle.Body1">
-		Pirate Quester requires full control of your account to run.
-	</RadzenText>
-	<RadzenText TextStyle="TextStyle.Body1">
-		The advantages are that you can lean back and let the program do the work for you.
-	</RadzenText>
-	<RadzenText TextStyle="TextStyle.Body1">
-		Pirate Quester is built to be run on your computer.
-	</RadzenText>
-	<RadzenText TextStyle="TextStyle.Body1">
-		It's not connected to any central server outside of DFK's API.
-	</RadzenText>
-	<RadzenText TextStyle="TextStyle.Body1">
-		Built with decentralisation in mind.
-	</RadzenText>
-</RadzenCard>
-<RadzenCard class="my-1">
-	<RadzenText TextStyle="TextStyle.Body1">In collaboration with <a href="https://dfkanalytics.com">DFKAnalytics</a> and <a target="_blank" href="https://discord.gg/4zGWeRXjnx">Perilous Pirates guild</a>.</RadzenText>
-	<RadzenText TextStyle="TextStyle.Body1">Made by WegHuZ with love.</RadzenText>
-</RadzenCard>
-@code {
-
-}
+<RadzenText TextStyle="TextStyle.DisplayH5" class="text-center">
+	Pirate Quester
+</RadzenText>
+<div class="text-center">
+	<RadzenImage Path="@("icon-192.png")"  />
+</div>
+<div class="container">
+	
+	<RadzenCard class="my-1">
+		<RadzenText TextStyle="TextStyle.H5" class="text-center">
+			Welcome!
+		</RadzenText>
+		<RadzenText TextStyle="TextStyle.Body1">
+			Pirate Quester is a place where you can get the everyday clicking out of the way and start managing your DFK Heroes.
+		</RadzenText>
+		<RadzenText TextStyle="TextStyle.Body1">
+			Built to give you control over your heroes. Bring back your control and get Managing!
+		</RadzenText>
+	</RadzenCard>
+	<RadzenCard class="my-1">
+		<RadzenText class="text-center" TextStyle="TextStyle.H5" Style="color:red;">
+			Warning!
+		</RadzenText>
+		<RadzenText TextStyle="TextStyle.Body1">
+			Use this software at your own risk. For feedback/suggestions visit the <a href="https://discord.com/invite/kuy5tSrH9C" target="_blank">DFKAnalytics/Piratequester Discord</a>.
+		</RadzenText>
+		<RadzenText TextStyle="TextStyle.Body1">
+			Pirate Quester requires full control of your account to run.
+		</RadzenText>
+		<RadzenText TextStyle="TextStyle.Body1">
+			The advantages are that you can lean back and let the program do the work for you.
+		</RadzenText>
+		<RadzenText TextStyle="TextStyle.Body1">
+			Pirate Quester is built to be run on your computer.
+		</RadzenText>
+		<RadzenText TextStyle="TextStyle.Body1">
+			It's not connected to any central server outside of DFK's API.
+		</RadzenText>
+		<RadzenText TextStyle="TextStyle.Body1">
+			Built with decentralisation in mind.
+		</RadzenText>
+	</RadzenCard>
+	<div class="row">
+		<div class="col-md-6">
+			<RadzenCard class="my-1">
+				<RadzenText TextStyle="TextStyle.Body1">
+					If you're wondering where to start, make sure to check out the documentation: <a href="https://dfk-project.gitbook.io/pirate-quester/" target="_blank">Docs</a>
+				</RadzenText>
+				<RadzenText TextStyle="TextStyle.Body1">
+					And join the community in discord: <a href="https://discord.com/invite/kuy5tSrH9C" target="_blank">Discord</a>
+				</RadzenText>
+			</RadzenCard>
+		</div>
+		<div class="col-md-6">
+			<RadzenCard class="my-1">
+				<RadzenText TextStyle="TextStyle.Body1">In collaboration with <a href="https://dfkanalytics.com">DFKAnalytics</a> and <a target="_blank" href="https://discord.gg/4zGWeRXjnx">Perilous Pirates guild</a>.</RadzenText>
+				<RadzenText TextStyle="TextStyle.Body1">Made by WegHuZ with love.</RadzenText>
+			</RadzenCard>
+		</div>
+	</div>
+</div>

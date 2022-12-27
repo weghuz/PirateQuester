@@ -26,8 +26,8 @@ public partial class ControlCenter
 	public int? SelectedDFKQuest { get; set; }
 	public int? SelectedKlaytnQuest { get; set; }
 	public SfGrid<DFKBotHero> HeroGridReference { get; set; }
-
-    protected override void OnInitialized()
+	public int SelectedHeroCount { get; set; }
+	protected override void OnInitialized()
 	{
 		TableHeroes = Acc.Accounts.SelectMany(a => a.BotHeroes).ToList();
 		if (Acc.Accounts.Count == 0)
@@ -38,6 +38,15 @@ public partial class ControlCenter
 		{
 			bot.HeroesUpdated += StateHasChanged;
 		};
+	}
+
+	public void RowSelectingHandler(RowSelectingEventArgs<DFKBotHero> args)
+	{
+		SelectedHeroCount = HeroGridReference.SelectedRecords.Count + 1;
+	}
+	public void RowDeselectHandler(RowDeselectEventArgs<DFKBotHero> args)
+	{
+		SelectedHeroCount = HeroGridReference.SelectedRecords.Count;
 	}
 
 	public void SetQuestPreference()

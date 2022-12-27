@@ -30,7 +30,6 @@ namespace PirateQuester.Utils
 					Balance = Web3.Convert.FromWei(await Signer.Eth.GetBalance.SendRequestAsync(Account.Address));
 					PowerTokenBalance = Web3.Convert.FromWei(await PowerTokenService.BalanceOfQueryAsync(Account.Address));
 					LockedPowerTokenBalance = Web3.Convert.FromWei(await PowerTokenService.LockOfQueryAsync(Account.Address));
-					Console.WriteLine(Balance + " " + LockedPowerTokenBalance);
 					AvaxBalance = Web3.Convert.FromWei(await AvalancheSigner.Eth.GetBalance.SendRequestAsync(Account.Address));
                     retry = false;
                 }
@@ -110,7 +109,7 @@ namespace PirateQuester.Utils
 				{ HeroesArgument.owner, Account.Address },
                 { HeroesArgument.network, Chain.Identifier }
             };
-			string request = API.HeroesRequestBuilder(args, "id owner {id name} rarity generation firstName lastName mainClass subClass staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina profession statBoost1 statBoost2 salePrice xp network");
+			string request = API.HeroesRequestBuilder(args, "id owner {id name} rarity generation firstName lastName mainClass subClass staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina profession statBoost1 statBoost2 salePrice xp network mining foraging fishing gardening");
 			Heroes = (await API.GetHeroes(request)).ToList();
 		}
 

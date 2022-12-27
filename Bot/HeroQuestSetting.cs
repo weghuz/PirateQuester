@@ -8,5 +8,6 @@ namespace PirateQuester.Bot
         public string HeroId { get; set; }
 		public int QuestId { get; set; }
 		public string ChainIdentifier { get; set; }
+		public HeroLevelupSettings LevelupSettings { get; set; }
 	}
 }

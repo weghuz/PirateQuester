@@ -8,59 +8,66 @@
 }
 
 <PageTitle>PQ - Create Account</PageTitle>
-@if(Acc.AccountNames.Count == 0)
-{
-    <div class="rz-background-color-danger p-3 rounded m-3">
-        <RadzenText TextStyle="TextStyle.H6">
-            You need to create an account to use most features on Pirate Quester.
-        </RadzenText>
-    </div>
-}
-
-<RadzenCard class="my-1">
-    <RadzenText TextStyle="TextStyle.H5" Style="color:red">Important!</RadzenText>
-    <RadzenText TextStyle="TextStyle.Body1">Backup your accounts!</RadzenText>
-    <RadzenText TextStyle="TextStyle.Body1">
-        To read more about creating accounts safely read the documentation guide:
-        <a href="https://dfk-project.gitbook.io/pirate-quester/guides/accounts/creating-an-account-exporting-an-account-from-metamask" target="_blank">
-            Creating an account
-        </a>
-    </RadzenText>
-    <RadzenText TextStyle="TextStyle.Body1">
-        If you lose access to your keys, you've got noone to blame but yourself.
-    </RadzenText>
-    <RadzenText TextStyle="TextStyle.Body1">
-        Pirate Quester keeps no data backed up online, it's all on your device.
-    </RadzenText>
-    <RadzenText TextStyle="TextStyle.Body1">
-        It is self custodial through and through.
-    </RadzenText>
-</RadzenCard>
-<RadzenCard class="mt-2">
-    <EditForm OnValidSubmit="@(() => Create())" Model="@model">
-        <RadzenText TextStyle="TextStyle.H5">Create Account</RadzenText>
-        <div class="p-2">
-            <RadzenLabel Text="Generate Account" Component="GenerateAccount" class="font-weight-bold" />
-            <RadzenCheckBox @bind-Value="model.GenerateAccount" Name="GenerateAccount" TValue="bool" />
-        </div>
-        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Account Name</RadzenText>
-        <RadzenTextBox @bind-Value="model.Name" Class="w-100 mb-2" />
-        @if (model.GenerateAccount is false)
-        {
-            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">
-                Private Key
+<div class="container">
+    @if(Acc.AccountNames.Count == 0)
+    {
+        <div class="rz-background-color-danger p-3 rounded m-3">
+            <RadzenText TextStyle="TextStyle.H6">
+                You need to create an account to use most features on Pirate Quester.
             </RadzenText>
-            <RadzenPassword @bind-Value="model.PrivateKey" Name="PrivateKey" Class="w-100 mb-2" />
-        }
+        </div>
+    }
+    <RadzenCard class="my-1">
+        <RadzenText TextStyle="TextStyle.H5" Style="color:red">Important!</RadzenText>
+        <RadzenText TextStyle="TextStyle.Body1">Backup your accounts!</RadzenText>
+        <RadzenText TextStyle="TextStyle.Body1">
+            To read more about creating accounts safely read the documentation guide:
+            <a href="https://dfk-project.gitbook.io/pirate-quester/guides/accounts/creating-an-account-exporting-an-account-from-metamask" target="_blank">
+                Creating an account
+            </a>
+        </RadzenText>
+        <RadzenText TextStyle="TextStyle.Body1">
+            If you lose access to your keys, you've got noone to blame but yourself.
+        </RadzenText>
+        <RadzenText TextStyle="TextStyle.Body1">
+            Pirate Quester keeps no data backed up online, it's all on your device.
+        </RadzenText>
+        <RadzenText TextStyle="TextStyle.Body1">
+            It is self custodial through and through.
+        </RadzenText>
+    </RadzenCard>
+    <RadzenCard class="mt-2">
+        <EditForm OnValidSubmit="@(() => Create())" Model="@model">
+            <RadzenText TextStyle="TextStyle.DisplayH5">Create Account</RadzenText>
+            <label class="text-center mb-2">
+                <RadzenText TextStyle="TextStyle.H6" class="mb-1">Generate Account</RadzenText>
+                <RadzenCheckBox @bind-Value="model.GenerateAccount" Name="GenerateAccount" TValue="bool" />
+            </label>
+            <RadzenText TextStyle="TextStyle.H6" class="mb-1">
+                Account Name
+            </RadzenText>
+            <RadzenTextBox @bind-Value="model.Name" Class="w-100 mb-2" />
+            @if (model.GenerateAccount is false)
+            {
+                <RadzenText TextStyle="TextStyle.H6" class="mb-1">
+                    Private Key
+                </RadzenText>
+                <RadzenPassword @bind-Value="model.PrivateKey" Name="PrivateKey" Class="w-100 mb-2" />
+            }
 
-        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Password</RadzenText>
-        <RadzenPassword @bind-Value="model.Password" Class="w-100 mb-2" />
+            <RadzenText TextStyle="TextStyle.H6" class="mb-1">
+                Password
+            </RadzenText>
+            <RadzenPassword @bind-Value="model.Password" Class="w-100 mb-2" />
 
-        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Re-type Password</RadzenText>
-        <RadzenPassword @bind-Value="model.RecheckPassword" Class="w-100 mb-2" />
+            <RadzenText TextStyle="TextStyle.H6" class="mb-1">
+                Re-type Password
+            </RadzenText>
+            <RadzenPassword @bind-Value="model.RecheckPassword" Class="w-100 mb-2" />
 
-        <RadzenButton ButtonStyle="ButtonStyle.Success" ButtonType="ButtonType.Submit">
-            Create
-        </RadzenButton>
-    </EditForm>
-</RadzenCard>
+            <RadzenButton ButtonStyle="ButtonStyle.Success" ButtonType="ButtonType.Submit">
+                Create
+            </RadzenButton>
+        </EditForm>
+    </RadzenCard>
+</div>
