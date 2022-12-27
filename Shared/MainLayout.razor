@@ -65,7 +65,7 @@
                             <RadzenPanelMenuItem Text="Bot" Icon="android" Path="/Bot" />
                             <RadzenPanelMenuItem Text="Accounts" Path="/Accounts" Icon="account_circle"></RadzenPanelMenuItem>
                         }
-                        else if(Acc.AccountNames.Count() != Acc.Accounts.Count())
+                        if(Acc.AccountNames.Count() != (Acc.Accounts.Count()/2))
                         {
                             <RadzenPanelMenuItem Text="Login" Path="/Login" Icon="account_circle"></RadzenPanelMenuItem>
                         }
