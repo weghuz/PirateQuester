@@ -12,11 +12,11 @@ public partial class Options
     public AccountSettings AccSettings { get; set; }
     void ClearProblematicStorage()
     {
-        JS.InvokeVoidAsync("localStorage.setItem", "DFKBotSettings", "");
-        JS.InvokeVoidAsync("localStorage.setItem", "gridRunningQuestsGrid", "");
-        JS.InvokeVoidAsync("localStorage.setItem", "gridQuestRewardsGrid", "");
-        JS.InvokeVoidAsync("localStorage.setItem", "gridControlCenterHeroGrid", "");
-        JS.InvokeVoidAsync("localStorage.setItem", "ChainSettings", "");
+        JS.InvokeVoidAsync("localStorage.removeItem", "DFKBotSettings", "");
+        JS.InvokeVoidAsync("localStorage.removeItem", "gridRunningQuestsGrid", "");
+        JS.InvokeVoidAsync("localStorage.removeItem", "gridQuestRewardsGrid", "");
+        JS.InvokeVoidAsync("localStorage.removeItem", "gridControlCenterHeroGrid", "");
+        JS.InvokeVoidAsync("localStorage.removeItem", "ChainSettings", "");
         JS.InvokeVoid("location.reload");
     }
     
