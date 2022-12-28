@@ -103,11 +103,19 @@ public class DFKBot
 					{
 						questReward.Heroes.Add(reward.HeroId);
 					}
-					var item = new DFKItem(ItemContractDefinitions.GetItem(new()
-                                {
-                                    Address = reward.Reward,
-                                    Chain = Account.Chain
-                                }));
+                    DFKItem item = null;
+                    try
+					{
+						item = new DFKItem(ItemContractDefinitions.GetItem(new()
+						{
+							Address = reward.Reward,
+							Chain = Account.Chain
+						}));
+					}
+					catch(Exception e)
+					{
+                        Log($"Error getting item {reward.Reward} for quest {questId}.\n{e.Message}\n{e.StackTrace}");
+                    }
 					if (item is not null)
 					{
 						item.Amount = ulong.Parse(reward.Amount.ToString());
@@ -285,7 +293,7 @@ public class DFKBot
 			.DistinctBy(q => q.Id)
 			.Where(q => enabledQuests.Select(qe => qe.QuestId).Contains(q.Id)))
 		{
-			var questsOfType = RunningQuests.Where(rq => quest.Address == rq.QuestAddress);
+            var questsOfType = RunningQuests.Where(rq => quest.Address == rq.QuestAddress);
 			if (questsOfType.Any(rq =>  rq.CompleteDateTime >= DateTime.UtcNow.AddHours(12)) || questsOfType.Count() >= 10)
 			{
 				continue;
@@ -301,7 +309,7 @@ public class DFKBot
 				if (heroBatch.Count() < quest.MaxHeroesPerQuest(Account))
 				{
 					List<Hero> heroesCatchingUp = Account.BotHeroes.Where(h =>
-						(h.GetActiveQuest().Id) == quest.Id
+						h.GetActiveQuest().Id == quest.Id
 						&& h.Hero.StaminaCurrent() > GetMinStaminaBotHero(h) - 5 
 						&& h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h)
 						&& h.Hero.currentQuest == QuestContractDefinitions.NULL_ADDRESS)

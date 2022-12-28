@@ -18,6 +18,11 @@ namespace PirateQuester.DFK.Items
 					{
 						Address = "0xCCb93dABD71c8Dad03Fc4CE5559dC3D89F67a260",
                         Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    },
+                    new()
+                    {
+                        Address = "0x30C103f8f5A3A732DFe2dCE1Cc9446f545527b43",
+                        Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
                     }
 				},
 				Category = ItemCategory.Currency,
