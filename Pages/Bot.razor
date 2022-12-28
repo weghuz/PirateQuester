@@ -85,7 +85,7 @@
 								<RadzenText TextStyle="TextStyle.H5" Text="@($"{chain.Name} Quest Contracts")" />
 								@*First 8 quests are training quests*@
 								<div class="row">
-									@foreach (QuestContract quest in QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == chain.Name).QuestContracts.Skip(9))
+									@foreach (QuestContract quest in QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == chain.Name).QuestContracts.Skip(8))
 									{
 										var QuestEnabled = Bots.Settings.ChainQuestEnabled.Find(qe => qe.Chain.Name == chain.Name).QuestEnabled.First(qe => qe.QuestId == quest.Id);
 

@@ -301,7 +301,7 @@ public class DFKBot
 				if (heroBatch.Count() < quest.MaxHeroesPerQuest(Account))
 				{
 					List<Hero> heroesCatchingUp = Account.BotHeroes.Where(h =>
-						(h.Quest?.Id ?? h.SuggestedQuest.Id) == quest.Id
+						(h.GetActiveQuest().Id) == quest.Id
 						&& h.Hero.StaminaCurrent() > GetMinStaminaBotHero(h) - 5 
 						&& h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h)
 						&& h.Hero.currentQuest == QuestContractDefinitions.NULL_ADDRESS)
