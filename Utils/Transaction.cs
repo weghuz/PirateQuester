@@ -10,6 +10,9 @@ using static PirateQuester.DFK.Contracts.QuestContractDefinitions;
 using Nethereum.Contracts;
 using PirateQuester.DFK.Items;
 using PirateQuester.PirateQuesterToken.ContractDefinition;
+using Nethereum.Contracts.Standards.ENS.Registrar.ContractDefinition;
+using PirateQuester.HeroSale.ContractDefinition;
+using static Nethereum.Util.UnitConversion;
 
 namespace Utils;
 
@@ -290,63 +293,190 @@ public static class Transaction
             throw;
         }
     }
+
     public static async Task<string> StartQuest(DFKAccount account, List<BigInteger> selectedHeroes, QuestContract quest, int attempts, int maxGasFeeGwei = 200, int cancelDelay = 60000)
-	{
+    {
         TransactionAdded?.Invoke();
         bool isApproved = await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, quest.Address);
-		Console.WriteLine($"Is approved: {isApproved}");
-		
-		if (isApproved is false)
-		{
-			string approveAllResponse = await account.Hero.SetApprovalForAllRequestAsync(quest.Address, true);
-			Console.WriteLine($"Set Approved for {quest.Name}: {approveAllResponse}");
-		}
-		Console.WriteLine($"Starting quest {quest.Name} with {attempts} attempts.");
-		try
+        Console.WriteLine($"Is approved: {isApproved}");
+
+        if (isApproved is false)
         {
-			var handler = account.Signer.Eth.GetContractTransactionHandler<StartQuestFunction>();
-			var questStartFunc = new StartQuestFunction()
-			{
-				HeroIds = selectedHeroes,
-				QuestAddress = quest.Address,
-				Attempts = (byte)attempts,
-				Level = (byte)quest.Level,
-				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
-				MaxPriorityFeePerGas = 0,
+            string approveAllResponse = await account.Hero.SetApprovalForAllRequestAsync(quest.Address, true);
+            Console.WriteLine($"Set Approved for {quest.Name}: {approveAllResponse}");
+        }
+        Console.WriteLine($"Starting quest {quest.Name} with {attempts} attempts.");
+        try
+        {
+            var handler = account.Signer.Eth.GetContractTransactionHandler<StartQuestFunction>();
+            var questStartFunc = new StartQuestFunction()
+            {
+                HeroIds = selectedHeroes,
+                QuestAddress = quest.Address,
+                Attempts = (byte)attempts,
+                Level = (byte)quest.Level,
+                MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
+                MaxPriorityFeePerGas = 0,
             };
 
             var questStartResponse = await account.Quest.StartQuestRequestAndWaitForReceiptAsync(questStartFunc, StopAfterDelay(cancelDelay));
-			Console.WriteLine($"Started Quest Txn: Gas: {questStartResponse.GasUsed.Value}");
-			//var startQuestEvent = questStartResponse.DecodeAllEvents<QuestStartedEventDTO>();
-			FinishedTransactions.Add(new()
+            Console.WriteLine($"Started Quest Txn: Gas: {questStartResponse.GasUsed.Value}");
+            //var startQuestEvent = questStartResponse.DecodeAllEvents<QuestStartedEventDTO>();
+            FinishedTransactions.Add(new()
             {
                 Success = true,
                 Name = $"Started Quest {quest.Name}",
-				TimeStamp = DateTime.Now,
-				TransactionHash = questStartResponse.TransactionHash
-			});
+                TimeStamp = DateTime.Now,
+                TransactionHash = questStartResponse.TransactionHash
+            });
             TransactionAdded?.Invoke();
-			if (questStartResponse.Status == new BigInteger(1))
-			{
-				return $"Started Quest: {quest.Name}\nTransaction: {questStartResponse.TransactionHash}\nhttps://avascan.info/blockchain/dfk/tx/{questStartResponse.TransactionHash}\nGas Paid: {questStartResponse.GasUsed}";
-			}
-			else
-			{
-				return $"Failed to start Quest: {quest.Name}";
-			}
+            if (questStartResponse.Status == new BigInteger(1))
+            {
+                return $"Started Quest: {quest.Name}\nTransaction: {questStartResponse.TransactionHash}\nhttps://avascan.info/blockchain/dfk/tx/{questStartResponse.TransactionHash}\nGas Paid: {questStartResponse.GasUsed}";
+            }
+            else
+            {
+                return $"Failed to start Quest: {quest.Name}";
+            }
         }
-		catch(Exception e)
+        catch (Exception e)
         {
-			Console.WriteLine(account.Chain.Name);
-			FinishedTransactions.Add(new()
-			{
-				Success = false,
-				Name = $"Failed Start Quest {quest.Name}: {e.Message}",
-				TimeStamp = DateTime.Now,
-				TransactionHash = null
-			});
+            Console.WriteLine(account.Chain.Name);
+            FinishedTransactions.Add(new()
+            {
+                Success = false,
+                Name = $"Failed Start Quest {quest.Name}: {e.Message}",
+                TimeStamp = DateTime.Now,
+                TransactionHash = null
+            });
             TransactionAdded?.Invoke();
-			throw;
-		}
-	}
+            throw;
+        }
+    }
+
+    public static async Task<string> CancelAuction(DFKAccount account, 
+        BigInteger heroId,
+        int maxGasFeeGwei = 200, 
+        int cancelDelay = 60000)
+    {
+        TransactionAdded?.Invoke();
+        bool isApproved = await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, account.Chain.HeroSale);
+        Console.WriteLine($"Is approved: {isApproved}");
+
+        if (isApproved is false)
+        {
+            string approveAllResponse = await account.Hero.SetApprovalForAllRequestAsync(account.Chain.HeroSale, true);
+            Console.WriteLine($"Set Approved for {account.Chain.HeroSale}: {approveAllResponse}");
+        }
+        Console.WriteLine($"Cancelling auction for hero {heroId}.");
+        try
+        {
+            var handler = account.Signer.Eth.GetContractTransactionHandler<CancelAuctionFunction>();
+            var cancelAuctionFunc = new CancelAuctionFunction()
+            {
+                MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
+                MaxPriorityFeePerGas = 0,
+                TokenId = heroId,
+                FromAddress = account.Account.Address
+            };
+
+            var cancelAuctionResponse = await account.Auction.CancelAuctionRequestAndWaitForReceiptAsync(cancelAuctionFunc, StopAfterDelay(cancelDelay));
+            Console.WriteLine($"Started Auction Txn: {cancelAuctionResponse.TransactionHash} Gas: {cancelAuctionResponse.GasUsed.Value}");
+            //var startQuestEvent = questStartResponse.DecodeAllEvents<QuestStartedEventDTO>();
+            FinishedTransactions.Add(new()
+            {
+                Success = true,
+                Name = $"Cancelled Auction for {heroId}",
+                TimeStamp = DateTime.Now,
+                TransactionHash = cancelAuctionResponse.TransactionHash
+            });
+            TransactionAdded?.Invoke();
+            if (cancelAuctionResponse.Status == new BigInteger(1))
+            {
+                return $"Cancelled Auction for {heroId}\nhttps://avascan.info/blockchain/dfk/tx/{cancelAuctionResponse.TransactionHash}\nGas Paid: {cancelAuctionResponse.GasUsed}";
+            }
+            else
+            {
+                return $"Failed to Cancelled Auction: for {heroId}";
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(account.Chain.Name);
+            FinishedTransactions.Add(new()
+            {
+                Success = false,
+                Name = $"Failed to Cancelled Auction: for {heroId}\n" +
+                    $"{e.Message}\n" +
+                    $"{e.StackTrace}",
+                TimeStamp = DateTime.Now,
+                TransactionHash = null
+            });
+            TransactionAdded?.Invoke();
+            throw;
+        }
+    }
+
+    public static async Task<string> StartAuction(DFKAccount account, BigInteger heroId, decimal salePrice, int maxGasFeeGwei = 200, int cancelDelay = 60000)
+    {
+        TransactionAdded?.Invoke();
+        bool isApproved = await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, account.Chain.HeroSale);
+        Console.WriteLine($"Is approved: {isApproved}");
+
+        if (isApproved is false)
+        {
+            string approveAllResponse = await account.Hero.SetApprovalForAllRequestAsync(account.Chain.HeroSale, true);
+            Console.WriteLine($"Set Approved for {account.Chain.HeroSale}: {approveAllResponse}");
+        }
+        Console.WriteLine($"Selling hero {heroId} for {salePrice} {(account.Chain.Name == "DFK" ? "Crystal" : "Jade" )}.");
+        try
+        {
+            var handler = account.Signer.Eth.GetContractTransactionHandler<CreateAuctionFunction>();
+            var startAuctionFunc = new CreateAuctionFunction()
+            {
+                StartingPrice = Web3.Convert.ToWei(salePrice, EthUnit.Ether),
+                MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, EthUnit.Gwei),
+                MaxPriorityFeePerGas = 0,
+                TokenId = heroId,
+                EndingPrice = Web3.Convert.ToWei(salePrice, EthUnit.Ether),
+                Duration = 1337,
+                Winner = ""
+            };
+
+            var startAuctionResponse = await account.Auction.CreateAuctionRequestAndWaitForReceiptAsync(startAuctionFunc, StopAfterDelay(cancelDelay));
+            Console.WriteLine($"Started Auction Txn: {startAuctionResponse.TransactionHash} Gas: {startAuctionResponse.GasUsed.Value}");
+            //var startQuestEvent = questStartResponse.DecodeAllEvents<QuestStartedEventDTO>();
+            FinishedTransactions.Add(new()
+            {
+                Success = true,
+                Name = $"Started Auction for {heroId} for {salePrice} {(account.Chain.Name == "DFK" ? "Crystal" : "Jade")}",
+                TimeStamp = DateTime.Now,
+                TransactionHash = startAuctionResponse.TransactionHash
+            });
+            TransactionAdded?.Invoke();
+            if (startAuctionResponse.Status == new BigInteger(1))
+            {
+                return $"Started Auction for {heroId} for {salePrice} {(account.Chain.Name == "DFK" ? "Crystal" : "Jade")}\nTransaction: {startAuctionResponse.TransactionHash}\nhttps://avascan.info/blockchain/dfk/tx/{startAuctionResponse.TransactionHash}\nGas Paid: {startAuctionResponse.GasUsed}";
+            }
+            else
+            {
+                return $"Failed to Start Auction: for {heroId} for {salePrice} {(account.Chain.Name == "DFK" ? "Crystal" : "Jade")}";
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(account.Chain.Name);
+            FinishedTransactions.Add(new()
+            {
+                Success = false,
+                Name = $"Failed to Start Auction: for {heroId} for {salePrice} {(account.Chain.Name == "DFK" ? "Crystal" : "Jade")}\n" +
+                    $"{e.Message}\n" +
+                    $"{e.StackTrace}",
+                TimeStamp = DateTime.Now,
+                TransactionHash = null
+            });
+            TransactionAdded?.Invoke();
+            throw;
+        }
+    }
 }

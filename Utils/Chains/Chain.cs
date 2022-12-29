@@ -23,6 +23,7 @@
         public string QuestAddress { get; set; }
         public string MeditationAddress { get; set; }
         public string QuestRewarder { get; set; }
+        public string HeroSale { get; set; }
         public string NativeToken { get; set; }
         public AccountSettings SettingsManager { get; internal set; }
 		public void Save()

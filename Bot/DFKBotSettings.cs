@@ -25,8 +25,9 @@ namespace PirateQuester.Bot
 		public int UpdateInterval { get; set; } = 180;
         public int MinStamina { get; set; } = 20;
         public int MaxGasFeeGwei { get; set; } = 200;
-        public bool LevelUp { get; set; } = true;
-        public List<ChainQuestEnabled> ChainQuestEnabled { get; set; } = new();
+		public bool LevelUp { get; set; } = true;
+		public bool SellHeroes { get; set; } = true;
+		public List<ChainQuestEnabled> ChainQuestEnabled { get; set; } = new();
 		public List<DFKStatAmount> MinTrainingStats { get; set; } = new()
         {
             { new(0, 30) },

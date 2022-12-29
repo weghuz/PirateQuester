@@ -1,5 +1,7 @@
 using Microsoft.JSInterop;
 using Nethereum.Hex.HexConvertors.Extensions;
+using Nethereum.Util;
+using Nethereum.Web3;
 using Newtonsoft.Json;
 using PirateQuester.DFK.Contracts;
 using PirateQuester.Utils;
@@ -157,7 +159,8 @@ public class Hero
     {
         if(salePrice is not null)
 		{
-			decimal fixedSalePrice = long.Parse(salePrice) / 1000000000000000000;
+			BigInteger price = BigInteger.Parse(salePrice);
+			decimal fixedSalePrice = Web3.Convert.FromWei(price);
 			return Math.Round(fixedSalePrice, decimals);
 		}
         return 0;
@@ -176,13 +179,13 @@ public class Hero
     public int StaminaCurrent()
     {
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-		if (now >= staminaFullAt)
+		if (now >= staminaFullAt + 100)
         {
             return stamina;
         }
         else
         {
-			decimal staminaLeft = (staminaFullAt - now)/1200;
+			decimal staminaLeft = (staminaFullAt+100 - now)/1200;
             return stamina - (int)Math.Floor(staminaLeft) - 1;
         }
     }

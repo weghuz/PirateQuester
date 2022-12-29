@@ -3,6 +3,7 @@ using DFKContracts.QuestCore.ContractDefinition;
 using Nethereum.Contracts;
 using PirateQuester.DFK.Contracts;
 using PirateQuester.DFK.Items;
+using PirateQuester.HeroSale.ContractDefinition;
 using PirateQuester.Utils;
 using System.Numerics;
 using Utils;
@@ -69,7 +70,9 @@ public class DFKBot
                     break;
                 }
                 await UpdateHeroes();
+
 				await Update();
+				
 				await UpdateQuestRewards();
 				if (StopBot)
 					break;
@@ -89,14 +92,24 @@ public class DFKBot
 	private async Task UpdateQuestRewards()
 	{
 		Log($"Updating Questrewards");
-		List<EventLog<RewardMintedEventDTO>> EventLog = await LogReader.GetQuestRewardLogs(Account);
+		List<EventLog<RewardMintedEventDTO>> RewardsEventLog = await LogReader.GetQuestRewardLogs(Account);
+		List<EventLog<QuestCompletedEventDTO>> CompletedEventLog = await LogReader.GetCompletedQuestsLogs(Account);
 		List<QuestReward> questRewards = new();
-		foreach (BigInteger questId in EventLog.Select(el => el.Event.QuestId).Distinct())
+		foreach (BigInteger questId in CompletedEventLog.Select(el => el.Event.QuestId).Distinct())
 		{
-			if(!QuestRewards.Any(qr => qr.QuestId == questId))
+			var questReward = QuestRewards.FirstOrDefault(qr => qr.QuestId == questId);
+			if (questReward is null)
 			{
-				List<RewardMintedEventDTO> rewards = EventLog.Where(el => el.Event.QuestId == questId).Select(el => el.Event).ToList();
-				QuestReward questReward = new QuestReward(questId);
+				questReward = new QuestReward(questId);
+				List<RewardMintedEventDTO> rewards = RewardsEventLog.Where(el => el.Event.QuestId == questId).Select(el => el.Event).ToList();
+
+				QuestCompletedEventDTO questLog = CompletedEventLog.Where(el => el.Event.QuestId == questId).Select(el => el.Event).FirstOrDefault();
+				var quest = questLog.Quest;
+
+				questReward.StartDateTime = Functions.UnixTimeStampToDateTime(Functions.BigIntToLong(quest.StartAtTime));
+				questReward.CompleteDateTime = Functions.UnixTimeStampToDateTime(Functions.BigIntToLong(quest.CompleteAtTime));
+				questReward.Quest = QuestContractDefinitions.GetQuestContractFromAddress(quest.QuestAddress);
+				questReward.Rewards = new();
 				foreach (RewardMintedEventDTO reward in rewards)
 				{
 					if(questReward.Heroes.Any(id => id == reward.HeroId) is false)
@@ -157,6 +170,11 @@ public class DFKBot
 			try
 			{
 				var quests = (await Account.Quest.GetAccountActiveQuestsQueryAsync(Account.Account.Address)).ReturnValue1.DistinctBy(q => q.Id).ToList();
+				foreach (Quest q in quests)
+				{
+					q.StartDateTime = Functions.UnixTimeStampToDateTime(Functions.BigIntToLong(q.StartAtTime));
+					q.CompleteDateTime = Functions.UnixTimeStampToDateTime(Functions.BigIntToLong(q.CompleteAtTime));
+				}
 				return quests;
 			}
 			catch(Exception e)
@@ -182,10 +200,6 @@ public class DFKBot
 		Log($"{RunningQuests.Count} Active quests.");
 		foreach (Quest q in quests)
 		{
-			q.StartDateTime = Functions.UnixTimeStampToDateTime(Functions.BigIntToLong(q.StartAtTime));
-			q.CompleteDateTime = Functions.UnixTimeStampToDateTime(Functions.BigIntToLong(q.CompleteAtTime));
-			var questContract = QuestContractDefinitions.GetQuestContractFromAddress(q.QuestAddress);
-
 			if(DateTime.UtcNow > q.CompleteDateTime)
 			{
 				try
@@ -219,13 +233,64 @@ public class DFKBot
 		{
 			return;
 		}
+
+		if (Settings.SellHeroes)
+		{
+			List<BigInteger> auctionIds = await Account.Auction.GetUserAuctionsQueryAsync(Account.Account.Address);
+			List<HeroSale.ContractDefinition.Auction> auctionDTOs = (await Account.Auction.GetAuctionsQueryAsync(auctionIds)).ReturnValue1;
+
+			List<DFKBotHero> heroesToSell = Account.BotHeroes
+				.Where(h => h.BotSalePrice is not null
+					&& h.Hero.salePrice is null
+					&& RunningQuests.Any(rq => rq.Heroes.Contains(h.ID)) is false
+					&& h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h))
+				.ToList();
+			Log($"There are {heroesToSell.Count} heroes to sell.");
+			foreach(DFKBotHero h in heroesToSell)
+			{
+                Log($"Selling hero #{h.ID} for {h.BotSalePrice} {(Account.Chain.Name == "DFK" ? "Crystal" : "Jade")}...");
+                try
+                {
+                    string okMessage = await Transaction.StartAuction(Account, h.ID, h.BotSalePrice.Value, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+                    Log(okMessage);
+                }
+                catch (Exception e)
+                {
+                    Log(e.Message);
+                }
+            }
+            List<DFKBotHero> heroesToCancelAuction = Account.BotHeroes
+				.Where(h => h.Hero.salePrice is not null
+					&& h.Hero.StaminaCurrent() > GetMinStaminaBotHero(h))
+				.ToList();
+            Log($"There are {heroesToCancelAuction.Count} heroes on auction that need to be cancelled to quest.");
+			foreach(DFKBotHero h in heroesToCancelAuction)
+			{
+                Log($"Cancelling auction for hero #{h.ID}...");
+                try
+                {
+                    string okMessage = await Transaction.CancelAuction(Account, h.ID, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+                    Log(okMessage);
+                }
+                catch (Exception e)
+                {
+                    Log(e.Message);
+                }
+            }
+
+        }
+		
+		if(StopBot)
+		{
+			return;
+		}
 		if(Settings.LevelUp)
 		{
 			List<Meditation> activeMeditations = (await Account.Meditation.GetActiveMeditationsQueryAsync(Account.Account.Address)).ReturnValue1;
 			List<DFKBotHero> readyToLevelHeroes = Account.BotHeroes
 				.Where(h => h.Hero.xp >= h.Hero.XpToLevelUp()
-				&& h.Hero.currentQuest == QuestContractDefinitions.NULL_ADDRESS
-				&& h.Hero.StaminaCurrent() <= GetMinStaminaBotHero(h)
+                && RunningQuests.Any(rq => rq.Heroes.Contains(h.ID)) is false
+                && h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h)
 				&& h.Hero.salePrice is null
 				&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
 				.ToList();
@@ -261,7 +326,7 @@ public class DFKBot
 				}
 				try
 				{
-					string okMessage = await Transaction.StartMeditation(Account, h.ID, setting.MainAttribute.Id, setting.SecondaryAttribute.Id, setting.TertiaryAttribute.Id, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+					string okMessage = await Transaction.StartMeditation(Account, h.ID, h.LevelUpSetting.MainAttribute?.Id ?? setting.MainAttribute.Id, h.LevelUpSetting.SecondaryAttribute?.Id ?? setting.SecondaryAttribute.Id, h.LevelUpSetting.TertiaryAttribute?.Id ?? setting.TertiaryAttribute.Id, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
 					Log($"Hero started meditating with Stat settings: \nMain(+1):{setting.MainAttribute.Name}\nSecondary(50%+1):{setting.SecondaryAttribute.Name}\nTertiary(50%+1):{setting.TertiaryAttribute.Name}!");
 					Log(okMessage);
 				}

@@ -5,6 +5,7 @@ using DFKContracts.QuestCore;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using PirateQuester.Bot;
+using PirateQuester.HeroSale;
 using PirateQuester.PirateQuesterToken;
 using PirateQuester.PowerToken;
 using System.Numerics;
@@ -243,7 +244,8 @@ namespace PirateQuester.Utils
 			// Transactions may fail without this.
 			Signer.TransactionManager.UseLegacyAsDefault = true;
 			Quest = new QuestCoreService(Signer, chain.QuestAddress);
-			Hero = new HeroCoreService(Signer, chain.HeroAddress);
+			Auction = new HeroSaleService(Signer, chain.HeroSale);
+            Hero = new HeroCoreService(Signer, chain.HeroAddress);
 			Meditation = new DFKContracts.MeditationCircle.MeditationCircleService(Signer, chain.MeditationAddress);
 		}
 
@@ -263,6 +265,7 @@ namespace PirateQuester.Utils
 		public Web3 AvalancheSigner { get; set; }
         public Web3 Signer { get; set; }
         public Erc20Service Erc20 { get; set; }
+		public HeroSaleService Auction { get; set; }
 		public PowerTokenService PowerTokenService { get; set; }
         public HeroCoreService Hero { get; set; }
         public QuestCoreService Quest { get; set; }

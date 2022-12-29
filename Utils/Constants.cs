@@ -20,7 +20,8 @@ namespace PirateQuester.Utils
 				QuestAddress = "0xE9AbfBC143d7cef74b5b793ec5907fa62ca53154",
 				MeditationAddress = "0xD507b6b299d9FC835a0Df92f718920D13fA49B47",
 				QuestRewarder = "0x08D93Db24B783F8eBb68D7604bF358F5027330A6",
-				NativeToken = "0x04b9dA42306B023f3572e106B11D82aAd9D32EBb",
+                HeroSale = "0xc390fAA4C7f66E4D62E59C231D5beD32Ff77BEf0",
+                NativeToken = "0x04b9dA42306B023f3572e106B11D82aAd9D32EBb",
 			},
             new()
             {
@@ -34,7 +35,8 @@ namespace PirateQuester.Utils
                 QuestAddress = "0x8dc58d6327E1f65b18B82EDFb01A361f3AAEf624",
                 MeditationAddress = "0xdbEE8C336B06f2d30a6d2bB3817a3Ae0E34f4900",
                 QuestRewarder = "0x3fAB563BD19CaFbf8717Cd99a605b3661Cf3391f",
-				NativeToken = "0xB3F5867E277798b50ba7A71C0b24FDcA03045eDF",
+                HeroSale = "0x7F2B66DB2D02f642a9eb8d13Bc998d441DDe17A8",
+                NativeToken = "0xB3F5867E277798b50ba7A71C0b24FDcA03045eDF",
 			},
 
         };

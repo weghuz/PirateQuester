@@ -12,18 +12,35 @@ namespace PirateQuester.Bot
             Hero = h;
 			Account = h.DFKAccount;
             ID = new BigInteger(long.Parse(h.id));
+			
 			var questSettings = settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.id && hqs.ChainIdentifier == Account.Chain.Identifier);
-			if(questSettings != null)
+			var chainQuestSettings = settings.ChainQuestEnabled.FirstOrDefault(cq => cq.Chain.Name == Account.Chain.Name);
+			if(chainQuestSettings.QuestEnabled.All(qe => qe.Enabled is false))
 			{
-				SuggestedQuest = QuestContractDefinitions
-					.DFKQuestContracts
-					.First(qc => qc.Chain.Id == Account.Chain.Id)
-					.QuestContracts[questSettings.QuestId];
-				Quest = QuestContractDefinitions.DFKQuestContracts
-					.First(qc => qc.Chain.Id == Account.Chain.Id)
-					.QuestContracts[questSettings.QuestId];
-				
 				return;
+			}
+			var chainQuests = QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == Account.Chain.Name).QuestContracts;
+			if (questSettings != null)
+			{
+				BotSalePrice = questSettings.BotSalePrice;
+				var lvlSettings = questSettings.LevelupSettings;
+				if (lvlSettings is not null)
+				{
+					if(lvlSettings.PrimaryAttribute.HasValue && lvlSettings.SecondaryAttribute.HasValue && lvlSettings.TertiaryAttribute.HasValue)
+					{
+						LevelUpSetting.MainAttribute = Constants.DFKStats[lvlSettings.PrimaryAttribute.Value];
+						LevelUpSetting.SecondaryAttribute = Constants.DFKStats[lvlSettings.SecondaryAttribute.Value];
+						LevelUpSetting.TertiaryAttribute = Constants.DFKStats[lvlSettings.TertiaryAttribute.Value];
+					}
+				}
+				if (questSettings.QuestId.HasValue
+					&& questSettings.ChainIdentifier == Account.Chain.Identifier
+					&& chainQuestSettings.QuestEnabled[questSettings.QuestId.Value].Enabled)
+				{
+					SuggestedQuest = chainQuests[questSettings.QuestId.Value];
+					Quest = chainQuests[questSettings.QuestId.Value];
+					return;
+				}
 			}
 			List<int> stats = new()
 			{
@@ -36,41 +53,115 @@ namespace PirateQuester.Bot
 				h.wisdom + (h.statBoost1 == "WIS" ? 1 : 0) + (h.statBoost2 == "WIS" ? 2 : 0),
 				h.luck + (h.statBoost1 == "LCK" ? 1 : 0) + (h.statBoost2 == "LCK" ? 2 : 0),
 			};
+
 			int highestStat = stats.Max();
 
-			if (highestStat >= settings.MinTrainingStats[stats.IndexOf(highestStat)].Amount)
+			if (highestStat >= settings.MinTrainingStats[stats.IndexOf(highestStat)].Amount
+				&& chainQuestSettings.QuestEnabled[stats.IndexOf(highestStat)].Enabled)
 			{
-				SuggestedQuest = QuestContractDefinitions.DFKQuestContracts
-					.First(qc => qc.Chain.Id == Account.Chain.Id)
-					.QuestContracts[stats.IndexOf(highestStat)];
+				SuggestedQuest = chainQuests[stats.IndexOf(highestStat)];
 			}
 			else
 			{
-				SuggestedQuest = QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Id == Account.Chain.Id).QuestContracts.FirstOrDefault(q => q.Name.ToLower().Contains(h.profession));
-				if (SuggestedQuest.Category == "Gardening")
+				SuggestedQuest = chainQuests
+					.FirstOrDefault(q => q.Name.ToLower().Contains(h.profession) 
+					&& chainQuestSettings.QuestEnabled[q.Id].Enabled);
+
+				if(SuggestedQuest is not null)
 				{
-					int assigned = Hero.DFKAccount.BotHeroes.Where(botHero => botHero.SuggestedQuest.Id == SuggestedQuest.Id).Count();
-					if (assigned == 0)
+					if (SuggestedQuest.Category == "Mining"
+						&& Account.LockedPowerTokenBalance is not 0
+						&& chainQuestSettings.QuestEnabled.First(qe => qe.QuestId == 9).Enabled)
 					{
+						var lockedMining = chainQuests.First(qc => qc.Id == 9);
+						int lockedMiners = Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 9).Count();
+						if (lockedMiners < lockedMining.MaxHeroesPerQuest(Account) * 3)
+						{
+							SuggestedQuest = lockedMining;
+							return;
+						}
+					}
+
+					if (SuggestedQuest.Category == "Gardening")
+					{
+						int assigned = Account
+							.BotHeroes
+							.Where(botHero => botHero.SuggestedQuest.Id == SuggestedQuest.Id).Count();
+						if (assigned == 0)
+						{
+							return;
+						}
+						foreach (QuestContract quest in chainQuests
+							.Where(q => q.Category == "Gardening"
+							&& chainQuestSettings.QuestEnabled[q.Id].Enabled))
+						{
+							int currentQuestAssigned = Hero.DFKAccount.BotHeroes.Where(botHero => botHero.SuggestedQuest.Id == quest.Id).Count();
+
+							if (currentQuestAssigned < assigned)
+							{
+								SuggestedQuest = quest;
+								return;
+							}
+						}
+					}
+					return;
+				}
+
+				if (Account.LockedPowerTokenBalance is not 0
+					&& chainQuestSettings.QuestEnabled[9].Enabled)
+				{
+					var lockedMining = chainQuests[9];
+					int lockedMiners = Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 9).Count();
+					if (lockedMiners < lockedMining.MaxHeroesPerQuest(Account) * 3)
+					{
+						SuggestedQuest = lockedMining;
 						return;
 					}
-					foreach (QuestContract quest in QuestContractDefinitions.DFKQuestContracts
-						.First(qc => qc.Chain.Id == Account.Chain.Id).QuestContracts
-						.Where(q => q.Category == "Gardening"))
+				}
+				for (int i = 0; i < 8; ++i)
+				{
+					if (stats[i] > settings.MinTrainingStats[i].Amount && chainQuestSettings.QuestEnabled[i].Enabled)
 					{
-						int currentQuestAssigned = Hero.DFKAccount.BotHeroes.Where(botHero => botHero.SuggestedQuest.Id == quest.Id).Count();
-
-						if (currentQuestAssigned < assigned)
-						{
-							SuggestedQuest = quest;
-							break;
-						}
-
+						SuggestedQuest = chainQuests[i];
+						return;
 					}
 				}
+				if (chainQuestSettings.QuestEnabled[8].Enabled && h.mining > 0 && Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 8).Count() < 18)
+				{
+					SuggestedQuest = chainQuests[8];
+				}
+				var foragers = Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 11).Count();
+				var fishers = Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 10).Count();
+				if (foragers > fishers && chainQuestSettings.QuestEnabled[10].Enabled)
+				{
+					SuggestedQuest = chainQuests[10];
+				}
+				else if (chainQuestSettings.QuestEnabled[11].Enabled)
+				{
+					SuggestedQuest = chainQuests[11];
+				}
+				int min = 0;
+				foreach (QuestContract qc in chainQuests.Where(cq => chainQuestSettings.QuestEnabled[cq.Id].Enabled))
+				{
+					int assigned = Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == qc.Id).Count();
+					if (min == 0)
+					{
+						min = assigned;
+						SuggestedQuest = qc;
+						continue;
+					}
+					if (assigned < min)
+					{
+						SuggestedQuest = qc;
+						min = assigned;
+					}
+				}
+
 			}
 		}
 
+		public LevelUpSetting LevelUpSetting { get; set; } = new();
+        public decimal? BotSalePrice { get; set; }
         public DFKAccount Account { get; set; }
         public BigInteger ID { get; set; }
 		public Hero Hero { get; set; }

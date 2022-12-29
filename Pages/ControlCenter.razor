@@ -56,43 +56,147 @@
 @if (Acc.Accounts.Count > 0)
 {
 	<RadzenCard class="my-2">
-		<RadzenText Text="Crystalvale Quests (DFK Chain)" />
-		<SfDropDownList TItem="QuestContract"
-			TValue="string"
-			@bind-Index="@SelectedDFKQuest"
-			DataSource="@QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == "DFK").QuestContracts">
-			<DropDownListFieldSettings Value="Name"></DropDownListFieldSettings>
-		</SfDropDownList>
-		<RadzenText Text="Serendale Quests (Klaytn Chain)" />
-		<SfDropDownList TItem="QuestContract"
-			TValue="string"
-			@bind-Index="@SelectedKlaytnQuest"
-			DataSource="@QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == "Klaytn").QuestContracts">
-			<DropDownListFieldSettings Value="Name"></DropDownListFieldSettings>
-		</SfDropDownList>
-		<RadzenButton Click="@SetQuestPreference"
-		  Disabled="SelectedHeroCount == 0"
-		  ButtonStyle="ButtonStyle.Success"
-			class="mt-2">
-			Set preference
-		</RadzenButton>
-		<RadzenButton Click="@ClearQuestPreference"
-            ButtonStyle="ButtonStyle.Danger"
-			Disabled="SelectedHeroCount == 0"
-		  class="mt-2">
-			Clear
-		</RadzenButton>
-		<RadzenButton Click="@(() => 
-		{
-			Acc.Accounts.ForEach(async acc => await acc.InitializeAccount());
-			StateHasChanged();
-		})"
-		  class="mt-2">
-			Refresh Heroes
-		</RadzenButton>
-		<RadzenText TextStyle="TextStyle.H6" class="d-inline ml-2">
-			@($"{SelectedHeroCount} Selected Heroes")
-		</RadzenText>
+		<form onsubmit="event.preventDefault();">
+			<div class="row">
+				<div class="col-md-6">
+					<RadzenText>
+						Crystalvale Quests (DFK Chain)
+					</RadzenText>
+					<SfDropDownList TItem="QuestContract"
+						TValue="string"
+						@bind-Index="@SelectedDFKQuest"
+						DataSource="@QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == "DFK").QuestContracts">
+						<DropDownListFieldSettings Value="Name"></DropDownListFieldSettings>
+					</SfDropDownList>
+					<RadzenText >
+						Serendale Quests (Klaytn Chain)
+					</RadzenText>
+					<SfDropDownList TItem="QuestContract"
+						TValue="string"
+						@bind-Index="@SelectedKlaytnQuest"
+						DataSource="@QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == "Klaytn").QuestContracts">
+						<DropDownListFieldSettings Value="Name"></DropDownListFieldSettings>
+					</SfDropDownList>
+					<label class="w-100">
+						<RadzenText>
+							Sale Price
+						</RadzenText>
+						<RadzenNumeric @bind-Value=@SalePrice TValue="decimal?" class="w-100">
+						</RadzenNumeric>
+					</label>
+				</div>
+				<div class="col-md-6">
+					<div class="row">
+						<div class="col-12">
+							<RadzenText TextStyle="TextStyle.H6" class="text-center">Levelup settings</RadzenText>
+						</div>
+						<div class="col-4">
+							<RadzenText class="mt-2">
+								Main
+							</RadzenText>
+						</div>
+						<div class="col-8">
+							<RadzenDropDown TValue="DFKStat"
+								Data="@Constants.DFKStats"
+								AllowClear="true"
+								TextProperty="Name"
+								class="w-100"
+								Value=@LevelSettings.MainAttribute
+								Change="((value) => {LevelSettings.MainAttribute = value as DFKStat;})" />
+						</div>
+						<div class="col-4">
+							<RadzenText class="mt-2">
+								Secondary
+							</RadzenText>
+						</div>
+						<div class="col-8">
+							<RadzenDropDown TValue="DFKStat"
+								Data="@Constants.DFKStats"
+								TextProperty="Name"
+								AllowClear="true"
+								class="w-100"
+								Value=@LevelSettings.SecondaryAttribute
+								Change="((value) => {LevelSettings.SecondaryAttribute = value as DFKStat;})" />
+						</div>
+						<div class="col-4">
+							<RadzenText class="mt-2">
+								Tertiary
+							</RadzenText>
+						</div>
+						<div class="col-8">
+							<RadzenDropDown TValue="DFKStat"
+								Data="@Constants.DFKStats"
+								TextProperty="Name"
+								AllowClear="true"
+								class="w-100"
+								Value=@LevelSettings.TertiaryAttribute
+								Change="((value) => {LevelSettings.TertiaryAttribute = value as DFKStat;})" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="text-center">
+				<RadzenButton Click="@SetAllPreferences"
+				  ButtonStyle="ButtonStyle.Success"
+				  ButtonType="ButtonType.Submit"
+					class="mt-2">
+					Set preference
+				</RadzenButton>
+				<RadzenButton Click="@SetQuestPreference"
+				  ButtonStyle="ButtonStyle.Success"
+				  ButtonType="ButtonType.Button"
+					class="mt-2">
+					Set Quest
+				</RadzenButton>
+				<RadzenButton Click="@SetSalePreference"
+				  ButtonStyle="ButtonStyle.Success"
+				  ButtonType="ButtonType.Button"
+					class="mt-2">
+					Set Price
+				</RadzenButton>
+				<RadzenButton Click="@SetLevelupPreference"
+				  ButtonStyle="ButtonStyle.Success"
+			ButtonType="ButtonType.Button"
+					class="mt-2">
+					Set Levelup
+				</RadzenButton>
+				<RadzenButton Click="@ResetSelection"
+					ButtonStyle="ButtonStyle.Danger"
+					ButtonType="ButtonType.Button"
+					class="mt-2">
+					Reset Selection
+				</RadzenButton>
+				<RadzenButton Click="@ClearAllPreference"
+					ButtonStyle="ButtonStyle.Danger"
+					ButtonType="ButtonType.Button"
+					class="mt-2">
+					Clear
+				</RadzenButton>
+				<RadzenButton Click="@ClearQuestPreference"
+					ButtonStyle="ButtonStyle.Danger"
+					ButtonType="ButtonType.Button"
+					class="mt-2">
+					Clear Quest
+				</RadzenButton>
+				<RadzenButton Click="@ClearSalePricePreference"
+					ButtonStyle="ButtonStyle.Danger"
+					ButtonType="ButtonType.Button"
+					class="mt-2">
+					Clear Price
+				</RadzenButton>
+				<RadzenButton Click="@ClearLevelSettingsPreference"
+					ButtonStyle="ButtonStyle.Danger"
+					ButtonType="ButtonType.Button"
+					class="mt-2">
+					Clear Lvlup
+				</RadzenButton>
+				<RadzenButton Click="RefreshTableHeroes"
+					ButtonType="ButtonType.Button"
+					class="mt-2">
+					Refresh Heroes
+				</RadzenButton>
+			</div>
+		</form>
 	</RadzenCard>
 }
 <SfGrid 
@@ -104,23 +208,62 @@
 	AllowSelection="true"
 	AllowFiltering="true"
 	AllowPaging="true"
-	AllowReordering="true"
 	AllowResizing="true"
 	AllowSorting="true"
 	AllowExcelExport="true"
+	AllowReordering="true"
+	AllowMultiSorting="true"
+	AllowPdfExport="true"
 	Height="650px">
-	<GridEvents RowSelecting="RowSelectingHandler" RowDeselected="RowDeselectHandler" TValue="DFKBotHero"></GridEvents>
 	<GridSelectionSettings EnableSimpleMultiRowSelection="true" Type="SelectionType.Multiple" AllowDragSelection="true" ></GridSelectionSettings>
-
 	<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
 	<GridPageSettings PageSizes="@(new string[] { "5", "10", "15", "20", "50", "All" })" PageSize="@pageSize"></GridPageSettings>
 	<GridColumns>
+		<GridColumn Field="BotSalePrice" HeaderText="Bot Price" Width="100" />
+		<GridColumn Field="LevelUpSetting.MainAttribute.Name" HeaderText="Lvlup Settings" Width="120">
+			<Template>
+				<div>
+					@{
+						var hero = context as DFKBotHero;
+						@if (hero.LevelUpSetting.MainAttribute is not null)
+						{
+							<span>@hero.LevelUpSetting.MainAttribute?.Name</span>
+
+							<br />
+						}
+						@if (hero.LevelUpSetting.SecondaryAttribute is not null)
+						{
+							<span>@hero.LevelUpSetting.SecondaryAttribute?.Name</span>
+
+							<br />
+						}
+						@if (hero.LevelUpSetting.TertiaryAttribute is not null)
+						{
+							<span>@hero.LevelUpSetting.TertiaryAttribute?.Name</span>
+						}
+					}
+				</div>
+			</Template>
+		</GridColumn>
+		<GridColumn Field="Quest.Name" HeaderText="Prefer Quest" Width="120"></GridColumn>
+		<GridColumn Field="Hero.network" HeaderText="Chain" Width="100" />
+		<GridColumn Field="Hero.id" HeaderText="Id" Width="120"></GridColumn>
+		<GridColumn Field="Hero.rarity" HeaderText="Rarity" Width="120">
+			<Template>
+                <div>
+                    @{
+                        var hero = context as DFKBotHero;
+						<span>@hero.Hero.GetRarity()</span>
+                    }
+                </div>
+			</Template>
+		</GridColumn>
 		<GridColumn Field="Hero.owner.Id" HeaderText="Wallet" Width="250">
 			<Template>
 				<div>
 					@{
 						var hero = context as DFKBotHero;
-						if(hero.Hero.owner?.Name is not null)
+						if (hero.Hero.owner?.Name is not null)
 						{
 							@hero.Hero?.owner?.Name
 							<span class="mx-2"></span>
@@ -135,8 +278,13 @@
 				</div>
 			</Template>
 		</GridColumn>
-		<GridColumn Field="Hero.network" HeaderText="Chain" Width="100" />
-		<GridColumn Field="Hero.id" HeaderText="Id" Width="120"></GridColumn>
+		<GridColumn Field="Hero.salePrice" HeaderText="Sale Price" Width="120">
+			<Template>
+				<div>
+					@((context as DFKBotHero).Hero.SalePrice(2))
+				</div>
+			</Template>
+		</GridColumn>
 		<GridColumn Field="Hero.staminaFullAt" HeaderText="Stamina" Width="120">
 			<Template>
 				<div>
@@ -147,7 +295,6 @@
 				</div>
 			</Template>
 		</GridColumn>
-		<GridColumn Field="Quest.Name" HeaderText="Prefer Quest" Width="280"></GridColumn>
 		<GridColumn Field="SuggestedQuest.Name" HeaderText="Suggested Quest" Width="280"></GridColumn>
 		<GridColumn Field="Hero.mainClass" HeaderText="Class" Width="120"></GridColumn>
 		<GridColumn Field="Hero.subClass" HeaderText="Subclass" Width="120"></GridColumn>
@@ -163,13 +310,6 @@
 						var hero = context as DFKBotHero;
 						@hero.Hero.GetCurrentQuestName();
 					}
-				</div>
-			</Template>
-		</GridColumn>
-		<GridColumn Field="Hero.salePrice" HeaderText="Price" Width="120">
-			<Template>
-				<div>
-					@((context as DFKBotHero).Hero.SalePrice(2))
 				</div>
 			</Template>
 		</GridColumn>

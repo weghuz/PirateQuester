@@ -61,7 +61,17 @@
 					Value="Bots.Settings.CancelTxnDelay"
 					Change="@((val) => {Bots.Settings.CancelTxnDelay=val;Bots.SaveSettings();})" />
 			</div>
-			<div class="col-12 text-center">
+			<div class="col-md-6 text-center mb-1">
+				<label>
+					<RadzenText
+						Text="@($"Enable Hero Selling")" />
+					<RadzenCheckBox
+							TValue="bool"
+							Value="Bots.Settings.SellHeroes"
+							Change="@((val) => Bots.Settings.SellHeroes = val)" />
+				</label>
+			</div>
+			<div class="col-md-6 text-center">
 				<RadzenButton Click="(() => ShowDFKQuests = !ShowDFKQuests)">
 					@if(ShowDFKQuests)
 					{
@@ -76,6 +86,8 @@
 						</span>
 					}
 				</RadzenButton>
+			</div>
+            <div class="col-12 text-center">
 				@foreach(Chain chain in Constants.ChainsList)
                 {
 					@if ((ShowDFKQuests && chain.Name == "DFK") || (ShowDFKQuests is false && chain.Name == "Klaytn"))

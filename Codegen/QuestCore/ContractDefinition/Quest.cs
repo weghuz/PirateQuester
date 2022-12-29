@@ -11,7 +11,6 @@ namespace DFKContracts.QuestCore.ContractDefinition
         public string HeroesText { get { return string.Join(", ", Heroes); } }
         public BigInteger CompleteBlock { get; set; }
 		public DateTime StartDateTime { get; set; }
-
 		public DateTime CompleteDateTime { get; set; }
 	}
 
