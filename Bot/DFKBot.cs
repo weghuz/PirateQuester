@@ -359,6 +359,7 @@ public class DFKBot
 			.Where(q => enabledQuests.Select(qe => qe.QuestId).Contains(q.Id)))
 		{
             var questsOfType = RunningQuests.Where(rq => quest.Address == rq.QuestAddress);
+			QuestEnabled questSettings = enabledQuests.FirstOrDefault(qe => qe.QuestId == quest.Id);
 			if (questsOfType.Any(rq =>  rq.CompleteDateTime >= DateTime.UtcNow.AddHours(12)) || questsOfType.Count() >= 10)
 			{
 				continue;
@@ -371,12 +372,13 @@ public class DFKBot
 			{
                 List<Hero> heroBatch = readyQuestHeroes.Skip(i).Take(quest.MaxHeroesPerQuest(Account)).ToList();
 				
-				if (heroBatch.Count() < quest.MaxHeroesPerQuest(Account))
+				int heroesSetForQuest = Account.BotHeroes.Where(h =>
+					h.GetActiveQuest().Id == quest.Id
+					&& (h.Hero.salePrice == null || Settings.CancelUnpricedHeroSales))
+					.Count();
+
+				if (heroBatch.Count() < quest.MaxHeroesPerQuest(Account) && heroBatch.Count() < heroesSetForQuest)
 				{
-					List<Hero> heroesSetForQuest = Account.BotHeroes.Where(h =>
-						h.GetActiveQuest().Id == quest.Id)
-						.Select(h => h.Hero)
-						.ToList();
 					if (enabledQuests.FirstOrDefault(qe => qe.QuestId == quest.Id).QuestEagerly is false)
 					{
 						Log($"Not enough heroes to start {quest.Name}. {heroBatch.Count()} heroes {(heroBatch.Count() == 1 ? "is" : "are")} ready, {quest.MaxHeroesPerQuest(Account)} are needed.");
