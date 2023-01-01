@@ -63,15 +63,19 @@
 			</div>
 			<div class="col-md-6 text-center mb-1">
 				<label>
-					<RadzenText
-						Text="@($"Enable Hero Selling")" />
-					<RadzenCheckBox
-							TValue="bool"
-							Value="Bots.Settings.SellHeroes"
-							Change="@((val) => Bots.Settings.SellHeroes = val)" />
+					Enable Hero Selling
+					<SfCheckBox
+						@bind-Checked=@Bots.Settings.SellHeroes
+						/>
 				</label>
 			</div>
-			<div class="col-md-6 text-center">
+			<div class="col-md-6 text-center mb-1">
+				<label>
+					Cancel Unpriced Hero Sales
+					<SfCheckBox @bind-Checked=@Bots.Settings.CancelUnpricedHeroSales />
+				</label>
+			</div>
+			<div class="col-md-12 text-center">
 				<RadzenButton Click="(() => ShowDFKQuests = !ShowDFKQuests)">
 					@if(ShowDFKQuests)
 					{
@@ -99,25 +103,28 @@
 								<div class="row">
 									@foreach (QuestContract quest in QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == chain.Name).QuestContracts.Skip(8))
 									{
-										var QuestEnabled = Bots.Settings.ChainQuestEnabled.Find(qe => qe.Chain.Name == chain.Name).QuestEnabled.First(qe => qe.QuestId == quest.Id);
+										var questEnabled = Bots.Settings.ChainQuestEnabled.Find(qe => qe.Chain.Name == chain.Name).QuestEnabled.First(qe => qe.QuestId == quest.Id);
 
 										<div class="col-md-4 col-lg-3">
 											<RadzenText Text="@($"{quest.Name}")"/>
-											<RadzenLabel
-												Text="@($"Enabled:")" 
-												Component="@($"ProfessionEnabled{chain.Name}{quest.Id}")" />
-											<RadzenCheckBox Name="@($"ProfessionEnabled{chain.Name}{quest.Id}")"
-													TValue="bool"
-													Value="QuestEnabled.Enabled"
-													Change="@((val) => QuestEnabled.Enabled = val)" />
+											<label class="d-inline-block">
+												Enabled
+												<SfCheckBox @bind-Checked=@questEnabled.Enabled />
+											</label>
+											<br />
+											<label class="d-inline-block">
+												Quest Eagerly
+												<SfCheckBox @bind-Checked=@questEnabled.QuestEagerly/>
+											</label>
 											<RadzenLabel class="w-100"
 												Text="@($"Min Stamina:")" 
 												Component="@($"ProfessionEnabled{chain.Name}{quest.Id}")" />
 											<RadzenNumeric Name="@($"MinStam{chain.Name}{quest.Id}")"
+												class="w-100"
 												Placeholder="@(Bots.Settings.MinStamina.ToString())"
 												TValue="int?"
-												Value="QuestEnabled.MinStamina"
-												Change="@((val) => QuestEnabled.MinStamina = val)" />
+												Value="questEnabled.MinStamina"
+												Change="@((val) => questEnabled.MinStamina = val)" />
 										</div>
 									}
 								</div>
@@ -129,11 +136,14 @@
 										var TQ = Bots.Settings.ChainQuestEnabled.Find(qe => qe.Chain.Name == chain.Name).QuestEnabled[Bots.Settings.MinTrainingStats.IndexOf(stat)];
 										<div class="col-md-6">
 											<RadzenText Text="@($"{stat.Name} training.")" />
-											<RadzenLabel Text="@($"Enabled:")" Component="@($"TrainingEnabled{chain.Name}{stat.Id}")" />
-											<RadzenCheckBox Name="@($"TrainingEnabled{chain.Name}{stat.Id}")"
-												TValue="bool"
-												Value="TQ.Enabled"
-												Change="@((val) => TQ.Enabled = val)" />
+											<label class="d-inline-block">
+												Enabled
+												<SfCheckBox @bind-Checked=@TQ.Enabled />
+											</label>
+											<label class="d-inline-block">
+												Quest Eagerly
+												<SfCheckBox @bind-Checked=@TQ.QuestEagerly/>
+											</label>
 											<RadzenLabel class="w-100" 
 												Text="@($"Min Stamina:")" 
 												Component="@($"ProfessionEnabled{chain.Name}{Bots.Settings.MinTrainingStats.IndexOf(stat)}")" />

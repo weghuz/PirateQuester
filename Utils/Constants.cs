@@ -5,6 +5,7 @@ namespace PirateQuester.Utils
 {
 	public static class Constants
 	{
+        public static string VERSION { get; } = "1.2.1";
         public static string PQT_ADDRESS { get; } = "0xAC2b4Ffe04AB34e43e780Dad5C8DEac47B7db775";
         public static List<Chain.Chain> ChainsList { get; } = new()
 		{

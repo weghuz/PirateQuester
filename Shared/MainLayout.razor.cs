@@ -50,11 +50,7 @@ public partial class MainLayout : LayoutComponentBase
 	{
 		JS.InvokeVoid("localStorage.setItem", new string[] { "notePad", NotePad });
 	}
-
-	List<string> GetLoggedOutAccountNames()
-	{
-		return Acc.AccountNames.Where(acc => Acc.Accounts.Select(acc => acc.Name).Any(key => key == acc) is false).ToList();
-	}
+	
 	void LoadDarkMode()
 	{
 		string darkMode = JS.Invoke<string>("localStorage.getItem", "darkMode");
@@ -62,16 +58,18 @@ public partial class MainLayout : LayoutComponentBase
 		{
 			if (darkModeBool)
 			{
-				JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
+				JS.Invoke<string>("SetStylesheet", "/css/Radzen/dark.css");
+				JS.Invoke<string>("SetSyncfusionStylesheet", "css/SF/fabric-dark.css");
 			}
 			else
 			{
-				JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/standard.css");
+				JS.Invoke<string>("SetStylesheet", "/css/Radzen/standard.css");
+				JS.Invoke<string>("SetSyncfusionStylesheet", "css/SF/fabric.css");
 			}
 		}
 		else
 		{
-			JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
+			JS.Invoke<string>("SetStylesheet", "/css/Radzen/fabric-dark.css");
 		}
 	}
 }

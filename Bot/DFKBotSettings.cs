@@ -6,17 +6,21 @@ namespace PirateQuester.Bot
 	{
 		public DFKBotSettings() 
 		{
+            List<int> eagerQuests = new()
+            {
+                0,1,2,3,4,5,6,7,10,11
+            };
             ChainQuestEnabled = new()
 			{
 				new()
                 {
                     Chain = Constants.ChainsList[0],
-                    QuestEnabled = Enumerable.Range(0, 25).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList()
+                    QuestEnabled = Enumerable.Range(0, 25).Select(i => new QuestEnabled() { Enabled = true, QuestId = i, QuestEagerly = eagerQuests.Contains(i) }).ToList()
                 },
 				new ()
 				{
 					Chain = Constants.ChainsList[1],
-					QuestEnabled = Enumerable.Range(0, 23).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList()
+					QuestEnabled = Enumerable.Range(0, 23).Select(i => new QuestEnabled() { Enabled = true, QuestId = i, QuestEagerly = eagerQuests.Contains(i) }).ToList()
 				}
 			};
 		}
@@ -26,7 +30,8 @@ namespace PirateQuester.Bot
         public int MinStamina { get; set; } = 20;
         public int MaxGasFeeGwei { get; set; } = 200;
 		public bool LevelUp { get; set; } = true;
-		public bool SellHeroes { get; set; } = true;
+        public bool CancelUnpricedHeroSales { get; set; } = false;
+        public bool SellHeroes { get; set; } = true;
 		public List<ChainQuestEnabled> ChainQuestEnabled { get; set; } = new();
 		public List<DFKStatAmount> MinTrainingStats { get; set; } = new()
         {

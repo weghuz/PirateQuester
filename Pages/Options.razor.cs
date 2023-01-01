@@ -48,22 +48,22 @@ public partial class Options
     void LoadDarkMode()
     {
         string darkMode = JS.Invoke<string>("localStorage.getItem", "darkMode");
-        if (bool.TryParse(darkMode, out bool darkModeBool))
-        {
-            if (darkModeBool)
+		if (bool.TryParse(darkMode, out bool darkModeBool))
+		{
+			if (darkModeBool)
 			{
-				JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
-				JS.Invoke<string>("SetSyncfusionStylesheet", "_content/Syncfusion.Blazor/Styles/bootstrap5-dark.css");
+				JS.Invoke<string>("SetStylesheet", "/css/Radzen/dark.css");
+				JS.Invoke<string>("SetSyncfusionStylesheet", "css/SF/fabric-dark.css");
 			}
-            else
-            {
-                JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/standard.css");
-				JS.Invoke<string>("SetSyncfusionStylesheet", "_content/Syncfusion.Blazor/Styles/bootstrap5.css");
+			else
+			{
+				JS.Invoke<string>("SetStylesheet", "/css/Radzen/standard.css");
+				JS.Invoke<string>("SetSyncfusionStylesheet", "css/SF/fabric.css");
 			}
-        }
-        else
-        {
-            JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
-        }
-    }
+		}
+		else
+		{
+			JS.Invoke<string>("SetStylesheet", "/css/Radzen/fabric-dark.css");
+		}
+	}
 }
