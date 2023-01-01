@@ -69,7 +69,8 @@ public partial class MainLayout : LayoutComponentBase
 		}
 		else
 		{
-			JS.Invoke<string>("SetStylesheet", "/css/Radzen/fabric-dark.css");
+			JS.Invoke<string>("SetStylesheet", "/css/Radzen/dark.css");
+			JS.Invoke<string>("SetSyncfusionStylesheet", "css/SF/fabric-dark.css");
 		}
 	}
 }
