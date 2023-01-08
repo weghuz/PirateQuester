@@ -49,6 +49,7 @@ namespace PirateQuester.Services
 					Settings.LevelUpSettings = settings.LevelUpSettings;
 					Settings.UseStaminaPotions = settings.UseStaminaPotions;
 					Settings.QuestHeroes = settings.QuestHeroes;
+					Settings.ForceStampotOnFullXP = settings.ForceStampotOnFullXP;
 				}
 				catch(Exception e)
 				{
@@ -72,6 +73,7 @@ namespace PirateQuester.Services
 			dto.LevelUpSettings = Settings.LevelUpSettings;
 			dto.HeroQuestSettings = Settings.HeroQuestSettings;
 			dto.UseStaminaPotions = Settings.UseStaminaPotions;
+			dto.ForceStampotOnFullXP = Settings.ForceStampotOnFullXP;
 			dto.QuestHeroes = Settings.QuestHeroes;
 			JS.InvokeVoid("localStorage.setItem", new string[] { "DFKBotSettings", JsonConvert.SerializeObject(dto) });
 		}

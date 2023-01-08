@@ -253,6 +253,88 @@ public class DFKBot
 			return;
 		}
 
+		List<Meditation> activeMeditations = (await Account.Meditation.GetActiveMeditationsQueryAsync(Account.Account.Address)).ReturnValue1;
+		
+		if (Settings.LevelUp)
+		{
+			List<DFKBotHero> readyToLevelHeroes = Account.BotHeroes
+				.Where(h => (h.LevelingEnabled is null ? true : h.LevelingEnabled.Value)
+				&& h.Hero.xp >= h.Hero.XpToLevelUp()
+				&& RunningQuests.Any(rq => rq.Heroes.Contains(h.ID)) is false
+				&& h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h)
+				&& h.Hero.salePrice is null
+				&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
+				.ToList();
+			Log($"{activeMeditations.Count} Active meditations.");
+			foreach (Meditation meditation in activeMeditations)
+			{
+				if (meditation.StartBlock <= CurrentBlock - 20)
+				{
+					DFKBotHero hero = Account.BotHeroes.FirstOrDefault(h => h.ID == meditation.HeroId);
+					if (hero.LevelingEnabled is null || hero.LevelingEnabled.Value is false)
+					{
+						continue;
+					}
+					Log($"Hero {hero.ID} is ready to complete meditating.\nCompleting Meditation...");
+					try
+					{
+						string okMessage = await Transaction.CompleteMeditation(Account, hero.ID, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+						Log($"Hero {hero.ID} Leveled up from {hero.Hero.level} to {hero.Hero.level + 1}!");
+
+						hero.Hero.staminaFullAt = (long)Functions.UnixTime();
+						hero.Hero.level += 1;
+						if (hero.Hero.level % 2 == 0)
+						{
+							hero.Hero.stamina += 1;
+						}
+						
+						Log(okMessage);
+					}
+					catch (Exception e)
+					{
+						Log(e.Message);
+					}
+				}
+			}
+
+			Log($"{readyToLevelHeroes.Count} heroes ready to level up.");
+			foreach (DFKBotHero h in readyToLevelHeroes)
+			{
+				Log($"Hero {h.ID} is ready to level up.\nStarting Meditation...");
+				LevelUpSetting setting = Settings.LevelUpSettings.FirstOrDefault(levelSetting => levelSetting.HeroClass == h.Hero.mainClass.ToLower());
+				if (setting is null)
+				{
+					Log($"Found no levelup settings for {h.Hero.mainClass}.");
+					continue;
+				}
+				try
+				{
+					string okMessage = await Transaction.StartMeditation(Account, h.ID, h.LevelUpSetting.MainAttribute?.Id ?? setting.MainAttribute.Id, h.LevelUpSetting.SecondaryAttribute?.Id ?? setting.SecondaryAttribute.Id, h.LevelUpSetting.TertiaryAttribute?.Id ?? setting.TertiaryAttribute.Id, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+					Log($"Hero started meditating with Stat settings: \nMain(+1):{setting.MainAttribute.Name}\nSecondary(50%+1):{setting.SecondaryAttribute.Name}\nTertiary(50%+1):{setting.TertiaryAttribute.Name}!");
+					
+					Log(okMessage);
+				}
+				catch (Exception e)
+				{
+					Log(e.Message);
+					if (e.Message.Contains("burn"))
+					{
+						break;
+					}
+				}
+			}
+			await Task.Delay(1);
+			if (StopBot)
+			{
+				return;
+			}
+		}
+
+		if (StopBot)
+		{
+			return;
+		}
+
 		if (Settings.UseStaminaPotions)
 		{
 			Log($"Stamina Potions: {Account.StaminaPotionBalance}");
@@ -260,7 +342,9 @@ public class DFKBot
 			var staminaPotionHeroes = Account.BotHeroes.Where(hero => 
 				(hero.UseStaminaPotionsAmount is not null 
 				|| hero.StaminaPotionUntilLevel is not null)
-				&& hero.Hero.StaminaCurrent() <= 5).ToList();
+				&& hero.Hero.StaminaCurrent() <= 5
+				&& (Settings.ForceStampotOnFullXP ? true : hero.Hero.xp != hero.Hero.XpToLevelUp())
+				&& !activeMeditations.Any(med => med.HeroId.ToString() == hero.Hero.id)).ToList();
 
 			string staminaPotionAddress = ItemContractDefinitions.InventoryItems.First(item => item.Name == "Stamina Potion").Addresses.First(a => a.Chain.Name == Account.Chain.Name).Address;
 			Log($"Heroes ready to be stamina potioned: {string.Join(", ", staminaPotionHeroes.Select(h => h.ID))}");
@@ -288,7 +372,7 @@ public class DFKBot
 							try
 							{
 								string okMessage = await Transaction.UseComsumableItem(Account, h.ID, staminaPotionAddress, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
-								h.Hero.staminaFullAt = (long)Functions.UnixTime();
+								h.Hero.staminaFullAt -= 30000;
 								h.Hero.StaminaPotioned = true;
 								Account.StaminaPotionBalance--;
 								Log(okMessage);
@@ -317,7 +401,7 @@ public class DFKBot
 							try
 							{
 								string okMessage = await Transaction.UseComsumableItem(Account, h.ID, staminaPotionAddress, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
-								h.Hero.staminaFullAt = (long)Functions.UnixTime();
+								h.Hero.staminaFullAt -= 30000;
 								h.UseStaminaPotionsAmount--;
 								var heroSettings = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
 								heroSettings.UseStaminaPotionsAmount = h.UseStaminaPotionsAmount;
@@ -347,14 +431,12 @@ public class DFKBot
 
 		if (Settings.SellHeroes)
 		{
-			List<BigInteger> auctionIds = await Account.Auction.GetUserAuctionsQueryAsync(Account.Account.Address);
-			List<HeroSale.ContractDefinition.Auction> auctionDTOs = (await Account.Auction.GetAuctionsQueryAsync(auctionIds)).ReturnValue1;
-
 			List<DFKBotHero> heroesToSell = Account.BotHeroes
 				.Where(h => h.BotSalePrice is not null
 					&& h.Hero.salePrice is null
 					&& RunningQuests.Any(rq => rq.Heroes.Contains(h.ID)) is false
-					&& h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h))
+					&& h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h)
+					&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
 				.ToList();
 			Log($"There are {heroesToSell.Count} heroes to sell.");
 			foreach(DFKBotHero h in heroesToSell)
@@ -372,8 +454,10 @@ public class DFKBot
                 }
             }
             List<DFKBotHero> heroesToCancelAuction = Account.BotHeroes
-				.Where(h => Settings.CancelUnpricedHeroSales ? h.Hero.salePrice is not null : h.BotSalePrice is not null && h.Hero.salePrice is not null
-					&& h.Hero.StaminaCurrent() > GetMinStaminaBotHero(h))
+				.Where(h => (Settings.CancelUnpricedHeroSales ? h.Hero.salePrice is not null : h.BotSalePrice is not null) 
+					&& h.Hero.salePrice is not null
+					&& h.Hero.StaminaCurrent() > GetMinStaminaBotHero(h)
+					&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
 				.ToList();
             Log($"There are {heroesToCancelAuction.Count} heroes on auction that need to be cancelled to quest.");
 			foreach(DFKBotHero h in heroesToCancelAuction)
@@ -391,78 +475,10 @@ public class DFKBot
                 }
             }
         }
-		
-		if(StopBot)
+
+		if (StopBot)
 		{
 			return;
-		}
-		
-		if(Settings.LevelUp)
-		{
-			List<Meditation> activeMeditations = (await Account.Meditation.GetActiveMeditationsQueryAsync(Account.Account.Address)).ReturnValue1;
-			List<DFKBotHero> readyToLevelHeroes = Account.BotHeroes
-				.Where(h => h.LevelingEnabled is not null 
-				&& h.LevelingEnabled.Value 
-				&& h.Hero.xp >= h.Hero.XpToLevelUp()
-                && RunningQuests.Any(rq => rq.Heroes.Contains(h.ID)) is false
-                && h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h)
-				&& h.Hero.salePrice is null
-				&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
-				.ToList();
-			Log($"{activeMeditations.Count} Active meditations.");
-			foreach (Meditation meditation in activeMeditations)
-			{
-				if(meditation.StartBlock <= CurrentBlock - 20)
-				{
-					DFKBotHero hero = Account.BotHeroes.FirstOrDefault(h => h.ID == meditation.HeroId);
-					if(hero.LevelingEnabled is null || hero.LevelingEnabled.Value is false)
-					{
-						continue;
-					}
-					Log($"Hero {hero.ID} is ready to complete meditating.\nCompleting Meditation...");
-					try
-					{
-						string okMessage = await Transaction.CompleteMeditation(Account, hero.ID, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
-						Log($"Hero {hero.ID} Leveled up from {hero.Hero.level} to {hero.Hero.level + 1}!");
-						Log(okMessage);
-					}
-					catch (Exception e)
-					{
-						Log(e.Message);
-					}
-				}
-			}
-
-			Log($"{readyToLevelHeroes.Count} heroes ready to level up.");
-			foreach (DFKBotHero h in readyToLevelHeroes)
-			{
-				Log($"Hero {h.ID} is ready to level up.\nStarting Meditation...");
-				LevelUpSetting setting = Settings.LevelUpSettings.FirstOrDefault(levelSetting => levelSetting.HeroClass == h.Hero.mainClass.ToLower());
-				if(setting is null)
-				{
-					Log($"Found no levelup settings for {h.Hero.mainClass}.");
-					continue;
-				}
-				try
-				{
-					string okMessage = await Transaction.StartMeditation(Account, h.ID, h.LevelUpSetting.MainAttribute?.Id ?? setting.MainAttribute.Id, h.LevelUpSetting.SecondaryAttribute?.Id ?? setting.SecondaryAttribute.Id, h.LevelUpSetting.TertiaryAttribute?.Id ?? setting.TertiaryAttribute.Id, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
-					Log($"Hero started meditating with Stat settings: \nMain(+1):{setting.MainAttribute.Name}\nSecondary(50%+1):{setting.SecondaryAttribute.Name}\nTertiary(50%+1):{setting.TertiaryAttribute.Name}!");
-					Log(okMessage);
-				}
-				catch (Exception e)
-				{
-					Log(e.Message);
-					if(e.Message.Contains("burn"))
-					{
-						break;
-					}
-				}
-			}
-			await Task.Delay(1);
-			if (StopBot)
-			{
-				return;
-			}
 		}
 
 		if (Settings.QuestHeroes is false)
@@ -474,7 +490,8 @@ public class DFKBot
 			List<DFKBotHero> readyHeroes = Account.BotHeroes
 				.Where(h => h.Hero.StaminaCurrent() >= GetMinStaminaBotHero(h)
 				&& RunningQuests.SelectMany(rq => rq.Heroes).Contains(h.ID) is false
-				&& h.Hero.salePrice is null)
+				&& h.Hero.salePrice is null
+				&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
 				.ToList();
 			Log($"{readyHeroes.Count} heroes ready to quest");
 			var enabledQuests = Settings.ChainQuestEnabled.Find(cqe => cqe.Chain.Name == Account.Chain.Name).QuestEnabled.Where(q => q.Enabled).ToList();

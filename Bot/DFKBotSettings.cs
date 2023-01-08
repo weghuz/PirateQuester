@@ -31,6 +31,7 @@ namespace PirateQuester.Bot
         public int MaxGasFeeGwei { get; set; } = 200;
 		public bool LevelUp { get; set; } = true;
         public bool UseStaminaPotions { get; set; } = true;
+        public bool ForceStampotOnFullXP { get; set; } = false;
         public bool QuestHeroes { get; set; } = true;
         public bool CancelUnpricedHeroSales { get; set; } = false;
         public bool SellHeroes { get; set; } = true;
