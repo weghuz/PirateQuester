@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PirateQuester.Utils;
-using Radzen;
 using PirateQuester.Services;
 using Microsoft.JSInterop;
 using PirateQuester.Utils.Chain;
@@ -10,15 +9,11 @@ namespace PirateQuester.Pages;
 public partial class Bot
 {
     [Inject]
-    DialogService Dialog { get; set; }
-    [Inject]
     AccountManager Acc { get; set; }
     [Inject]
     NavigationManager Nav { get; set; }
     [Inject]
     BotService Bots { get; set; }
-    [Inject]
-    IJSInProcessRuntime JS { get; set; }
     public List<DFKAccount> AccountsMissingPQT { get; set; }
     public bool ShowDFKQuests { get; set; }
 
@@ -26,7 +21,7 @@ public partial class Bot
     {
         if(Acc.Accounts.Count == 0)
         {
-            Nav.NavigateTo("CreateAccount");
+            Nav.NavigateTo("Login");
 		}
         else if (Acc.Accounts.Any(acc => acc.PQTBalance < 1))
         {

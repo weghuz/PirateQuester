@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PirateQuester.Utils;
-using Radzen;
 using PirateQuester.Services;
 
 namespace PirateQuester.Pages;
@@ -13,8 +12,6 @@ public partial class BotTerminal
 	NavigationManager Nav { get; set; }
 	[Inject]
 	BotService Bots { get; set; }
-	[Inject]
-	TooltipService Tooltip { get; set; }
 	[Parameter]
 	public int BotId { get; set; }
 
@@ -28,7 +25,7 @@ public partial class BotTerminal
 		Bots.UpdatedBot += UpdateTerminal;
 		if (Bots.RunningBots.Count < BotId + 1)
 		{
-			Nav.NavigateTo($"CreateAccount");
+			Nav.NavigateTo($"Login");
 			return;
 		}
 		if (Acc.Accounts.Count == 0)

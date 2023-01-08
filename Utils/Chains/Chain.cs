@@ -12,6 +12,7 @@
             rpc = dto.RPC;
         }
         public int Id { get; set; }
+        public int ChainId { get; set; }
         public string Name { get; set; }
 		private string rpc;
 		public string RPC { get { return rpc; } set { rpc = value; Save(); } }
@@ -26,6 +27,8 @@
         public string HeroSale { get; set; }
         public string NativeToken { get; set; }
         public AccountSettings SettingsManager { get; internal set; }
+		public string ItemConsumer { get; set; }
+
 		public void Save()
 		{
 			if (SettingsManager is null)

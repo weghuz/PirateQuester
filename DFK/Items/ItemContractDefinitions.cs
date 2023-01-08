@@ -1055,12 +1055,12 @@ namespace PirateQuester.DFK.Items
 				Image = "Images/Items/speckle-tail.png",
 				Decimals = 0
 			},
-			new()
-			{
-				Id = 40,
-				TokenName = "DFKETRNLSTY",
-				Name = "Pages of the Eternal Story",
-				Description = "",
+            new()
+            {
+                Id = 40,
+                TokenName = "DFKETRNLSTY",
+                Name = "Pages of the Eternal Story",
+                Description = "",
                 Addresses = new(){
                     new()
                     {
@@ -1073,12 +1073,35 @@ namespace PirateQuester.DFK.Items
                         Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
                     },
                 },
-				Category = ItemCategory.Story,
-				ItemEnum = DFKItemEnum.DFKETRNLSTY,
-				Image = "Images/Items/eternal-story-page-1.png",
-				Decimals = 0
-			}
-		};
+                Category = ItemCategory.Story,
+                ItemEnum = DFKItemEnum.DFKETRNLSTY,
+                Image = "Images/Items/eternal-story-page-1.png",
+                Decimals = 0
+            },
+            new()
+            {
+                Id = 41,
+                TokenName = "DFKSTMNPTN",
+                Name = "Stamina Potion",
+                Description = "",
+                Addresses = new(){
+                    new()
+                    {
+                        Address = "0x242078edFDca25ef2A497C8D9f256Fd641472E5F",
+                        Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    },
+                    new()
+                    {
+                        Address = "0x4546DBaAb48Bf1BF2ad7B56d04952d946Ab6e2a7",
+                        Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
+                    },
+                },
+                Category = ItemCategory.Consumable,
+                ItemEnum = DFKItemEnum.DFKSTMNPTN,
+                Image = "Images/Items/stamina-potion.png",
+                Decimals = 0
+            }
+        };
         
 		internal static DFKItem GetItem(ChainContract contract)
 		{

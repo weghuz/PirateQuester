@@ -30,6 +30,8 @@ namespace PirateQuester.Bot
         public int MinStamina { get; set; } = 20;
         public int MaxGasFeeGwei { get; set; } = 200;
 		public bool LevelUp { get; set; } = true;
+        public bool UseStaminaPotions { get; set; } = true;
+        public bool QuestHeroes { get; set; } = true;
         public bool CancelUnpricedHeroSales { get; set; } = false;
         public bool SellHeroes { get; set; } = true;
 		public List<ChainQuestEnabled> ChainQuestEnabled { get; set; } = new();

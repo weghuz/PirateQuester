@@ -33,14 +33,14 @@ public class Hero
         wisdom = hero.Stats.Wisdom;
         intelligence = hero.Stats.Intelligence;
         luck = hero.Stats.Luck;
-        byte[] decodedGenes = decodeRecessiveGenes(hero.Info.StatGenes);
+        byte[] decodedGenes = DecodeRecessiveGenes(hero.Info.StatGenes);
 		profession = Constants.GetProfession(decodedGenes[11]);
 		statBoost1 = Constants.GetStatBoost(decodedGenes[31]);
 		statBoost2 = Constants.GetStatBoost(decodedGenes[35]);
 		stamina = hero.Stats.Stamina;
 	}
 
-    public byte[] decodeRecessiveGenes(BigInteger genesBigInt) {
+    public byte[] DecodeRecessiveGenes(BigInteger genesBigInt) {
 		var abc = "123456789abcdefghijkmnopqrstuvwx";
 		var buf = "";
 		byte bas = 32;
@@ -179,19 +179,19 @@ public class Hero
     public int StaminaCurrent()
     {
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-		if (now >= staminaFullAt + 100)
+		if (now >= staminaFullAt)
         {
             return stamina;
         }
         else
         {
-			decimal staminaLeft = (staminaFullAt+100 - now)/1200;
+			decimal staminaLeft = (staminaFullAt - now)/1200;
             return stamina - (int)Math.Floor(staminaLeft) - 1;
         }
     }
 
-    public DFKAccount DFKAccount { get; set; }
-
+	public bool StaminaPotioned { get; set; } = false;
+	public DFKAccount DFKAccount { get; set; }
 	public string id { get; set; }
     public string numberId { get; set; }
     public Profile owner { get; set; }

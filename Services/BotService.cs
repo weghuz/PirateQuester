@@ -47,6 +47,8 @@ namespace PirateQuester.Services
 					Settings.MinStamina = settings.MinStamina;
 					Settings.MinTrainingStats = settings.MinTrainingStats;
 					Settings.LevelUpSettings = settings.LevelUpSettings;
+					Settings.UseStaminaPotions = settings.UseStaminaPotions;
+					Settings.QuestHeroes = settings.QuestHeroes;
 				}
 				catch(Exception e)
 				{
@@ -69,6 +71,8 @@ namespace PirateQuester.Services
 			dto.MinTrainingStats = Settings.MinTrainingStats;
 			dto.LevelUpSettings = Settings.LevelUpSettings;
 			dto.HeroQuestSettings = Settings.HeroQuestSettings;
+			dto.UseStaminaPotions = Settings.UseStaminaPotions;
+			dto.QuestHeroes = Settings.QuestHeroes;
 			JS.InvokeVoid("localStorage.setItem", new string[] { "DFKBotSettings", JsonConvert.SerializeObject(dto) });
 		}
 
@@ -115,7 +119,7 @@ namespace PirateQuester.Services
 				Console.WriteLine($"Bot added for Account: {acc.Account.Address}");
 				try
 				{
-					bot.StartBot(acc, Settings);
+					bot.StartBot(acc, Settings, this);
 					bot.BotLogAdded += InvokeUpdates;
 					bot.HeroesUpdated += InvokeUpdates;
 				}

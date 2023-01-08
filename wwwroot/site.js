@@ -1,6 +1,6 @@
 
 window.SetStylesheet = (styleSheet) => {
-    document.getElementById(`RadzenStylesheet`).setAttribute(`href`, styleSheet);
+    document.getElementById(`AppStyleSheet`).setAttribute(`href`, styleSheet);
 }
 window.SetSyncfusionStylesheet = (styleSheet) => {
     document.getElementById(`SyncfusionStylesheet`).setAttribute(`href`, styleSheet);

@@ -5,14 +5,17 @@ namespace PirateQuester.Utils
 {
 	public static class Constants
 	{
-        public static string VERSION { get; } = "1.2.1";
+        public static string DARK_THEME { get; } = "css/fabric-dark.css";
+        public static string THEME { get; } = "css/fabric.css";
+        public static string VERSION { get; } = "2.0.0";
         public static string PQT_ADDRESS { get; } = "0xAC2b4Ffe04AB34e43e780Dad5C8DEac47B7db775";
         public static List<Chain.Chain> ChainsList { get; } = new()
 		{
 			new()
-			{
-				Id = 53935,
-				Name = "DFK",
+            {
+                Id = 0,
+                ChainId = 53935,
+                Name = "DFK",
 				Identifier = "dfk",
 				RPC = "https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc",
 				ChainEnum = ChainEnum.DFK,
@@ -26,7 +29,8 @@ namespace PirateQuester.Utils
 			},
             new()
             {
-                Id = 8217,
+                Id = 1,
+                ChainId = 8217,
                 Name = "Klaytn",
                 Identifier = "kla",
                 RPC = "https://klaytn.rpc.defikingdoms.com",

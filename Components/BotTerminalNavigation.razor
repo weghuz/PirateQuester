@@ -2,18 +2,19 @@
 @using PirateQuester.Services;
 @inject NavigationManager Nav
 @inject BotService Bots
-<RadzenCard class="mb-2 p-0 py-2">
-
-	<RadzenButton Click="@(() => Nav.NavigateTo($"/Bot/"))" class="mx-3">
-		Settings
-	</RadzenButton>
-	@foreach (DFKBot bot in Bots.RunningBots)
-	{
-		<RadzenButton Click="@(() => Nav.NavigateTo($"/Bot/{Bots.RunningBots.IndexOf(bot)}"))" class="m-1">
-			@(bot.Account.Heroes.Count) @(bot.Account.Heroes.Count == 1 ? "Hero" : "Heroes") @bot.Account.Account.Address.Substring(2, 3)...@bot.Account.Account.Address.Substring(bot.Account.Account.Address.Length-3, 3) on @bot.Account.Chain.Name
-		</RadzenButton>
-	}
-</RadzenCard>
+<SfCard>
+	<CardContent>
+		<SfButton CssClass="e-primary mx-1" OnClick="@(() => Nav.NavigateTo($"/Bot/"))">
+			Settings
+		</SfButton>
+		@foreach (DFKBot bot in Bots.RunningBots)
+		{
+			<SfButton CssClass="e-success mx-1" OnClick="@(() => Nav.NavigateTo($"/Bot/{Bots.RunningBots.IndexOf(bot)}"))">
+				@(bot.Account.Heroes.Count) @(bot.Account.Heroes.Count == 1 ? "Hero" : "Heroes") @bot.Account.Account.Address.Substring(2, 3)...@bot.Account.Account.Address.Substring(bot.Account.Account.Address.Length-3, 3) on @bot.Account.Chain.Name
+			</SfButton>
+		}
+	</CardContent>
+</SfCard>
 
 @code{
 	protected override void OnInitialized()

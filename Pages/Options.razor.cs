@@ -48,22 +48,23 @@ public partial class Options
     void LoadDarkMode()
     {
         string darkMode = JS.Invoke<string>("localStorage.getItem", "darkMode");
-		if (bool.TryParse(darkMode, out bool darkModeBool))
-		{
-			if (darkModeBool)
-			{
-				JS.Invoke<string>("SetStylesheet", "/css/Radzen/dark.css");
-				JS.Invoke<string>("SetSyncfusionStylesheet", "css/SF/fabric-dark.css");
-			}
-			else
-			{
-				JS.Invoke<string>("SetStylesheet", "/css/Radzen/standard.css");
-				JS.Invoke<string>("SetSyncfusionStylesheet", "css/SF/fabric.css");
-			}
-		}
-		else
-		{
-			JS.Invoke<string>("SetStylesheet", "/css/Radzen/fabric-dark.css");
-		}
-	}
+        if (bool.TryParse(darkMode, out bool darkModeBool))
+        {
+            if (darkModeBool)
+            {
+                JS.Invoke<string>("SetSyncfusionStylesheet", Constants.DARK_THEME);
+                JS.Invoke<string>("SetStylesheet", "css/app-dark.css");
+            }
+            else
+            {
+                JS.Invoke<string>("SetSyncfusionStylesheet", Constants.THEME);
+                JS.Invoke<string>("SetStylesheet", "css/app.css");
+            }
+        }
+        else
+        {
+            JS.Invoke<string>("SetSyncfusionStylesheet", Constants.DARK_THEME);
+            JS.Invoke<string>("SetStylesheet", "css/app-dark.css");
+        }
+    }
 }

@@ -3,7 +3,6 @@ using Microsoft.JSInterop;
 using PirateQuester.Services;
 using PirateQuester.Utils;
 using PirateQuester.ViewModels;
-using Syncfusion.Blazor.QueryBuilder;
 
 namespace PirateQuester.Pages;
 

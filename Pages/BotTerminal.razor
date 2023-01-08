@@ -5,157 +5,126 @@
 @using PirateQuester.DFK.Items;
 @using PirateQuester.Utils;
 
-<BotTerminalNavigation />
-@code{
-	private void OpenTooltip(ElementReference arg, DFKItem reward)
+<div class="bestContainer">
+	<BotTerminalNavigation />
+	<PageTitle>PQ - Bot Terminal @(BotId + 1)</PageTitle>
+	@if (Bots.RunningBots.Count() >= BotId + 1)
 	{
-		Tooltip.Open(arg, ds => @<div>
-		<RadzenText Text=@(reward.Name) TextStyle="TextStyle.H6" />
-			<div>
-				<RadzenText Text=@(string.Join(", ", reward.Addresses.Select(a => a.Address))) />
-			</div>
-			<div>
-				<RadzenText Text=@(reward.Description) />
-			</div>		
-		</div>, 
-		new()
-		{
-			Duration = 0,
-			Style = "background-color: var(--rz-black); color:var(--rz-series-1);padding:5px;"
-		});
-	}
-}
-
-@if (Bots.RunningBots.Count() >= BotId + 1)
-{
-	<PageTitle>Bot Terminal @BotId</PageTitle>
-	<RadzenText TextStyle="TextStyle.H5">
-		Bot Terminal @BotId for address @Bots.RunningBots[BotId].Account.Account.Address on @Bots.RunningBots[BotId].Account.Chain.Name
-	</RadzenText>
-	<RadzenCard class="my-1"
-	   Style="background-color:var(--rz-black);
-		color:var(--rz-success);
-		height:250px;
-		overflow:auto;">
-		@if (Bots.RunningBots is null)
-		{
-			<span>No running bot</span>
-		}
-		else
-		{
-			foreach (DFKBotLogMessage msg in Bots.RunningBots[BotId].DFKBotLog.OrderByDescending(l => l.Id))
+		<PageTitle>Bot Terminal @BotId</PageTitle>
+		<div class="console-window">
+			@if (Bots.RunningBots is null)
 			{
-				<span class="mr-2">@msg.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss")</span>
-				<span>@msg.Message</span>
-				<br />
+				<span>No running bot</span>
 			}
-		}
-	</RadzenCard>
+			else
+			{
+				foreach (DFKBotLogMessage msg in Bots.RunningBots[BotId].DFKBotLog.OrderByDescending(l => l.Id))
+				{
+					<span class="mr-2">@msg.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss")</span>
+					<span>@msg.Message</span>
+					<br />
+				}
+			}
+		</div>
 
-	var questList = new List<QuestReward>();
-	questList.AddRange(Bots.RunningBots[BotId].QuestRewards);
-	questList.AddRange(Bots.RunningBots[BotId].RunningQuests.Where(rq => questList.Any(q => q.QuestId != rq.Id)).Select(rq => new QuestReward()
-	{
-		Quest = new(){Name = rq.QuestName},
-		CompleteDateTime = rq.CompleteDateTime,
-		Heroes = rq.Heroes,
-		QuestId = rq.Id,
-		StartDateTime = rq.StartDateTime
-	}));
+		var questList = new List<QuestReward>();
+		questList.AddRange(Bots.RunningBots[BotId].QuestRewards);
+		questList.AddRange(Bots.RunningBots[BotId].RunningQuests.Where(rq => questList.Any(q => q.QuestId != rq.Id)).Select(rq => new QuestReward()
+		{
+			Quest = new(){Name = rq.QuestName},
+			CompleteDateTime = rq.CompleteDateTime,
+			Heroes = rq.Heroes,
+			QuestId = rq.Id,
+			StartDateTime = rq.StartDateTime
+		}));
 	
-	<SfGrid DataSource="questList"
-		ID="QuestRewardsGrid"
-		EnablePersistence="true"
-		AllowResizing="true"
-		AllowSorting="true"
-		AllowPaging="true"
-		AllowTextWrap="true"
-		AllowFiltering="true"
-		Height="500">
-		<GridColumns>
-			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
-			<GridPageSettings PageCount="10"></GridPageSettings>
-			<GridColumn Field="QuestId" HeaderText="Id"></GridColumn>
-			<GridColumn Field="Quest.Name" HeaderText="Quest"></GridColumn>
-			<GridColumn Field="CompleteDateTime" HeaderText="Complete">
-				<Template>
-					<div>
-						@{
-							var quest = context as QuestReward;
-							if (quest.CompleteDateTime.HasValue)
-							{
-								<span>@quest.CompleteDateTime.Value.ToLocalTime().ToString("dddd HH:mm:ss")</span>
-							}
-						}
-					</div>
-				</Template>
-			</GridColumn>
-			<GridColumn Field="StartDateTime" HeaderText="Start">
-				<Template>
-					<div>
-						@{
-							var quest = context as QuestReward;
-							if (quest.StartDateTime.HasValue)
-							{
-								<span>@quest.StartDateTime.Value.ToLocalTime().ToString("dddd HH:mm:ss")</span>
-							}
-						}
-					</div>
-				</Template>
-			</GridColumn>
-			<GridColumn Field="@nameof(QuestReward.Heroes)" HeaderText="Heroes" AllowFiltering="false" AllowSorting="false">
-				<Template>
-					<div class="w-100 overflow-auto">
-						@{
-							var reward = context as QuestReward;
-							@string.Join(", ", reward.Heroes)
-						}
-					</div>
-				</Template>
-			</GridColumn>
-			@*<GridColumn Field="@nameof(QuestReward.SkillUps)" HeaderText="SkillUps" AllowFiltering="false" AllowSorting="false">
-				<Template>
-					<div class="w-100 overflow-auto">
-						@{
-							var r = (context as QuestReward);
-							@string.Join(", ", r.SkillUps.Select(su => $"{su.HeroId}: {su.SkillUp/10}"))
-						}
-					</div>
-				</Template>
-			</GridColumn>*@
-			<GridColumn Field="@nameof(QuestReward.Rewards)" HeaderText="Rewards" AllowFiltering="false" AllowSorting="false">
-				<Template>
-					<div class="w-100 overflow-auto">
-						@{
-							var r = (context as QuestReward);
-							if(r.Rewards is not null)
-							{
-								foreach (DFKItem reward in r.Rewards.Items)
+		<SfGrid DataSource="questList"
+			ID="QuestRewardsGrid"
+			EnablePersistence="true"
+			AllowResizing="true"
+			AllowSorting="true"
+			AllowPaging="true"
+			AllowTextWrap="true"
+			AllowFiltering="true"
+			Height="410">
+			<GridColumns>
+				<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
+				<GridPageSettings PageCount="10"></GridPageSettings>
+				<GridColumn Field="QuestId" HeaderText="Id"></GridColumn>
+				<GridColumn Field="Quest.Name" HeaderText="Quest"></GridColumn>
+				<GridColumn Field="@nameof(QuestReward.Rewards)" HeaderText="Rewards" AllowFiltering="false" AllowSorting="false">
+					<Template>
+						<div class="w-100 overflow-auto">
+							@{
+								var r = (context as QuestReward);
+								if(r.Rewards is not null)
 								{
-									@if (reward.Name is not null)
+									foreach (DFKItem reward in r.Rewards.Items)
 									{
-										@Math.Round((reward.Decimals == 0 ? reward.Amount : reward.Amount / Math.Pow(10, reward.Decimals)), 3)
-										if (reward.Name == "Crystal" || reward.Name == "Jewel")
+										@if (reward.Name is not null)
 										{
-											<RadzenImage src="@(reward.Image)" width="24" height="24" class="mr-3" style="margin:6px;" 
-												MouseEnter=@((arg) => OpenTooltip(arg, reward)) />
+											<SfTooltip ID="tooltip"
+												IsSticky="true"
+												Target="#target"
+												Content="@($"{reward.Name}({reward.TokenName}): {string.Join(", ", reward.Addresses.Select(a => $"<br />{a.Chain.Identifier} {a.Address}"))}<br />{reward.Description}")">
+												@Math.Round((reward.Decimals == 0 ? reward.Amount : reward.Amount / Math.Pow(10, reward.Decimals)), 3)
+												@if (reward.Name == "Crystal" || reward.Name == "Jewel")
+												{
+													<img id="target" src="@(reward.Image)" width="24" height="24" class="mr-3" style="margin:6px;" />
+												}
+												else
+												{
+													<img id="target" src="@(reward.Image)" width="32" height="32" class="mr-3" />
+												}
+                                            </SfTooltip>
 										}
 										else
 										{
-											<RadzenImage src="@(reward.Image)" width="32" height="32" class="mr-3"
-												MouseEnter=@((arg) => OpenTooltip(arg, reward)) />
+											@string.Join(", ", reward.Addresses.Select(a => a.Address))
 										}
 									}
-									else
-									{
-										@string.Join(", ", reward.Addresses.Select(a => a.Address))
-									}
+								}
+							}		
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="CompleteDateTime" HeaderText="Complete">
+					<Template>
+						<div>
+							@{
+								var quest = context as QuestReward;
+								if (quest.CompleteDateTime.HasValue)
+								{
+									<span>@quest.CompleteDateTime.Value.ToLocalTime().ToString("dddd HH:mm:ss")</span>
 								}
 							}
-						}		
-					</div>
-				</Template>
-			</GridColumn>
-		</GridColumns>
-	</SfGrid>
-}
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="StartDateTime" HeaderText="Start">
+					<Template>
+						<div>
+							@{
+								var quest = context as QuestReward;
+								if (quest.StartDateTime.HasValue)
+								{
+									<span>@quest.StartDateTime.Value.ToLocalTime().ToString("dddd HH:mm:ss")</span>
+								}
+							}
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="@nameof(QuestReward.Heroes)" HeaderText="Heroes" AllowFiltering="false" AllowSorting="false">
+					<Template>
+						<div class="w-100 overflow-auto">
+							@{
+								var reward = context as QuestReward;
+								@string.Join(", ", reward.Heroes)
+							}
+						</div>
+					</Template>
+				</GridColumn>
+			</GridColumns>
+		</SfGrid>
+	}
+</div>

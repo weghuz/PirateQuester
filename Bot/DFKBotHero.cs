@@ -22,6 +22,9 @@ namespace PirateQuester.Bot
 			var chainQuests = QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == Account.Chain.Name).QuestContracts;
 			if (questSettings != null)
 			{
+				StaminaPotionUntilLevel = questSettings.StaminaPotionUntilLevel;
+				UseStaminaPotionsAmount = questSettings.UseStaminaPotionsAmount;
+				LevelingEnabled = questSettings.LevelingEnabled;
 				BotSalePrice = questSettings.BotSalePrice;
 				var lvlSettings = questSettings.LevelupSettings;
 				if (lvlSettings is not null)
@@ -161,6 +164,9 @@ namespace PirateQuester.Bot
 		}
 
 		public LevelUpSetting LevelUpSetting { get; set; } = new();
+		public int? StaminaPotionUntilLevel { get; set; }
+		public int? UseStaminaPotionsAmount { get; set; }
+		public bool? LevelingEnabled { get; set; }
         public decimal? BotSalePrice { get; set; }
         public DFKAccount Account { get; set; }
         public BigInteger ID { get; set; }

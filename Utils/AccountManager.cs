@@ -26,42 +26,34 @@ public class AccountManager
 		_js = js;
         AccountNames = GetAccountNames();
     }
-
-	public bool CheckPassword(string accountName, string password)
-	{
-		try
-		{
-			string json = _js.Invoke<string>("localStorage.getItem", accountName);
-            Encrypt.GetAccount(password, json);
-            return true;
-		}
-		catch
-		{
-			_js.InvokeVoid("alert", $"Incorrect Password.");
-		}
-		return false;
-	}
     
 	public async Task<bool> Login(LoginViewModel model, DFKBotSettings settings)
     {
+        string loggingInAccountName = "";
         try
         {
-			foreach (string name in model.SelectedAccounts)
+            int count = model.SelectedAccounts.Count;
+            List<string> refList = new(model.SelectedAccounts);
+			foreach(string accountName in refList)
             {
-                string json = _js.Invoke<string>("localStorage.getItem", name);
+                loggingInAccountName = accountName;
+
+				string json = _js.Invoke<string>("localStorage.getItem", accountName);
                 foreach (Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled && cs.Name != "Avalanche"))
                 {
-                    DFKAccount account = new(name, Encrypt.GetAccount(model.Password, json), chain, AccSettings.ChainSettings.First(cs => cs.Name == "Avalanche"), settings);
+                    DFKAccount account = new(accountName, Encrypt.GetAccount(model.Password, json), chain, AccSettings.ChainSettings.First(cs => cs.Name == "Avalanche"), settings);
                     Accounts.Add(account);
                     await account.InitializeAccount();
                 }
-            }
+                model.SelectedAccounts.Remove(accountName);
+
+			}
             return true;
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
-            _js.InvokeVoid("alert", $"Incorrect Password.");
+            _js.InvokeVoid("alert", $"Incorrect Password for account {loggingInAccountName}.");
         }
         return false;
     }

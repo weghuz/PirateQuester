@@ -1,0 +1,283 @@
+﻿@using PirateQuester.Utils;
+
+
+<SfCard>
+	<CardContent>
+
+		<div class="row">
+			<div class="col-12 text-center">
+				<h5>
+					@Accounts[0].Name
+				</h5>
+			</div>
+			@if (Accounts[0].PQTBalance > 0)
+			{
+				@foreach(DFKAccount acc in Accounts)
+				{
+					<div class="col-md-3">
+						<h6>
+							@acc.Chain.Name
+						</h6>
+					</div>
+					<div class="col-md-3">
+						<h6>
+							<span class="">
+								<img src="@(acc.Chain.Name == "DFK" ? "Images/Jewel.png" : "Images/Klay.png")"
+										style="width: 18px; height:18px;" />
+								@acc.Balance
+							</span>
+						</h6>
+					</div>
+					<div class="col-md-2">
+						<h6>
+							<span class="">
+								<img src="@(acc.Chain.Name == "DFK" ? "Images/Crystal.png" : "Images/Jade.png")"
+										style="width: 18px; height:18px;" />
+								@acc.PowerTokenBalance
+							</span>
+						</h6>
+					</div>
+					<div class="col-md-2">
+						<h6>
+							<span class="">
+								<div style="position:relative;width:0;height:0;">
+									<img src="@("Images/Lock.png")"
+											style="width: 14px; height:18px; position: relative; top: 6px; left: -8px;" />
+								</div>
+								<img src="@(acc.Chain.Name == "DFK" ? "Images/Crystal.png" : "Images/Jade.png")"
+										style="width: 18px; height:18px;" />
+								@acc.LockedPowerTokenBalance
+							</span>
+						</h6>
+					</div>
+					<div class="col-md-2">
+						<h6>
+							<img src="@("Images/Items/stamina-potion.png")" style="width: 18px; height:18px;" />
+							@acc.StaminaPotionBalance
+						</h6>
+					</div>
+				}
+			}
+			<div class="col-12 pb-2">
+				<div class="row">
+					<div class="col-md-3">
+						<h6>
+							Avalanche
+						</h6>
+					</div>
+					<div class="col-md-3">
+						<h6>
+							<span>
+								<img src="@("Images/Avalanche.svg")" style="width: 18px; height:18px;" />
+								@Accounts[0].AvaxBalance
+							</span>
+						</h6>
+					</div>
+					<div class="col-md-3">
+						<h6>
+							<span class=""><img src="@("Images/PirateQuesterToken.png")" style="width: 32px; height:32px;" title="PQT" /> @Accounts[0].PQTBalance</span>
+						</h6>
+					</div>
+					@if (Accounts[0].PQTBalance < 1)
+					{
+						<div class="col-md-3">
+							<h6 class="text-warning d-inline">
+								No Pirate Quester Token to run the bot
+							</h6>
+							<SfButton CssClass="e-success d-inline" OnClick="@(() => ShowBuyPQTDialog = true)">
+								Buy <img src="@("Images/PirateQuesterToken.png")" style="width: 32px; height:32px;" title="PQT" />
+							</SfButton>
+						</div>
+					}
+					else
+					{
+						<div class="col-md-3">
+							<SfButton CssClass="e-success" OnClick="@(() => ShowBuyPQTDialog = true)">
+								Buy <img src="@("Images/PirateQuesterToken.png")" style="width: 32px; height:32px;" title="PQT" />
+							</SfButton>
+						</div>
+					}
+					
+					<SfDialog ShowCloseIcon="true" IsModal="true" @bind-Visible=@ShowConfirmBuyPQTDialog>
+						<DialogTemplates>
+							<Header>
+								Confirm Buying Pirate Quester Token for @Accounts[0].Name
+							</Header>
+							<Content>
+								<div class="row">
+									<div class="col-12 text-center">
+										@if (BoughtPQT)
+										{
+											<h4 class="text-success">
+												Thank you for buying a Pirate Quester Token!
+											</h4>
+										}
+										else
+										{
+											<h6>@Accounts[0].Name</h6>
+											<p><img src="@("Images/PirateQuesterToken.png")" style="width: 18px; height:18px;" title="PQT" /> Balance: @Accounts[0].AvaxBalance</p>
+											<p>Buy @BuyAmount <img src="@("Images/PirateQuesterToken.png")" style="width: 18px; height:18px;" title="PQT" />?</p>
+											<p>For @Math.Round(PQTPrice, 2) ?</p>
+											<h6 class="danger">This will transfer @(BuyAmount * PQTPrice) AVAX to the contract.</h6>
+											@if (PQTPrice == 0)
+											{
+												<p class="text-warning">Price not loaded correctly.</p>
+											}
+											@if(ErrorMessage is not null)
+											{
+												@ErrorMessage
+											}
+											@if (IsBuying)
+											{
+												<SfSpinner Visible="true"></SfSpinner>
+											}
+										}
+									</div>
+								</div>
+							</Content>
+						</DialogTemplates>
+						<DialogButtons>
+							<DialogButton CssClass="e-secondary"
+								Content="Close"
+								OnClick="@(() => ShowConfirmBuyPQTDialog = false)" />
+							<DialogButton CssClass="e-success"
+								Content="Buy"
+								OnClick="BuyPirateQuesterToken"
+								Disabled="PQTPrice == 0 || IsBuying || BoughtPQT" />
+						</DialogButtons>
+					</SfDialog>
+					
+					<SfDialog ShowCloseIcon="true" IsModal="true" @bind-Visible="@ShowBuyPQTDialog">
+						<DialogTemplates>
+							<Header>
+								Amount of Pirate Quester Token to buy for @Accounts[0].Name
+							</Header>
+							<Content>
+								<SfCard>
+									<CardContent>
+										<div class="row">
+											<div class="col-12 text-center">
+												<h6>Buying <img src="@("Images/PirateQuesterToken.png")" style="width: 18px; height:18px;" title="PQT" /> for @Accounts[0].Name</h6>
+												<p><img src="@("Images/PirateQuesterToken.png")" style="width: 18px; height:18px;" title="PQT" /> Balance: @Accounts[0].PQTBalance</p>
+												<p>For more information about the <img src="@("Images/PirateQuesterToken.png")" style="width: 18px; height:18px;" title="PQT" /> token, visit: </p>
+												<ul>
+													<li>
+														<a href="https://dfk-project.gitbook.io/pirate-quester/" target="_blank">The docs</a>
+													</li>
+													<li>
+														<a href="https://snowtrace.io/address/0xAC2b4Ffe04AB34e43e780Dad5C8DEac47B7db775" target="_blank">The contract on snowtrace (Avalanche Explorer)</a>
+													</li>
+												</ul>
+
+												<h6>AVAX balance: @(Accounts[0].AvaxBalance)</h6>
+												<label for="PQTBuyAmount">
+													Amount to buy:
+													<SfNumericTextBox TValue="int" id="PQTBuyAmount" @bind-Value=BuyAmount Min="1" />
+												</label>
+												<h5>Price per <img src="@("Images/PirateQuesterToken.png")" style="width: 32px; height:32px;" title="PQT" />: @PQTPrice</h5>
+												@if (PQTPrice == 0)
+												{
+													<p>Couldn't load <img src="@("Images/PirateQuesterToken.png")" style="width: 18px; height:18px;" title="PQT" /> Price correctly.</p>
+												}
+												else if (Accounts[0].AvaxBalance < PQTPrice)
+												{
+													<p>Not enought AVAX to buy <img src="@("Images/PirateQuesterToken.png")" style="width: 18px; height:18px;" title="PQT" />.</p>
+												}
+											</div>
+										</div>
+									</CardContent>
+								</SfCard>
+							</Content>
+						</DialogTemplates>
+						<DialogButtons>
+							<DialogButton CssClass="e-secondary"
+								Content="Close"
+								OnClick="@(() => ShowBuyPQTDialog = false)" />
+							<DialogButton CssClass="e-success"
+								Content="Buy"
+								OnClick="@(() => {ShowBuyPQTDialog = false;ShowConfirmBuyPQTDialog = true;})"
+								Disabled="PQTPrice == 0 || Accounts[0].AvaxBalance < PQTPrice" />
+						</DialogButtons>
+					</SfDialog>
+				</div>
+			</div>
+		</div>
+		<h6 class="mb-0 mt-2">
+			Address
+		</h6>
+		<h6 style="word-break: break-word;">
+			@Accounts[0].Account.Address
+		</h6>
+		<h6 class="mb-0 mt-2">
+			Public Key
+		</h6>
+		<h6 Style="word-break: break-word;">
+			@Accounts[0].Account.PublicKey
+		</h6>
+		<div class="row">
+			<div class="col-12">
+				<SfButton CssClass="e-danger mr-3" OnClick="@(() => ShowDeleteAccountDialog = true)">
+					Delete Account
+				</SfButton>
+				<SfDialog ShowCloseIcon="true" IsModal="true" @bind-Visible="@ShowDeleteAccountDialog">
+					<DialogTemplates>
+						<Header>
+							Delete @Accounts[0].Name
+						</Header>
+						<Content>
+								<SfTextBox CssClass="my-2" @bind-Value=@Password Type="InputType.Password" Placeholder="Enter accounts Password" />
+						</Content>
+					</DialogTemplates>
+					<DialogButtons>
+						<DialogButton CssClass="e-secondary" Content="Close" OnClick="@(() => ShowDeleteAccountDialog = false)" />
+						<DialogButton CssClass="e-danger" Content="Delete Account" OnClick="CheckPasswordDeleteAccountDialog" />
+					</DialogButtons>
+				</SfDialog>
+				<SfButton CssClass="e-success mr-3" OnClick="@(() => ShowRenameAccountDialog = true)">
+					Rename Account
+				</SfButton>
+				<SfDialog ShowCloseIcon="true" IsModal="true" @bind-Visible="@ShowRenameAccountDialog">
+					<DialogTemplates>
+						<Header>
+							Rename @Accounts[0].Name
+						</Header>
+						<Content>
+							<SfTextBox CssClass="my-2" @bind-Value=@NewAccountName Placeholder="Enter new account name" />
+						</Content>
+					</DialogTemplates>
+					<DialogButtons>
+						<DialogButton CssClass="e-secondary" Content="Close" OnClick="@(() => ShowRenameAccountDialog = false)" />
+						<DialogButton CssClass="e-success" Content="Rename Account" OnClick="RenameAccount" />
+					</DialogButtons>
+				</SfDialog>
+
+				<SfButton CssClass="e-danger" OnClick="@(() => ShowPrivateKeyDialog = true)">
+					Show Private Key
+				</SfButton>
+				<SfDialog ShowCloseIcon="true" IsModal="true" @bind-Visible="@ShowPrivateKeyDialog">
+					<DialogTemplates>
+						<Header>
+							Show Private Key for @Accounts[0].Name
+						</Header>
+						<Content>
+							<SfTextBox CssClass="my-2" @bind-Value=@Password Type="InputType.Password" Placeholder="Enter accounts Password" />
+							@if (ShowPrivateKey)
+							{
+								<h6>
+									Private Key
+								</h6>
+								<p>
+									@Accounts[0].Account.PrivateKey
+								</p>
+							}
+						</Content>
+					</DialogTemplates>
+					<DialogButtons>
+						<DialogButton CssClass="e-secondary" Content="Close" OnClick="@(() => ShowPrivateKeyDialog = false)" />
+						<DialogButton CssClass="e-primary" Content="Show Private Key" OnClick="CheckPasswordDialog" />
+					</DialogButtons>
+				</SfDialog>
+			</div>
+		</div>
+	</CardContent>
+</SfCard>

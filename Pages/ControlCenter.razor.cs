@@ -1,11 +1,11 @@
 ﻿using PirateQuester.DFK.Contracts;
 using PirateQuester.Utils;
-using Radzen;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using PirateQuester.Bot;
 using PirateQuester.Services;
 using Syncfusion.Blazor.Grids;
+using System.Security;
 
 namespace PirateQuester.Pages;
 
@@ -19,25 +19,30 @@ public partial class ControlCenter
 	[Inject]
 	public IJSInProcessRuntime JS { get; set; }
 	[Inject]
-	public DialogService Dialog { get; set; }
-	[Inject]
 	public BotService Bots { get; set; }
 	public List<DFKBotHero> TableHeroes { get; set; } = new();
-	public int? SelectedDFKQuest { get; set; }
+    public bool SetQuest { get; set; }
+    public bool SetPrice { get; set; }
+    public bool SetStampot { get; set; }
+    public bool SetLevelup { get; set; }
+    public int? SelectedDFKQuest { get; set; }
 	public int? SelectedKlaytnQuest { get; set; }
+	public int? StaminaPotLevel { get; set; }
+	public int? StaminaPotAmount { get; set; }
+	public string LevelingEnabled { get; set; } = "true";
 	public SfGrid<DFKBotHero> HeroGridReference { get; set; }
 	public int SelectedHeroCount { get; set; }
 	public decimal? SalePrice { get; set; }
 	public LevelUpSetting LevelSettings { get; set; } = new();
-
+	public int PageSize { get; set; } = 50;
     protected override void OnInitialized()
 	{
 		TableHeroes = Acc.Accounts.SelectMany(a => a.BotHeroes).ToList();
 		if (Acc.Accounts.Count == 0)
 		{
-			Nav.NavigateTo("CreateAccount");
+			Nav.NavigateTo("Login");
 		}
-		foreach(DFKBot bot in Bots.RunningBots)
+		foreach (DFKBot bot in Bots.RunningBots)
 		{
 			bot.HeroesUpdated += StateHasChanged;
 		};
@@ -56,165 +61,109 @@ public partial class ControlCenter
 
 	public void SetAllPreferences()
 	{
+		if (!SetQuest && !SetPrice && !SetStampot && !SetLevelup)
+		{
+			JS.InvokeVoid("alert", "you need to select at least one setting to apply.");
+			return;
+		}
 		foreach (DFKBotHero h in HeroGridReference.SelectedRecords)
 		{
 			var selectedQuest = h.Account.Chain.Name == "DFK" ? SelectedDFKQuest : SelectedKlaytnQuest;
-			if (selectedQuest.HasValue)
+			if(SetQuest)
 			{
-				h.Quest = QuestContractDefinitions.GetQuestContract(selectedQuest.Value, h.Account.Chain.ChainEnum);
-			}
-			else
-			{
-				h.Quest = null;
-			}
-			
-			if (LevelSettings.MainAttribute is not null
-				&& LevelSettings.SecondaryAttribute is not null
-				&& LevelSettings.TertiaryAttribute is not null)
-			{
-				h.LevelUpSetting = new()
+				if (selectedQuest.HasValue)
 				{
-					MainAttribute = LevelSettings.MainAttribute,
-					SecondaryAttribute = LevelSettings.SecondaryAttribute,
-					TertiaryAttribute = LevelSettings.TertiaryAttribute
-				};
+					h.Quest = QuestContractDefinitions.GetQuestContract(selectedQuest.Value, h.Account.Chain.ChainEnum);
+				}
+				else
+				{
+					h.Quest = null;
+				}
 			}
-			h.BotSalePrice = SalePrice;
+			if(SetLevelup)
+			{
+				h.LevelingEnabled = LevelingEnabled == "true" ? true : LevelingEnabled == "false" ? false : null;
+				if (LevelSettings.MainAttribute is not null
+					&& LevelSettings.SecondaryAttribute is not null
+					&& LevelSettings.TertiaryAttribute is not null)
+				{
+					h.LevelUpSetting = new()
+					{
+						MainAttribute = LevelSettings.MainAttribute,
+						SecondaryAttribute = LevelSettings.SecondaryAttribute,
+						TertiaryAttribute = LevelSettings.TertiaryAttribute
+					};
+				}
+			}
+			if(SetPrice)
+			{
+				h.BotSalePrice = SalePrice;
+			}
+			if(SetStampot)
+			{
+				h.StaminaPotionUntilLevel = StaminaPotLevel;
+				h.UseStaminaPotionsAmount = StaminaPotAmount;
+			}
 			var setting = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
 			if (setting != null)
 			{
-				setting.QuestId = h.Quest?.Id;
-				setting.ChainIdentifier = h.Account.Chain.Identifier;
-				setting.BotSalePrice = SalePrice;
-				if (LevelSettings.MainAttribute is not null 
-					&& LevelSettings.SecondaryAttribute is not null 
-					&& LevelSettings.TertiaryAttribute is not null)
+				if(SetStampot)
 				{
-					setting.LevelupSettings = new()
-					{
-						PrimaryAttribute = LevelSettings.MainAttribute?.Id,
-						SecondaryAttribute = LevelSettings.SecondaryAttribute?.Id,
-						TertiaryAttribute = LevelSettings.TertiaryAttribute?.Id,
-					};
+					setting.StaminaPotionUntilLevel = StaminaPotLevel;
+					setting.UseStaminaPotionsAmount = StaminaPotAmount;
 				}
+				if(SetLevelup)
+				{
+					setting.LevelingEnabled = LevelingEnabled == "true" ? true : LevelingEnabled == "false" ? false : null;
+					if (LevelSettings.MainAttribute is not null
+						&& LevelSettings.SecondaryAttribute is not null
+						&& LevelSettings.TertiaryAttribute is not null)
+					{
+						setting.LevelupSettings = new()
+						{
+							PrimaryAttribute = LevelSettings.MainAttribute?.Id,
+							SecondaryAttribute = LevelSettings.SecondaryAttribute?.Id,
+							TertiaryAttribute = LevelSettings.TertiaryAttribute?.Id,
+						};
+					}
+				}
+				if (SetQuest)
+				{
+					setting.QuestId = h.Quest?.Id;
+				}
+				if(SetPrice)
+				{
+					setting.BotSalePrice = SalePrice;
+				}
+				setting.ChainIdentifier = h.Account.Chain.Identifier;
 			}
 			else
 			{
 				HeroQuestSetting newSettings = new()
 				{
-					QuestId = h.Quest?.Id,
+					QuestId = SetQuest ? h.Quest?.Id : null,
 					ChainIdentifier = h.Account.Chain.Identifier,
 					HeroId = h.ID.ToString(),
-					BotSalePrice = SalePrice
+					BotSalePrice = SetPrice ? SalePrice : null,
+					LevelingEnabled = SetLevelup ? LevelingEnabled == "true" ? true : LevelingEnabled == "false" ? false : null : null,
+					StaminaPotionUntilLevel = SetStampot ? StaminaPotLevel : null,
+					UseStaminaPotionsAmount = SetStampot ? StaminaPotAmount : null
 				};
-				if(LevelSettings.MainAttribute is not null
-					&& LevelSettings.SecondaryAttribute is not null
-					&& LevelSettings.TertiaryAttribute is not null)
+				if(SetLevelup)
 				{
-					newSettings.LevelupSettings = new()
+					if (LevelSettings.MainAttribute is not null
+						&& LevelSettings.SecondaryAttribute is not null
+						&& LevelSettings.TertiaryAttribute is not null)
 					{
-						PrimaryAttribute = LevelSettings.MainAttribute?.Id,
-						SecondaryAttribute = LevelSettings.SecondaryAttribute?.Id,
-						TertiaryAttribute = LevelSettings.TertiaryAttribute?.Id,
-					};
+						newSettings.LevelupSettings = new()
+						{
+							PrimaryAttribute = LevelSettings.MainAttribute?.Id,
+							SecondaryAttribute = LevelSettings.SecondaryAttribute?.Id,
+							TertiaryAttribute = LevelSettings.TertiaryAttribute?.Id,
+						};
+					}
 				}
 				Bots.Settings.HeroQuestSettings.Add(newSettings);
-			}
-		}
-		Bots.SaveSettings();
-		HeroGridReference.Refresh();
-		StateHasChanged();
-	}
-
-	public void SetQuestPreference()
-	{
-		foreach (DFKBotHero h in HeroGridReference.SelectedRecords)
-		{
-			var selectedQuest = h.Account.Chain.Name == "DFK" ? SelectedDFKQuest : SelectedKlaytnQuest;
-			if (selectedQuest.HasValue)
-			{
-				h.Quest = QuestContractDefinitions.GetQuestContract(selectedQuest.Value, h.Account.Chain.ChainEnum);
-			}
-			else
-			{
-				h.Quest = null;
-			}
-			var setting = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
-			if (setting != null)
-			{
-				setting.QuestId = h.Quest?.Id;
-				setting.ChainIdentifier = h.Account.Chain.Identifier;
-			}
-			else
-			{
-				Bots.Settings.HeroQuestSettings.Add(new()
-				{
-					QuestId = h.Quest?.Id,
-					ChainIdentifier = h.Account.Chain.Identifier,
-					HeroId = h.ID.ToString()
-				});
-			}
-		}
-		Bots.SaveSettings();
-		HeroGridReference.Refresh();
-		StateHasChanged();
-	}
-
-	public void SetLevelupPreference()
-	{
-		if(LevelSettings.MainAttribute is null || LevelSettings.SecondaryAttribute is null || LevelSettings.TertiaryAttribute is null)
-		{
-			JS.Invoke<string>("alert", "Please select all attributes");
-			return;
-		}
-		foreach (DFKBotHero h in HeroGridReference.SelectedRecords)
-		{
-			h.LevelUpSetting = new()
-			{
-				MainAttribute = LevelSettings.MainAttribute,
-				SecondaryAttribute = LevelSettings.SecondaryAttribute,
-				TertiaryAttribute = LevelSettings.TertiaryAttribute
-			};
-			var setting = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
-			if (setting != null)
-			{
-				setting.BotSalePrice = SalePrice;
-				setting.ChainIdentifier = h.Account.Chain.Identifier;
-			}
-			else
-			{
-				Bots.Settings.HeroQuestSettings.Add(new()
-				{
-					BotSalePrice = SalePrice,
-					ChainIdentifier = h.Account.Chain.Identifier,
-					HeroId = h.ID.ToString()
-				});
-			}
-		}
-		Bots.SaveSettings();
-		HeroGridReference.Refresh();
-		StateHasChanged();
-	}
-
-	public void SetSalePreference()
-	{
-		foreach (DFKBotHero h in HeroGridReference.SelectedRecords)
-		{
-			h.BotSalePrice = SalePrice;
-			var setting = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
-			if (setting != null)
-			{
-				setting.BotSalePrice = SalePrice;
-				setting.ChainIdentifier = h.Account.Chain.Identifier;
-			}
-			else
-			{
-				Bots.Settings.HeroQuestSettings.Add(new()
-				{
-					BotSalePrice = SalePrice,
-					ChainIdentifier = h.Account.Chain.Identifier,
-					HeroId = h.ID.ToString()
-				});
 			}
 		}
 		Bots.SaveSettings();
@@ -227,73 +176,72 @@ public partial class ControlCenter
 		SelectedDFKQuest = null;
 		SelectedKlaytnQuest = null;
 		SalePrice = null;
+		StaminaPotLevel = null;
+		StaminaPotAmount = null;
+		LevelingEnabled = "true";
 		LevelSettings = new();
 		await HeroGridReference.ClearSelectionAsync();
 	}
 	
-	public void ClearLevelSettingsPreference()
-	{
-		StateHasChanged();
-		foreach (DFKBotHero h in HeroGridReference.SelectedRecords)
-		{
-			h.LevelUpSetting = new();
-			var setting = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
-			if (setting != null)
-			{
-				setting.LevelupSettings = null;
-			}
-		}
-		Bots.SaveSettings();
-		HeroGridReference.Refresh();
-		StateHasChanged();
-	}
-	
-	public void ClearSalePricePreference()
-	{
-		StateHasChanged();
-		foreach (DFKBotHero h in HeroGridReference.SelectedRecords)
-		{
-			h.BotSalePrice = null;
-			var setting = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
-			if (setting != null)
-			{
-				setting.BotSalePrice = null;
-			}
-		}
-		Bots.SaveSettings();
-		HeroGridReference.Refresh();
-		StateHasChanged();
-	}
-	
-	public void ClearQuestPreference()
-	{
-		StateHasChanged();
-		foreach (DFKBotHero h in HeroGridReference.SelectedRecords)
-		{
-			h.Quest = null;
-			var setting = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
-			if (setting != null)
-			{
-				setting.QuestId = null;
-			}
-		}
-		Bots.SaveSettings();
-		HeroGridReference.Refresh();
-		StateHasChanged();
-	}
-	
 	public void ClearAllPreference()
 	{
-		StateHasChanged();
+		if (!SetQuest && !SetPrice && !SetStampot && !SetLevelup)
+		{
+			JS.InvokeVoid("alert", "you need to select at least one setting to clear.");
+			return;
+		}
 		foreach (DFKBotHero h in HeroGridReference.SelectedRecords)
 		{
-			h.Quest = null;
-			h.LevelUpSetting = new();
-			h.BotSalePrice = null;
+			if(SetQuest)
+			{
+				h.Quest = null;
+			}
+			if(SetLevelup)
+			{
+				h.LevelUpSetting = new();
+				h.LevelingEnabled = null;
+			}
+			if(SetPrice)
+			{
+				h.BotSalePrice = null;
+			}
+			if(SetStampot)
+			{
+				h.StaminaPotionUntilLevel = null;
+				h.UseStaminaPotionsAmount = null;
+			}
 			var setting = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
 			if (setting != null)
 			{
-				Bots.Settings.HeroQuestSettings.Remove(setting);
+				if (SetQuest && SetPrice && SetLevelup && SetStampot)
+				{
+					Bots.Settings.HeroQuestSettings.Remove(setting);
+				}
+				else
+				{
+					if (SetQuest)
+					{
+						setting.QuestId = null;
+					}
+					if (SetPrice)
+					{
+						setting.BotSalePrice = null;
+					}
+					if (SetLevelup)
+					{
+						setting.LevelingEnabled = null;
+						setting.LevelupSettings = null;
+					}
+					if (SetStampot)
+					{
+						setting.StaminaPotionUntilLevel = null;
+						setting.UseStaminaPotionsAmount = null;
+					}
+					if (setting.QuestId is null && setting.BotSalePrice is null && setting.LevelingEnabled is null && setting.LevelupSettings is null && setting.StaminaPotionUntilLevel is null && setting.UseStaminaPotionsAmount is null)
+					{
+						Bots.Settings.HeroQuestSettings.Remove(setting);
+					}
+				}
 			}
 		}
 		Bots.SaveSettings();

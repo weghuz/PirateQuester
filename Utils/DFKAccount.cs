@@ -5,7 +5,9 @@ using DFKContracts.QuestCore;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using PirateQuester.Bot;
+using PirateQuester.DFK.Items;
 using PirateQuester.HeroSale;
+using PirateQuester.ItemConsumer;
 using PirateQuester.PirateQuesterToken;
 using PirateQuester.PowerToken;
 using System.Numerics;
@@ -27,12 +29,15 @@ namespace PirateQuester.Utils
             {
                 try
                 {
-                    PQTBalance = Web3.Convert.FromWei(await PQT.BalanceOfQueryAsync(Account.Address));
 					Balance = Web3.Convert.FromWei(await Signer.Eth.GetBalance.SendRequestAsync(Account.Address));
+					var consumableItem = ItemContractDefinitions.InventoryItems.First(item => item.Name == "Stamina Potion");
+					var ConsumableItem = new Erc20Service(Signer, consumableItem.Addresses.First(a => a.Chain.Id == Chain.Id).Address);
+					StaminaPotionBalance = int.Parse((await ConsumableItem.BalanceOfQueryAsync(Account.Address)).ToString());
 					PowerTokenBalance = Web3.Convert.FromWei(await PowerTokenService.BalanceOfQueryAsync(Account.Address));
 					LockedPowerTokenBalance = Web3.Convert.FromWei(await PowerTokenService.LockOfQueryAsync(Account.Address));
 					AvaxBalance = Web3.Convert.FromWei(await AvalancheSigner.Eth.GetBalance.SendRequestAsync(Account.Address));
-                    retry = false;
+					PQTBalance = Web3.Convert.FromWei(await PQT.BalanceOfQueryAsync(Account.Address));
+					retry = false;
                 }
                 catch (Exception e)
                 {
@@ -237,16 +242,17 @@ namespace PirateQuester.Utils
             Name = name;
             Account = account;
 			Chain = chain;
-            AvalancheSigner = new Web3(new Account(account.PrivateKey), Avalanche.RPC);
-            Signer = new Web3(account, chain.RPC);
-			PowerTokenService = new PowerTokenService(Signer, chain.NativeToken);
+			AvalancheSigner = new Web3(new Account(account.PrivateKey), Avalanche.RPC);
 			PQT = new PirateQuesterTokenService(AvalancheSigner, Constants.PQT_ADDRESS);
 			// Transactions may fail without this.
+			Signer = new Web3(account, chain.RPC);
 			Signer.TransactionManager.UseLegacyAsDefault = true;
+			PowerTokenService = new PowerTokenService(Signer, chain.NativeToken);
 			Quest = new QuestCoreService(Signer, chain.QuestAddress);
 			Auction = new HeroSaleService(Signer, chain.HeroSale);
             Hero = new HeroCoreService(Signer, chain.HeroAddress);
 			Meditation = new DFKContracts.MeditationCircle.MeditationCircleService(Signer, chain.MeditationAddress);
+			ItemConsumer = new ItemConsumerService(Signer, chain.ItemConsumer);
 		}
 
         public DFKBotSettings Settings { get; set; }
@@ -262,18 +268,20 @@ namespace PirateQuester.Utils
 
 		public decimal avaxBalance;
 		public decimal AvaxBalance { get { return Math.Round(avaxBalance, 2); } set { avaxBalance = value; } }
-		public Web3 AvalancheSigner { get; set; }
-        public Web3 Signer { get; set; }
-        public Erc20Service Erc20 { get; set; }
-		public HeroSaleService Auction { get; set; }
-		public PowerTokenService PowerTokenService { get; set; }
-        public HeroCoreService Hero { get; set; }
-        public QuestCoreService Quest { get; set; }
-        public PirateQuesterTokenService PQT { get; set; }
-        public DFKContracts.MeditationCircle.MeditationCircleService Meditation { get; set; }
-        public Account Account { get; set; }
+		public int StaminaPotionBalance { get; set; }
+		public Web3 AvalancheSigner { get; }
+        public Web3 Signer { get; }
+        public Erc20Service Erc20 { get; }
+		public HeroSaleService Auction { get; }
+		public PowerTokenService PowerTokenService { get; }
+        public HeroCoreService Hero { get; }
+        public ItemConsumerService ItemConsumer { get; }
+        public QuestCoreService Quest { get; }
+        public PirateQuesterTokenService PQT { get; }
+        public DFKContracts.MeditationCircle.MeditationCircleService Meditation { get; }
+        public Account Account { get; }
         public string Name { get; set; }
         public List<Hero> Heroes { get; set; }
 		public List<DFKBotHero> BotHeroes { get; set; }
-    }
+	}
 }

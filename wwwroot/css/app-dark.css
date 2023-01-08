@@ -1,0 +1,47 @@
+
+body {
+    background-color: #201f1f;
+    color: #dadada;
+}
+
+.e-card:hover {
+    background-color: #282727;
+    border: none;
+}
+.e-card-header {
+    background-color: #282727;
+    border: none;
+}
+.e-card>.e-card-content {
+    background-color: #282727;
+    border: none;
+}
+
+.e-tip-content {
+    background-color: #201f1f;
+    color: #dadada;
+}
+
+.e-card {
+    background-color: #282727;
+}
+
+.e-card-footer {
+    background-color: #282727;
+    border: none;
+}
+
+.e-input-focus {
+    background-color: #282727;
+    border: none;
+    padding: 0;
+    border-width: 0;
+}
+
+.e-numeric {
+    margin: 5px 0;
+}
+
+.e-input-focus:hover {
+    border: 1px solid #dadada;
+}

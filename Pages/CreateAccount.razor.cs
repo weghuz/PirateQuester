@@ -10,14 +10,14 @@ public partial class CreateAccount
 	[Inject]
 	AccountManager Acc { get; set; }
 	[Inject]
-	IJSInProcessRuntime JS { get; set; }
-	[Inject]
 	NavigationManager Nav { get; set; }
 	[Inject]
 	BotService Bots { get; set; }
+	public bool Creating { get; set; }
 	async Task Create()
 	{
-        await Acc.Create(model, Bots.Settings);
+		Creating = true;
+		await Acc.Create(model, Bots.Settings);
         Nav.NavigateTo("Accounts");
 	}
 }
