@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using PirateQuester.Utils;
-using Radzen;
 using Utils;
 
 namespace PirateQuester.Pages;
@@ -14,8 +13,6 @@ public partial class TransactionsWindow
 	public NavigationManager Nav { get; set; }
 	[Inject]
 	public IJSInProcessRuntime JS { get; set; }
-	[Inject]
-	public DialogService Dialog { get; set; }
 
 	public TransactionsWindow()
 	{

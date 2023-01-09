@@ -1,9 +1,14 @@
 using DFK;
 using Microsoft.JSInterop;
+using Nethereum.Model;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using Newtonsoft.Json;
+using PirateQuester.Bot;
+using PirateQuester.Pages;
+using PirateQuester.Services;
 using PirateQuester.ViewModels;
+using System.Runtime;
 using Utils;
 
 namespace PirateQuester.Utils;
@@ -13,35 +18,47 @@ public class AccountManager
     public List<DFKAccount> Accounts { get; set; } = new();
     private readonly IJSInProcessRuntime _js;
     public List<string> AccountNames { get; set; }
-    public AccountManager(IJSInProcessRuntime js)
+
+	public static AccountSettings AccSettings;
+	public AccountManager(IJSInProcessRuntime js, AccountSettings accountSettings)
     {
-        _js = js;
+        AccSettings = accountSettings;
+		_js = js;
         AccountNames = GetAccountNames();
     }
-
-    public async Task<bool> Login(LoginViewModel model)
+    
+	public async Task<bool> Login(LoginViewModel model, DFKBotSettings settings)
     {
+        string loggingInAccountName = "";
         try
         {
-            foreach (string name in model.SelectedAccounts)
+            int count = model.SelectedAccounts.Count;
+            List<string> refList = new(model.SelectedAccounts);
+			foreach(string accountName in refList)
             {
-                string json = _js.Invoke<string>("localStorage.getItem", name);
-                DFKAccount account = new(name, Encrypt.GetAccount(model.Password, json));
+                loggingInAccountName = accountName;
 
-				Accounts.Add(account);
-                await account.InitializeAccount(new());
+				string json = _js.Invoke<string>("localStorage.getItem", accountName);
+                foreach (Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled && cs.Name != "Avalanche"))
+                {
+                    DFKAccount account = new(accountName, Encrypt.GetAccount(model.Password, json), chain, AccSettings.ChainSettings.First(cs => cs.Name == "Avalanche"), settings);
+                    Accounts.Add(account);
+                    await account.InitializeAccount();
+                }
+                model.SelectedAccounts.Remove(accountName);
 
 			}
             return true;
         }
         catch (Exception e)
         {
-            _js.InvokeVoid("alert", $"{e.Message}.");
+            Console.WriteLine(e);
+            _js.InvokeVoid("alert", $"Incorrect Password for account {loggingInAccountName}.");
         }
         return false;
     }
 
-    public async Task Create(AccountViewModel model)
+    public async Task Create(AccountViewModel model, DFKBotSettings settings)
     {
         if (model.Password.Length < 8 || model.RecheckPassword.Length < 8)
         {
@@ -53,7 +70,7 @@ public class AccountManager
             _js.InvokeVoid("alert", "The passwords don't match.");
             return;
         }
-        if(model.PrivateKey.Length == 64)
+        if(model.PrivateKey is not null && model.PrivateKey.Length == 64)
         {
             model.PrivateKey = $"0x{model.PrivateKey}";
         }
@@ -85,9 +102,12 @@ public class AccountManager
             json = Encrypt.CreateAccount(model.PrivateKey, model.Password);
             _js.InvokeVoid("localStorage.setItem", new string[] { model.Name, json });
         }
-        DFKAccount account = new(model.Name, Encrypt.GetAccount(model.Password, json));
-		Accounts.Add(account);
-		await account.InitializeAccount(new());
+        foreach (Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled && cs.Name != "Avalanche"))
+        {
+            DFKAccount account = new(model.Name, Encrypt.GetAccount(model.Password, json), chain, AccSettings.ChainSettings.FirstOrDefault(cs => cs.Name == "Avalanche"), settings);
+            Accounts.Add(account);
+            await account.InitializeAccount();
+        }
 		return;
     }
 

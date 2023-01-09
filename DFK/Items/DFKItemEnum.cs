@@ -7,6 +7,7 @@
 		Gold,
 		DFKTEARS,
 		Jewel,
+		Jade,
 		Crystal,
 		DFKBLUEEGG,
 		DFKGOLDEGG,
@@ -47,6 +48,7 @@
 		DFKSHAGCAP,
 		DFKSILVERFIN,
 		DFKSPCKLTL,
-		DFKETRNLSTY
-	}
+		DFKETRNLSTY,
+        DFKSTMNPTN
+    }
 }

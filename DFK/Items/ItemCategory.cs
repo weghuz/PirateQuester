@@ -10,6 +10,7 @@
 		Gardening,
 		Material,
 		Junk,
-		Story
-	}
+		Story,
+        Consumable
+    }
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using PirateQuester.Utils;
 
 namespace PirateQuester.Pages;
 
@@ -7,6 +8,18 @@ public partial class Options
 {
     [Inject]
     public IJSInProcessRuntime JS { get; set; }
+    [Inject]
+    public AccountSettings AccSettings { get; set; }
+    void ClearProblematicStorage()
+    {
+        JS.InvokeVoidAsync("localStorage.removeItem", "DFKBotSettings", "");
+        JS.InvokeVoidAsync("localStorage.removeItem", "gridRunningQuestsGrid", "");
+        JS.InvokeVoidAsync("localStorage.removeItem", "gridQuestRewardsGrid", "");
+        JS.InvokeVoidAsync("localStorage.removeItem", "gridControlCenterHeroGrid", "");
+        JS.InvokeVoidAsync("localStorage.removeItem", "ChainSettings", "");
+        JS.InvokeVoid("location.reload");
+    }
+    
     void ClearLocalStorage()
     {
         if(JS.Invoke<bool>("confirm", "This will delete ALL your local accounts. Are you sure?"))
@@ -39,16 +52,19 @@ public partial class Options
         {
             if (darkModeBool)
             {
-                JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
+                JS.Invoke<string>("SetSyncfusionStylesheet", Constants.DARK_THEME);
+                JS.Invoke<string>("SetStylesheet", "css/app-dark.css");
             }
             else
             {
-                JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/standard.css");
+                JS.Invoke<string>("SetSyncfusionStylesheet", Constants.THEME);
+                JS.Invoke<string>("SetStylesheet", "css/app.css");
             }
         }
         else
         {
-            JS.Invoke<string>("SetStylesheet", "_content/Radzen.Blazor/css/dark.css");
+            JS.Invoke<string>("SetSyncfusionStylesheet", Constants.DARK_THEME);
+            JS.Invoke<string>("SetStylesheet", "css/app-dark.css");
         }
     }
 }

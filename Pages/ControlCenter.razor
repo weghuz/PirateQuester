@@ -10,134 +10,385 @@
 @using global::Utils;
 
 <PageTitle>PQ - Control Center</PageTitle>
-@code {
-	private void DialogWindow(string message)
-	{
-		Dialog.Open("",
-	x =>
-	@<div>
-		@message
-	</div>,
-		new DialogOptions()
-		{
-			ShowTitle = true,
-			CloseDialogOnEsc = true,
-			ShowClose = true,
-			Resizable = true,
-			Draggable = true,
-			CloseDialogOnOverlayClick = true,
-			AutoFocusFirstElement = true
-		});
-	}
-	private void DialogWindow(string title, string message)
-	{
-		Dialog.Open(title,
-		x =>
-	@<div>
-		@message
-	</div>,
-		new DialogOptions()
-		{
-			ShowTitle = true,
-			CloseDialogOnEsc = true,
-			ShowClose = true,
-			Resizable = true,
-			Draggable = true,
-			CloseDialogOnOverlayClick = true,
-			AutoFocusFirstElement = true
-		});
-	}
-}
 
-@if (Acc.Accounts.Count > 0)
-{
-	<RadzenCard class="my-2">
-		<RadzenDropDownDataGrid PageSize="10"
-		   TValue="string"
-		   AllowClear="true"
-		   AllowFiltering="true"
-		   FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-		@bind-Value=@SelectedQuestName
-		   Data="@QuestContractDefinitions.DFKQuestContracts.Select(q => q.Name)"
-		   Class="w-100 my-2" />
-		<RadzenButton Click="@SetQuestPreference">
-			Set quest preference
-		</RadzenButton>
-	</RadzenCard>
-}
-@if (Loading)
-{
-	<RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" ProgressBarStyle="ProgressBarStyle.Secondary" />
-}
+<div class="container-fluid">
+	<div>
+	
+		<h4 class="text-center">Control Center</h4>
 
-<RadzenDataGrid Data="@TableHeroes"
-	TItem="DFKBotHero"
-	@ref=@heroes
-	SelectionMode="DataGridSelectionMode.Multiple"
-	@bind-Value=@SelectedHeroes
-	AllowRowSelectOnRowClick="true"
-	AllowPaging="true"
-	FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-	FilterMode="FilterMode.Advanced"
-	ShowPagingSummary="true"
-	AllowColumnReorder="true"
-	ColumnWidth="100px"
-	AllowFiltering="true"
-	AllowColumnResize="true"
-	PagerHorizontalAlign="HorizontalAlign.Center"
-	PageSize="15"
-	Style="max-height:700px;"
-	PagingSummaryFormat="@Constants.PagingSummaryFormat">
-	<Columns>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Quest.Name" Title="Prefer Quest" Width="150px" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="SuggestedQuest.Name" Title="Bot Suggested Quest" Width="150px" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.profession" Title="Profession" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Title="Owner Address" Width="150px">
-			<Template Context="hero">
-				@hero.Hero.owner?.Id
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.id" Title="Id">
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.currentQuest" Title="Current Quest" Width="200px">
-			<Template Context="hero">
-				@QuestContractDefinitions.GetQuestContract(hero.Hero.currentQuest)?.Name
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.stamina" Title="Stamina">
-			<Template Context="hero">
-				@hero.Hero.StaminaCurrent()/@hero.Hero.stamina
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.salePrice" Title="Cost" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.mainClass" Title="Class" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.subClass" Title="Subclass" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="GetRarity" Title="Rarity">
-			<Template Context="hero">
-				@hero.Hero.GetRarity()
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="FullName" Title="Name" Width="200px">
-			<Template Context="hero">
-				@hero.Hero.FullName()
-			</Template>
-		</RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.level" Title="Level" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.generation" Title="Generation" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.statBoost1" Title="Statboost 1" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.statBoost2" Title="Statboost 2" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.strength" Title="Strength" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.dexterity" Title="Dexterity" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.agility" Title="Agility" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.vitality" Title="Vitality" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.endurance" Title="Endurance" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.intelligence" Title="Intelligence" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.wisdom" Title="Wisdom" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Property="Hero.luck" Title="Luck" />
-		<RadzenDataGridColumn TItem="DFKBotHero" Title="Owner" Width="150px">
-			<Template Context="hero">
-				@hero.Hero.owner?.Name
-			</Template>
-		</RadzenDataGridColumn>
-	</Columns>
-</RadzenDataGrid>
+		@if (Acc.Accounts.Count() > 0)
+		{
+			<SfCard CssClass="my-2">
+				<CardContent>
+					<form onsubmit="event.preventDefault();">
+						<div class="row">
+							<div class="col-md-6">
+								<div class="row">
+									<div class="col-4">
+										<p>
+											Crystalvale Quests (DFK Chain)
+										</p>
+									</div>
+									<div class="col-8">
+										<SfDropDownList TItem="QuestContract"
+											TValue="int?"
+											@bind-Index="@SelectedDFKQuest"
+											DataSource="@QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == "DFK").QuestContracts">
+											<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+										</SfDropDownList>
+									</div>
+								</div>
+								<div class="row mt-2">
+									<div class="col-4">
+										<p>
+											Serendale Quests (Klaytn Chain)
+										</p>
+									</div>
+									<div class="col-8">
+										<SfDropDownList TItem="QuestContract"
+											TValue="int?"
+											@bind-Index="@SelectedKlaytnQuest"
+											DataSource="@QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == "Klaytn").QuestContracts">
+											<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+										</SfDropDownList>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-4">
+										<p class="mt-2">
+											Sale Price
+										</p>
+									</div>
+									<div class="col-8">
+										<SfNumericTextBox @bind-Value=@SalePrice TValue="decimal?">
+										</SfNumericTextBox>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-4">
+										<p class="mt-2">
+											<SfTooltip ID="StaminaLevelTooltip" 
+												IsSticky="false" 
+												Target="#tooltipTarget" 
+												Content="@("Setting this will make the bot use available stamina potions until the hero is at the intended level.")">
+                                                <div>
+													<span id="tooltipTarget">
+														Stamina Pot -> Level
+                                                    </span>
+                                                </div>
+											</SfTooltip>
+										</p>
+									</div>
+									<div class="col-8">
+										<SfNumericTextBox @bind-Value=@StaminaPotLevel TValue="int?" Min="0" Max="100">
+										</SfNumericTextBox>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-4">
+										<SfTooltip ID="StaminaAmountTooltip" 
+											IsSticky="false" 
+											Target="#tooltipTarget" 
+											Content="@("Setting this will use the # of stamina potions set for the hero when the bot is running.")">
+                                            <div>
+												<span id="tooltipTarget">
+													Use Stamina Pot Amount
+                                                </span>
+                                            </div>
+										</SfTooltip>
+									</div>
+									<div class="col-8">
+										<SfNumericTextBox @bind-Value=@StaminaPotAmount TValue="int?" Min="0" Max="99999">
+										</SfNumericTextBox>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="row">
+									<div class="col-12 text-center">
+										<h6>
+											Levelup settings
+										</h6>
+										
+										<SfRadioButton TChecked="string" Label="Enabled" Value="true" Name="leveling" @bind-Checked="@LevelingEnabled"></SfRadioButton>
+										<SfRadioButton TChecked="string" Label="Disabled" Value="false" Name="leveling" @bind-Checked="@LevelingEnabled"></SfRadioButton>
+										<SfRadioButton TChecked="string" Label="Default" Value="null" Name="leveling" @bind-Checked="@LevelingEnabled"></SfRadioButton>
+									</div>
+									<div class="col-4 mt-2">
+										<p class="mt-2">
+											Main
+										</p>
+									</div>
+									<div class="col-8 mt-2">
+										<SfDropDownList TItem="DFKStat"
+											TValue="DFKStat"
+											DataSource="@Constants.DFKStats">
+											<DropDownListEvents 
+												TValue="DFKStat" 
+												TItem="DFKStat" 
+												ValueChange="@((change) => LevelSettings.MainAttribute = change.Value)" />
+											<DropDownListFieldSettings Value="Id" Text="Name" />
+										</SfDropDownList>
+									</div>
+									<div class="col-4 mt-2">
+										<p class="mt-2">
+											Secondary
+										</p>
+									</div>
+									<div class="col-8 mt-2">
+										<SfDropDownList TItem="DFKStat"
+											TValue="DFKStat"
+											DataSource="@Constants.DFKStats">
+											<DropDownListEvents 
+												TValue="DFKStat" 
+												TItem="DFKStat" 
+												ValueChange="@((change) => LevelSettings.SecondaryAttribute = change.Value)" />
+											<DropDownListFieldSettings Value="Id" Text="Name" />
+										</SfDropDownList>
+									</div>
+									<div class="col-4 mt-2">
+										<p class="mt-2">
+											Tertiary
+										</p>
+									</div>
+									<div class="col-8 mt-2">
+										<SfDropDownList TItem="DFKStat"
+											TValue="DFKStat"
+											DataSource="@Constants.DFKStats">
+											<DropDownListEvents 
+												TValue="DFKStat" 
+												TItem="DFKStat" 
+												ValueChange="@((change) => LevelSettings.TertiaryAttribute = change.Value)" />
+											<DropDownListFieldSettings Value="Id" Text="Name" />
+										</SfDropDownList>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="text-center mt-2">
+							<SfTooltip ID="SettingsToggles" 
+								IsSticky="false" 
+								Target="#tooltipTarget" 
+								Content="@("The checked boxes will be applied to the selected heroes when you set preference.<br />They will also be cleared when pressing clear.")">
+								<span id="tooltipTarget">
+
+									<label class="d-inline-block">
+										Quest
+										<SfCheckBox @bind-Checked=@SetQuest />
+									</label>
+									<label class="d-inline-block">
+										Stampot
+										<SfCheckBox @bind-Checked=@SetStampot />
+									</label>
+									<label class="d-inline-block">
+										Price
+										<SfCheckBox @bind-Checked=@SetPrice />
+									</label>
+									<label class="d-inline-block">
+										Levelup
+										<SfCheckBox @bind-Checked=@SetLevelup />
+									</label>
+								</span>
+							</SfTooltip>
+							<SfButton OnClick="@SetAllPreferences"
+								CssClass="e-success"
+								>
+								Set preference
+							</SfButton>
+							<SfButton OnClick="@ResetSelection"
+								CssClass="e-warning"
+								HtmlAttributes="@(new Dictionary<string, object>() { { "type", "button" } })"
+								>
+								Reset Selection
+							</SfButton>
+							<SfButton OnClick="@ClearAllPreference"
+								CssClass="e-danger"
+								HtmlAttributes="@(new Dictionary<string, object>() { { "type", "button" } })"
+								>
+								Clear
+							</SfButton>
+							<SfButton OnClick="RefreshTableHeroes"
+                                      CssClass="e-info"
+								HtmlAttributes="@(new Dictionary<string, object>() { { "type", "button" } })"
+								>
+								Refresh Heroes
+							</SfButton>
+						</div>
+					</form>
+				</CardContent>
+			</SfCard>
+		}
+		<SfGrid
+			@ref=@HeroGridReference
+			DataSource="@TableHeroes"
+			ID="ControlCenterHeroGrid"
+			EnablePersistence="true"
+			AllowTextWrap="true"
+			AllowSelection="true"
+			AllowFiltering="true"
+			AllowPaging="true"
+			AllowResizing="true"
+			AllowSorting="true"
+			AllowExcelExport="true"
+			AllowReordering="true"
+			AllowMultiSorting="true"
+			AllowPdfExport="true"
+			EnableAdaptiveUI="true"
+			Height="650px"
+			Width="100%">
+			<GridSelectionSettings EnableSimpleMultiRowSelection="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple" AllowDragSelection="true" ></GridSelectionSettings>
+			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
+			<GridPageSettings PageSizes="@(new string[] { "5", "10", "15", "20", "50", "All" })" PageSize="@PageSize"></GridPageSettings>
+			<GridColumns>
+				<GridColumn Field="BotSalePrice" HeaderText="Bot Price" Width="100" />
+				<GridColumn Field="LevelingEnabled" HeaderText="Leveling Enabled" Width="120"></GridColumn>
+				<GridColumn Field="StaminaPotionUntilLevel" HeaderText="Stampot to Level" Width="120">
+					<Template>
+						<div>
+							@{
+								var hero = context as DFKBotHero;
+								if(hero.StaminaPotionUntilLevel is not null)
+								{
+									<span>Use stampots until level @hero.StaminaPotionUntilLevel.Value.</span>
+								}
+							}
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="UseStaminaPotionsAmount" HeaderText="Stampot Amount" Width="120">
+					<Template>
+						<div>
+							@{
+								var hero = context as DFKBotHero;
+								if (hero.UseStaminaPotionsAmount is not null)
+								{
+									<span>Use at least @hero.UseStaminaPotionsAmount.Value stampots.</span>
+								}
+							}
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="LevelUpSetting.MainAttribute.Name" HeaderText="Lvlup Settings" Width="120">
+					<Template>
+						<div>
+							@{
+								var hero = context as DFKBotHero;
+								@if (hero.LevelUpSetting.MainAttribute is not null)
+								{
+									<span>@hero.LevelUpSetting.MainAttribute?.Name</span>
+
+									<br />
+								}
+								@if (hero.LevelUpSetting.SecondaryAttribute is not null)
+								{
+									<span>@hero.LevelUpSetting.SecondaryAttribute?.Name</span>
+
+									<br />
+								}
+								@if (hero.LevelUpSetting.TertiaryAttribute is not null)
+								{
+									<span>@hero.LevelUpSetting.TertiaryAttribute?.Name</span>
+								}
+							}
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="Quest.Name" HeaderText="Prefer Quest" Width="120"></GridColumn>
+				<GridColumn Field="Hero.network" HeaderText="Chain" Width="100" />
+				<GridColumn Field="Hero.id" HeaderText="Id" Width="120"></GridColumn>
+				<GridColumn Field="Hero.rarity" HeaderText="Rarity" Width="120">
+					<Template>
+						<div>
+							@{
+								var hero = context as DFKBotHero;
+								<span>@hero.Hero.GetRarity()</span>
+							}
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="Hero.owner.Id" HeaderText="Wallet" Width="250">
+					<Template>
+						<div>
+							@{
+								var hero = context as DFKBotHero;
+								if (hero.Hero.owner?.Name is not null)
+								{
+									@hero.Hero?.owner?.Name
+									<span class="mx-2"></span>
+								}
+								if (hero.Hero.owner?.Id is not null)
+								{
+									@hero.Hero.owner.Id.Substring(2, 6)
+									@("...")
+									@hero.Hero.owner.Id.Substring(hero.Hero.owner.Id.Length - 4, 4)
+								}
+							}
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="Hero.salePrice" HeaderText="Sale Price" Width="120">
+					<Template>
+						<div>
+							@((context as DFKBotHero).Hero.SalePrice(2))
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="Hero.staminaFullAt" HeaderText="Stamina" Width="120">
+					<Template>
+						<div>
+							@{
+								var hero = context as DFKBotHero;
+								@hero.Hero.StaminaCurrent() @("/") @hero.Hero.stamina
+							}
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="SuggestedQuest.Name" HeaderText="Suggested Quest" Width="280"></GridColumn>
+				<GridColumn Field="Hero.mainClass" HeaderText="Class" Width="120"></GridColumn>
+				<GridColumn Field="Hero.subClass" HeaderText="Subclass" Width="120"></GridColumn>
+				<GridColumn Field="Hero.profession" HeaderText="Profession" Width="130"></GridColumn>
+				<GridColumn Field="Hero.mining" HeaderText="Mining" Width="120"></GridColumn>
+				<GridColumn Field="Hero.gardening" HeaderText="Gardening" Width="130"></GridColumn>
+				<GridColumn Field="Hero.foraging" HeaderText="Foraging" Width="120"></GridColumn>
+				<GridColumn Field="Hero.fishing" HeaderText="Fishing" Width="120"></GridColumn>
+				<GridColumn Field="Hero.currentQuest" HeaderText="Current Quest" Width="280">
+					<Template>
+						<div>
+							@{
+								var hero = context as DFKBotHero;
+								@hero.Hero.GetCurrentQuestName();
+							}
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="rarity" HeaderText="Rarity" Width="120">
+					<Template>
+						<div>
+							@((context as DFKBotHero).Hero.GetRarity())
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="firstName" HeaderText="Name" Width="250">
+					<Template>
+						<div>
+							@((context as DFKBotHero).Hero.FullName())
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="Hero.level" HeaderText="LVL" Width="90"></GridColumn>
+				<GridColumn Field="Hero.generation" HeaderText="Gen" Width="90"></GridColumn>
+				<GridColumn Field="Hero.statBoost1" HeaderText="SB1" Width="90"></GridColumn>
+				<GridColumn Field="Hero.statBoost2" HeaderText="SB2" Width="90"></GridColumn>
+				<GridColumn Field="Hero.strength" HeaderText="STR" Width="90"></GridColumn>
+				<GridColumn Field="Hero.dexterity" HeaderText="DEX" Width="90"></GridColumn>
+				<GridColumn Field="Hero.agility" HeaderText="AGI" Width="90"></GridColumn>
+				<GridColumn Field="Hero.vitality" HeaderText="VIT" Width="90"></GridColumn>
+				<GridColumn Field="Hero.endurance" HeaderText="END" Width="90"></GridColumn>
+				<GridColumn Field="Hero.intelligence" HeaderText="INT" Width="90"></GridColumn>
+				<GridColumn Field="Hero.wisdom" HeaderText="WIS" Width="90"></GridColumn>
+				<GridColumn Field="Hero.luck" HeaderText="LCK" Width="90"></GridColumn>
+			</GridColumns>
+		</SfGrid>
+
+	</div>
+</div>

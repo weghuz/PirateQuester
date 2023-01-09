@@ -1,51 +1,44 @@
 ﻿@page "/TransactionWindow"
 @using PirateQuester.Utils;
-<h3>Transactions</h3>
-
 <PageTitle>PQ - Transactions</PageTitle>
-<h3>
-    Pending
-</h3>
-@foreach (PendingTransaction t in Transaction.PendingTransactions.OrderByDescending(tran => tran.TimeStamp))
-{
-    <RadzenCard class="mt-2">
-        <div class="col-md-12">
-            <div>
-                @t.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss"); @t.Name
-            </div>
-        </div>
-    </RadzenCard>
-}
-<h3>
-    Completed
-</h3>
 @foreach (FinishedTransaction t in Transaction.FinishedTransactions.OrderByDescending(tran => tran.TimeStamp))
 {
     if(t.Success)
     {
-        <RadzenCard class="mt-2 ra-background-color-primary">
-            <div class="col-md-12">
-                <div style="word-break:break-word;">
-                    @t.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss");
-                    @t.Name
-                    <a target="_blank" href="https://avascan.info/blockchain/dfk/tx/@(t.TransactionHash)">
-                        Open transaction in explorer
-                    </a>
+        <SfCard CssClass="mt-2">
+            <CardContent>
+                <div class="col-md-12">
+                    <div style="word-break:break-word;">
+                        @t.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss");
+                        @t.Name
+                        @if (t.TransactionHash is not null)
+                        {
+                            <a target="_blank" href="https://avascan.info/blockchain/dfk/tx/@(t.TransactionHash)">
+                                Open transaction in explorer
+                            </a>
+                        }
+                    </div>
                 </div>
-            </div>
-        </RadzenCard>
+            </CardContent>
+        </SfCard>
     }
-    else{
-        <RadzenCard class="mt-2 ra-background-color-danger">
-            <div class="col-md-12">
-                <div style="word-break:break-word;">
-                    @t.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss");
-                    @t.Name
-                    <a target="_blank" href="https://avascan.info/blockchain/dfk/tx/@(t.TransactionHash)">
-                        Open transaction in explorer
-                    </a>
+    else
+    {
+        <SfCard CssClass="mt-2">
+            <CardContent>
+                <div class="col-md-12">
+                    <div style="word-break:break-word;">
+                        @t.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss");
+                        @t.Name
+                        @if (t.TransactionHash is not null)
+                        {
+                            <a target="_blank" href="https://avascan.info/blockchain/dfk/tx/@(t.TransactionHash)">
+                                Open transaction in explorer
+                            </a>
+                        }
+                    </div>
                 </div>
-            </div>
-        </RadzenCard>
+            </CardContent>
+        </SfCard>
     }
 }

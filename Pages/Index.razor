@@ -1,39 +1,66 @@
 ﻿@page "/"
 <PageTitle>PQ - Home</PageTitle>
-<h2 class="text-center">Welcome to Pirate Quester!</h2>
-<RadzenCard class="my-1">
-	<p>
-		Pirate quester is a place where you can get the every day clicking out of the way and start managing you DFK Heroes.
-	</p>
-	<p>
-		Build to give you the control over your heroes. Bring back your control and get Managing!
-	</p>
-</RadzenCard>
-<RadzenCard class="my-1 ra-background-color-warning" Style="background-color:var(--rz-warning);color:var(--rz-black);">
-	<h4>Warning!</h4>
-	<p>
-		Use this software at your own risk. For feedback/suggestions visit the <a href="https://discord.com/invite/kuy5tSrH9C" target="_blank">DFKAnalytics/Piratequester Discord</a>.
-	</p>
-	<p>
-		Pirate Quester requires full control of your account to run.
-	</p>
-	<p>
-		The advantages are that you can lean back and let the program do the work for you.
-	</p>
-	<p>
-		Pirate Quester is built to be run on your computer or a virtual private server.
-	</p>
-	<p>
-		It's not connected to any central server outside of DFKs API.
-	</p>
-	<p>
-		Built with decentralisation in mind and codebase available on github: <a target="_blank" href="https://github.com/weghuz/PirateQuester">Piratequester GitHub</a>.
-	</p>
-</RadzenCard>
-<RadzenCard class="my-1">
-	<h4>In collaboration with <a href="https://dfkanalytics.com">DFKAnalytics</a> and <a target="_blank" href="https://discord.gg/4zGWeRXjnx">Perilous Pirates guild</a>.</h4>
-	<h5>Made by WegHuZ with love.</h5>
-</RadzenCard>
-@code {
-
-}
+<h4 class="text-center">Pirate Quester</h4>
+<div class="my-2 container">
+	<div class="text-center">
+		<img src="@("icon-192.png")" />
+	</div>
+	<SfCard>
+		<CardHeader>
+			<h5 class="text-center">
+				Welcome!
+			</h5>
+		</CardHeader>
+		<CardContent>
+			<p>
+				Pirate Quester is a place where you can get the everyday clicking out of the way and start managing your DFK Heroes.
+			</p>
+			<p>
+				Built to give you control over your heroes. Bring back your control and get Managing!
+			</p>
+		</CardContent>
+	</SfCard>
+	<SfCard>
+		<CardHeader>
+			<h5 class="text-center text-danger">
+				Warning!
+			</h5>
+		</CardHeader>
+		<CardContent>
+			<p>
+				Use this software at your own risk. For feedback/suggestions visit the <a href="https://discord.com/invite/kuy5tSrH9C" target="_blank">DFKAnalytics/Piratequester Discord</a>.
+			</p>
+			<p>
+				Pirate Quester requires full control of your account to run.
+			</p>
+			<p>
+				The advantages are that you can lean back and let the program do the work for you.
+			</p>
+			<p>
+				Pirate Quester is built to be run on your computer.
+			</p>
+			<p>
+				It's not connected to any central server outside of DFK's API.
+			</p>
+			<p>
+				Built with decentralisation in mind.
+			</p>
+		</CardContent>
+	</SfCard>
+	<SfCard>
+		<CardContent>
+			<p>
+				If you're wondering where to start, make sure to check out the documentation: <a href="https://dfk-project.gitbook.io/pirate-quester/" target="_blank">Docs</a>
+			</p>
+			<p>
+				And join the community in discord: <a href="https://discord.com/invite/kuy5tSrH9C" target="_blank">Discord</a>
+			</p>
+		</CardContent>
+	</SfCard>
+	<SfCard>
+		<CardContent>
+		<p>In collaboration with <a href="https://dfkanalytics.com">DFKAnalytics</a> and <a target="_blank" href="https://discord.gg/4zGWeRXjnx">Perilous Pirates guild</a>.</p>
+		<p>Made by WegHuZ with love.</p>
+		</CardContent>
+	</SfCard>
+</div>

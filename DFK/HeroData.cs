@@ -1,6 +1,28 @@
 namespace DFK;
 public static class HeroData
 {
+    public static string[] ClassFromGene = new string[]
+    {
+        "Warrior",
+        "Knight",
+        "Thief",
+        "Archer",
+        "Priest",
+        "Wizard",
+        "Monk",
+        "Pirate",
+        "Berserker",
+        "Seer",
+        "Paladin",
+        "DarkKnight",
+        "Summoner",
+        "Ninja",
+        "Shapeshifter",
+        "Dragoon",
+        "Sage",
+        "DreadKnight",
+        "Warrior"
+    };
     public static string[] FemaleFirstNames =
     {
         "Alexandria",

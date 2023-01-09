@@ -1,57 +1,15 @@
 ﻿@using Nethereum.Web3.Accounts;
 @using Utils
 @page "/Accounts"
+<div class="container">
 
-<PageTitle>PQ - Accounts</PageTitle>
-@if (Acc.Accounts.Count > 0)
-{
-	<div>
-		<div class="p-2">
-			<RadzenText TextStyle="TextStyle.H6">
-				Chain: DFK Chain
-			</RadzenText>
-		</div>
-		<div>
-			@foreach(DFKAccount acc in Acc.Accounts)
-			{
-				<RadzenCard class="my-3 overflow-auto text-wrap">
-					<RadzenText TextStyle="TextStyle.H4">
-						@acc.Name
-					</RadzenText>
-					<RadzenText TextStyle="TextStyle.H5">
-						Balance
-					</RadzenText>
-					<RadzenText TextStyle="TextStyle.H5">
-						<span class="ml-2">@acc.Balance <RadzenImage Path="Images/Jewel.png" Style="width: 18px; height:18px;" /></span>
-					</RadzenText>
-					<RadzenText TextStyle="TextStyle.H6">
-						Address
-					</RadzenText>
-					<RadzenText>
-						@acc.Account.Address
-					</RadzenText>
-					<RadzenText TextStyle="TextStyle.H6">
-						Public Key
-					</RadzenText>
-					<RadzenText>
-						@acc.Account.PublicKey
-					</RadzenText>
-					<RadzenLabel Text="Show Private Key" Component="ShowPrivateKey" class="font-weight-bold" />
-					@if (Initialized)
-					{
-						<RadzenCheckBox @bind-Value="ShowPrivateKey[acc.Name]" Name="ShowPrivateKey" TValue="bool" />
-						@if (ShowPrivateKey[acc.Name])
-						{
-							<RadzenText TextStyle="TextStyle.H6">
-								Private Key
-							</RadzenText>
-							<RadzenText>
-								@acc.Account.PrivateKey
-							</RadzenText>
-						}
-					}
-				</RadzenCard>
-			}
-		</div>
-	</div>
-}
+	<h4 class="text-center">Accounts</h4>
+	<PageTitle>PQ - Accounts</PageTitle>
+	@if (Acc.Accounts.Count > 0)
+	{
+		@foreach(DFKAccount acc in Acc.Accounts.DistinctBy(a => a.Account.Address))
+		{
+			<PirateQuester.Components.AccountView Accounts="@Acc.Accounts.Where(a => a.Account.Address == acc.Account.Address).ToList()" />
+		}
+	}
+</div>

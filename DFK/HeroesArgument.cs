@@ -10,6 +10,7 @@ public enum HeroesArgument
 	owner,
 	owner_in,
 	realm,
+    network,
     mainClass,
     subClass,
     background,

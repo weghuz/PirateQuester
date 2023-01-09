@@ -9,15 +9,99 @@ namespace PirateQuester.Utils
 {
 	public class LogReader
 	{
-        public static async Task<List<EventLog<RewardMintedEventDTO>>> GetQuestRewardLogs(DFKAccount acc)
+		public static async Task<List<EventLog<RewardMintedEventDTO>>> GetQuestRewardLogs(DFKAccount acc)
 		{
 			var block = await Functions.CurrentBlock(acc.Signer);
-			var questRewardEvent = acc.Signer.Eth.GetEvent<RewardMintedEventDTO>("0x08D93Db24B783F8eBb68D7604bF358F5027330A6");
-			var questEvents = await questRewardEvent
-				.GetAllChangesAsync(questRewardEvent.CreateFilterInput(null,
-					new[] { acc.Account.Address },
-					LongToBlock(long.Parse(block.ToString()) - 2048),
-					new BlockParameter(block.ToHexBigInteger())));
+			int attempt = 0;
+			bool retry = true;
+			List<EventLog<RewardMintedEventDTO>> questEvents = new();
+			while (retry)
+			{
+				try
+				{
+					var questRewardEvent = acc.Signer.Eth.GetEvent<RewardMintedEventDTO>(acc.Chain.QuestRewarder);
+					questEvents = await questRewardEvent
+						.GetAllChangesAsync(questRewardEvent.CreateFilterInput(null,
+							new[] { acc.Account.Address },
+							LongToBlock(long.Parse(block.ToString()) - 2048),
+							new BlockParameter(block.ToHexBigInteger())));
+					retry = false;
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine(e.Message);
+					if (attempt <= 5)
+					{
+						retry = true;
+					}
+					block -= 10;
+					attempt++;
+				}
+			}
+			return questEvents;
+		}
+
+		public static async Task<List<EventLog<QuestCompletedEventDTO>>> GetCompletedQuestsLogs(DFKAccount acc)
+		{
+			var block = await Functions.CurrentBlock(acc.Signer);
+			int attempt = 0;
+			bool retry = true;
+			List<EventLog<QuestCompletedEventDTO>> questEvents = new();
+			while (retry)
+			{
+				try
+				{
+					var completedRewardEvent = acc.Signer.Eth.GetEvent<QuestCompletedEventDTO>(acc.Chain.QuestAddress);
+					questEvents = await completedRewardEvent
+						.GetAllChangesAsync(completedRewardEvent.CreateFilterInput(null,
+							new[] { acc.Account.Address },
+							LongToBlock(long.Parse(block.ToString()) - 2048),
+							new BlockParameter(block.ToHexBigInteger())));
+					retry = false;
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine(e.Message);
+					if (attempt <= 5)
+					{
+						retry = true;
+					}
+					block -= 10;
+					attempt++;
+				}
+			}
+			return questEvents;
+		}
+		//Duno why this doesn't work.
+		public static async Task<List<EventLog<QuestSkillUpEventDTO>>> GetSkillUpLogs(DFKAccount acc, BigInteger questId)
+		{
+			var block = await Functions.CurrentBlock(acc.Signer);
+			int attempt = 0;
+			bool retry = true;
+			List<EventLog<QuestSkillUpEventDTO>> questEvents = new();
+			while (retry)
+			{
+				try
+				{
+					var completedRewardEvent = acc.Signer.Eth.GetEvent<QuestSkillUpEventDTO>(acc.Chain.QuestAddress);
+					questEvents = await completedRewardEvent
+						.GetAllChangesAsync(completedRewardEvent.CreateFilterInput(null,
+							new[] { questId.ToString() },
+							LongToBlock(long.Parse(block.ToString()) - 2048),
+							new BlockParameter(block.ToHexBigInteger())));
+					retry = false;
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine(e.Message);
+					if (attempt <= 5)
+					{
+						retry = true;
+					}
+					block -= 10;
+					attempt++;
+				}
+			}
 			return questEvents;
 		}
 

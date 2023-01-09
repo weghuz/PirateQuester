@@ -1,17 +1,80 @@
 ﻿@page "/Options"
-<h3>Options</h3>
-
 <PageTitle>PQ - Options</PageTitle>
-<RadzenCard>
-    <div class="col-md-6">
-        <RadzenButton Click="ToggleDarkMode" Text="Dark Mode" ButtonStyle="ButtonStyle.Secondary" />
-    </div>
-</RadzenCard>
-<RadzenCard class="mt-3">
-    <div class="col-md-6">
-        <RadzenText class="pb-2">
-            (Remove all Accounts from memory)
-        </RadzenText>
-        <RadzenButton Click="ClearLocalStorage" Text="Clear Local Storage" ButtonStyle="ButtonStyle.Secondary" />
-    </div>
-</RadzenCard>
+
+<h4 class="text-center">Options</h4>
+
+<div class="container">
+    <SfCard>
+        <CardContent>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-1">
+                        (Remove all Accounts from memory)
+                    </p>
+                    <SfButton OnClick="ClearLocalStorage" CssClass="e-primary" >
+                        Clear Local Storage
+                    </SfButton>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1">
+                        (Remove all Settings from memory, useful if you crash a lot)
+                    </p>
+                    <SfButton OnClick="ClearProblematicStorage" CssClass="e-primary">
+                        Clear Local Settings
+                    </SfButton>
+                </div>
+                <div class="col-md-6 mt-4">
+                    <SfButton OnClick="ToggleDarkMode" CssClass="e-primary">
+                        Toggle Dark Mode
+                    </SfButton>
+                </div>
+            </div>
+        </CardContent>
+    </SfCard>
+    <SfCard>
+        <CardContent>
+            <div class="row">
+                <div class="col-md-6">
+                    @{
+                        var dfk = AccSettings.ChainSettings.First(cs => cs.Name == "DFK");
+                    }
+                    <h6 class="mb-1">
+                        DFK Chain RPC
+                    </h6>
+                    <SfTextBox @bind-Value=@dfk.RPC></SfTextBox>
+                    <label class="text-center my-2">
+                        <h6 class="mb-1">
+                            DFK Chain Enabled
+                        </h6>
+                        <SfCheckBox @bind-Checked=@dfk.Enabled></SfCheckBox>
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    @{
+                        var klaytn = AccSettings.ChainSettings.First(cs => cs.Name == "Klaytn");
+                    }
+                    <h6 class="mb-1">
+                        Klaytn RPC
+                    </h6>
+                    <SfTextBox @bind-Value=@klaytn.RPC></SfTextBox>
+                    <label class="text-center my-2">
+                        <h6 class="mb-1">
+                            Klaytn Enabled
+                        </h6>
+                        <SfCheckBox @bind-Checked=@klaytn.Enabled></SfCheckBox>
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    @{
+                        var avalanche = AccSettings.ChainSettings.First(cs => cs.Name == "Avalanche");
+                    }
+                    <h6 class="mb-1">
+                        Avalanche RPC
+                    </h6>
+                    <SfTextBox @bind-Value=@avalanche.RPC></SfTextBox>
+                </div>
+            </div>
+
+        </CardContent>
+    </SfCard>
+</div>

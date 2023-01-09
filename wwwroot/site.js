@@ -1,7 +1,9 @@
 
-window.SetStylesheet = (styleSheet) =>
-{
-    document.getElementById(`RadzenStylesheet`).setAttribute(`href`, styleSheet);
+window.SetStylesheet = (styleSheet) => {
+    document.getElementById(`AppStyleSheet`).setAttribute(`href`, styleSheet);
+}
+window.SetSyncfusionStylesheet = (styleSheet) => {
+    document.getElementById(`SyncfusionStylesheet`).setAttribute(`href`, styleSheet);
 }
 
 window.GetTime = () => {

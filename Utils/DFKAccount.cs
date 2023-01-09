@@ -5,82 +5,283 @@ using DFKContracts.QuestCore;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using PirateQuester.Bot;
+using PirateQuester.DFK.Items;
+using PirateQuester.HeroSale;
+using PirateQuester.ItemConsumer;
+using PirateQuester.PirateQuesterToken;
+using PirateQuester.PowerToken;
+using System.Numerics;
 
 namespace PirateQuester.Utils
 {
     public class DFKAccount
 	{
+		public bool QueryOnChain = false;
+
 		public delegate void AccountUpdated();
 
 		public static event AccountUpdated UpdatedAccount;
-		public async void UpdateBalance()
+		public async Task UpdateBalance()
         {
-            Balance = 0;
-
-            Balance += Web3.Convert.FromWei(await Signer.Eth.GetBalance.SendRequestAsync(Account.Address));
+            int attempt = 0;
+            bool retry = true;
+            while (retry)
+            {
+                try
+                {
+					Balance = Web3.Convert.FromWei(await Signer.Eth.GetBalance.SendRequestAsync(Account.Address));
+					var consumableItem = ItemContractDefinitions.InventoryItems.First(item => item.Name == "Stamina Potion");
+					var ConsumableItem = new Erc20Service(Signer, consumableItem.Addresses.First(a => a.Chain.Id == Chain.Id).Address);
+					StaminaPotionBalance = int.Parse((await ConsumableItem.BalanceOfQueryAsync(Account.Address)).ToString());
+					PowerTokenBalance = Web3.Convert.FromWei(await PowerTokenService.BalanceOfQueryAsync(Account.Address));
+					LockedPowerTokenBalance = Web3.Convert.FromWei(await PowerTokenService.LockOfQueryAsync(Account.Address));
+					AvaxBalance = Web3.Convert.FromWei(await AvalancheSigner.Eth.GetBalance.SendRequestAsync(Account.Address));
+					PQTBalance = Web3.Convert.FromWei(await PQT.BalanceOfQueryAsync(Account.Address));
+					retry = false;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine($"If the RPC fails too much, try changing RPCs in /Options");
+                    attempt++;
+                    if (attempt >= 5)
+                    {
+                        retry = false;
+                    }
+                    else
+                    {
+                        await Task.Delay(attempt * 100);
+                    }
+                }
+            }
         }
 
-        public async Task InitializeAccount(DFKBotSettings settings)
+        public async Task InitializeAccount()
 		{
-			UpdateBalance();
-
-            Dictionary<HeroesArgument, string> args = new()
+			await UpdateBalance();
+			int attempt = 0;
+			bool retry = true;
+			while (retry)
 			{
-				{ HeroesArgument.owner, Account.Address }
-			};
-			string request = API.HeroesRequestBuilder(args, "id owner {id name} rarity generation firstName lastName mainClass subClass staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina profession statBoost1 statBoost2 salePrice xp");
-			Heroes = (await API.GetHeroes(request)).ToList();
+				try
+				{
+					if(QueryOnChain)
+					{
+						await ChainUpdateHeroes();
+					}
+					else
+					{
+						await APIInitializeHeroes();
+					}
+					retry = false;
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine(e.Message);
+					attempt++;
+					if (attempt >= 5)
+					{
+						QueryOnChain = true;
+						retry = false;
+						await ChainUpdateHeroes();
+					}
+					else
+					{
+						await Task.Delay(attempt * 100);
+					}
+				}
+			}
 			BotHeroes = new();
-			foreach(Hero h in Heroes)
+			foreach (Hero h in Heroes)
 			{
 				h.DFKAccount = this;
-				BotHeroes.Add(new DFKBotHero(h, settings));
+				if(h.owner is null)
+				{
+					h.owner = new()
+					{
+						Id = Account.Address
+					};
+				}
+				
+				BotHeroes.Add(new DFKBotHero(h, Settings));
 			}
 			UpdatedAccount?.Invoke();
+		}
+		
+		public async Task APIInitializeHeroes()
+		{
+			Dictionary<HeroesArgument, string> args = new()
+			{
+				{ HeroesArgument.owner, Account.Address },
+                { HeroesArgument.network, Chain.Identifier }
+            };
+			string request = API.HeroesRequestBuilder(args, "id owner {id name} rarity generation firstName lastName mainClass subClass staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina profession statBoost1 statBoost2 salePrice xp network mining foraging fishing gardening");
+			Heroes = (await API.GetHeroes(request)).ToList();
 		}
 
 		public async Task UpdateHeroes()
 		{
-            Dictionary<HeroesArgument, string> args = new()
-            {
-                { HeroesArgument.owner, Account.Address }
-            };
-            string request = API.HeroesRequestBuilder(args, "id staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina salePrice xp");
-			List<Hero> updates = (await API.GetHeroes(request)).ToList();
-			foreach(Hero h in updates)
+			int attempt = 0;
+			bool retry = true;
+			while (retry)
 			{
-				Hero target = Heroes.FirstOrDefault(hero => hero.id == h.id);
-				DFKBotHero botHero = BotHeroes.FirstOrDefault(hero => hero.Hero.id == h.id);
-				if(target is not null)
+				try
 				{
-					target.UpdateHeroValues(h);
-					botHero.Hero.UpdateHeroValues(h);
-                }
+					if (QueryOnChain)
+					{
+						await ChainUpdateHeroes();
+					}
+					else
+					{
+						await APIUpdateHeroes();
+					}
+					retry = false;
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine(e.Message);
+					attempt++;
+					if (attempt >= 5)
+					{
+						QueryOnChain = true;
+						retry = false;
+						await ChainUpdateHeroes();
+					}
+					else
+					{
+						await Task.Delay(attempt * 100);
+					}
+				}
 			}
         }
 
-		public DFKAccount(string name, Account account)
-        {
-            Name = name;
-            Account = account;
-			Signer = new Web3(account, "https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc");
-			// Transactions may fail without this.
-			Signer.TransactionManager.UseLegacyAsDefault = true;
-			Quest = new QuestCoreService(Signer, "0xE9AbfBC143d7cef74b5b793ec5907fa62ca53154");
-			Hero = new HeroCoreService(Signer, "0xEb9B61B145D6489Be575D3603F4a704810e143dF");
-			Meditation = new DFKContracts.MeditationCircle.MeditationCircleService(Signer, "0xD507b6b299d9FC835a0Df92f718920D13fA49B47");
+		public async Task ChainUpdateHeroes()
+		{
+			List<BigInteger> chainHeroes = new();
+			List<Hero> newHeroes = new();
+			int attempt = 0;
+			bool retry = true;
+			while (retry)
+			{
+				try
+				{
+					chainHeroes = await Hero.GetUserHeroesQueryAsync(Account.Address);
+					
+                    retry = false;
+				}
+				catch (Exception e)
+				{
+					attempt++;
+					if(attempt >= 5)
+					{
+						retry = false;
+					}
+					else
+					{
+						await Task.Delay(attempt * 100);
+					}
+					Console.WriteLine(e.Message);
+				}
+			}
+			foreach(var heroId in chainHeroes)
+			{
+				DFKContracts.HeroCore.ContractDefinition.Hero hero;
+				attempt = 0;
+				retry = true;
+				while (retry)
+				{
+					try
+					{
+						hero = (await Hero.GetHeroQueryAsync(heroId)).ReturnValue1;
+						newHeroes.Add(new(hero));
+						Console.WriteLine($"Hero #{heroId} fetch from blockchain {chainHeroes.IndexOf(heroId)}/{chainHeroes.Count()}");
+						retry = false;
+					}
+					catch (Exception e)
+					{
+						if (attempt >= 5)
+						{
+							QueryOnChain = true;
+							retry = false;
+						}
+						else
+						{
+							await Task.Delay(attempt * 100);
+						}
+						Console.WriteLine(e.Message);
+					}
+				}
+			}
+			Heroes = newHeroes;
 		}
 
+		public async Task APIUpdateHeroes()
+		{
+			Dictionary<HeroesArgument, string> args = new()
+			{
+				{ HeroesArgument.owner, Account.Address },
+				{ HeroesArgument.network, Chain.Identifier }
+			};
+			string request = API.HeroesRequestBuilder(args, "id staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina salePrice xp network");
+			List<Hero> updates = (await API.GetHeroes(request)).ToList();
+			foreach (Hero h in updates)
+			{
+				Hero target = Heroes.FirstOrDefault(hero => hero.id == h.id);
+				DFKBotHero botHero = BotHeroes.FirstOrDefault(hero => hero.Hero.id == h.id);
+				if (target is not null)
+				{
+					target.UpdateHeroValues(h);
+					botHero.Hero.UpdateHeroValues(h);
+				}
+			}
+		}
+
+		public DFKAccount(string name, Account account, Chain.Chain chain, Chain.Chain Avalanche, DFKBotSettings settings)
+        {
+			Settings = settings;
+            Name = name;
+            Account = account;
+			Chain = chain;
+			AvalancheSigner = new Web3(new Account(account.PrivateKey), Avalanche.RPC);
+			PQT = new PirateQuesterTokenService(AvalancheSigner, Constants.PQT_ADDRESS);
+			// Transactions may fail without this.
+			Signer = new Web3(account, chain.RPC);
+			Signer.TransactionManager.UseLegacyAsDefault = true;
+			PowerTokenService = new PowerTokenService(Signer, chain.NativeToken);
+			Quest = new QuestCoreService(Signer, chain.QuestAddress);
+			Auction = new HeroSaleService(Signer, chain.HeroSale);
+            Hero = new HeroCoreService(Signer, chain.HeroAddress);
+			Meditation = new DFKContracts.MeditationCircle.MeditationCircleService(Signer, chain.MeditationAddress);
+			ItemConsumer = new ItemConsumerService(Signer, chain.ItemConsumer);
+		}
+
+        public DFKBotSettings Settings { get; set; }
+        public Chain.Chain Chain { get; set; }
 		private decimal balance;
-        public decimal Balance { get { return Math.Round(balance, 2); } set { balance = value;} }
-        public Web3 Signer { get; set; }
-        public Erc20Service Erc20 { get; set; }
-        public HeroCoreService Hero { get; set; }
-        public QuestCoreService Quest { get; set; }
-        public DFKContracts.MeditationCircle.MeditationCircleService Meditation { get; set; }
-        public Account Account { get; set; }
+		public decimal Balance { get { return Math.Round(balance, 2); } set { balance = value; } }
+		private decimal powerTokenBalance;
+		public decimal PowerTokenBalance { get { return Math.Round(powerTokenBalance, 2); } set { powerTokenBalance = value; } }
+		public decimal lockedPowerTokenBalance;
+		public decimal LockedPowerTokenBalance { get { return Math.Round(lockedPowerTokenBalance, 2); } set { lockedPowerTokenBalance = value; } }
+		private decimal pqtBalance;
+        public decimal PQTBalance { get { return Math.Round(pqtBalance, 2); } set { pqtBalance = value; } }
+
+		public decimal avaxBalance;
+		public decimal AvaxBalance { get { return Math.Round(avaxBalance, 2); } set { avaxBalance = value; } }
+		public int StaminaPotionBalance { get; set; }
+		public Web3 AvalancheSigner { get; }
+        public Web3 Signer { get; }
+        public Erc20Service Erc20 { get; }
+		public HeroSaleService Auction { get; }
+		public PowerTokenService PowerTokenService { get; }
+        public HeroCoreService Hero { get; }
+        public ItemConsumerService ItemConsumer { get; }
+        public QuestCoreService Quest { get; }
+        public PirateQuesterTokenService PQT { get; }
+        public DFKContracts.MeditationCircle.MeditationCircleService Meditation { get; }
+        public Account Account { get; }
         public string Name { get; set; }
         public List<Hero> Heroes { get; set; }
 		public List<DFKBotHero> BotHeroes { get; set; }
-    }
+	}
 }

@@ -102,6 +102,8 @@ public static class API
             request.Append(GetArgument(HeroesArgument.saleprice_not, args));
             request.Append(GetArgument(HeroesArgument.owner, args));
             request.Append(GetArgument(HeroesArgument.owner_in, args));
+            request.Append(GetArgument(HeroesArgument.network, args));
+            request.Append(GetArgument(HeroesArgument.realm, args));
             request.Append(GetArgument(HeroesArgument.background, args));
             request.Append(GetArgument(HeroesArgument.profession, args));
             request.Append(GetArgument(HeroesArgument.pjStatus, args));

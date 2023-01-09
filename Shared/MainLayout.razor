@@ -2,81 +2,125 @@
 @using Utils;
 @using global::Utils;
 @inherits LayoutComponentBase
-<RadzenDialog />
-@code{
-    public void OpenTransactionWindow()
-    {
-        Dialog.Open<TransactionsWindow>("Transaction",
-        new(),
-        new DialogOptions() { Width = "700px", Height = "512px", Resizable = true, Draggable = true, CloseDialogOnEsc = true, AutoFocusFirstElement = true });
-    }
-}
-<div class="page">
-    <main style="width:100%;">
-        <RadzenLayout class="">
-            <RadzenHeader>
-                <div class="d-flex align-items-center">
-                    <RadzenSidebarToggle Click="@(() => SidebarExpanded = !SidebarExpanded)" />
-                    <div class="overflow-auto" style="white-space:nowrap;">
-                        <div class="d-inline-block">
-                            @if (Acc.Accounts.Count == 1)
-                            {
-                                <RadzenButton Click="@(() => Nav.NavigateTo("Accounts"))" Style="white-space:nowrap;">
-                                    @{
-                                        var address = Acc.Accounts.FirstOrDefault().Account.Address;
-                                        <span>@address.Substring(0, 4)...</span>
-                                        <span>@address.Substring(address.Length-4, 4)</span>
-                                    }
-                                </RadzenButton>
-                                <span class="ml-2">@Balance <RadzenImage Path="Images/Jewel.png" Style="width: 18px; height:18px;" /></span>
-                            }
-                            else if (Acc.Accounts.Count > 1)
-                            {
-                                <RadzenButton Click="@(() => Nav.NavigateTo("Accounts"))" Style="white-space:nowrap;">
-                                    @Acc.Accounts.Count Accounts
-                                </RadzenButton>
-                            }
-                            else if (Acc.AccountNames.Count > 0)
-                            {
-                                <br />
-                                <RadzenLink Path="Login" Text="Login" Style="white-space:nowrap;" />
-                            }
-                            else
-                            {
-                                <RadzenLink Path="CreateAccount" Text="Create Account" Style="white-space:nowrap;" />
-                            }
-                        </div>
-                        <RadzenText Text="Pirate Quester 🏴‍☠️" Style="white-space:nowrap;" class="d-inline-block mx-5" />
-                        <RadzenButton class="d-inline-block" Click="@OpenTransactionWindow">
-                            @Transaction.PendingTransactions.Count Pending Transactions
-                        </RadzenButton>
-                    </div>
-                </div>
-            </RadzenHeader>
-            <RadzenSidebar @bind-Expanded="@SidebarExpanded">
-                <RadzenPanelMenu>
-                    <RadzenPanelMenuItem Text="Home" Icon="house" Path="/" />
-                    @if (Acc.AccountNames.Count > 0)
+
+<SfDialog ShowCloseIcon="true" IsModal="true" @bind-Visible="@ShowTransactionsWindow">
+    <DialogTemplates>
+        <Header>
+            <h4 class="text-center">@Transaction.FinishedTransactions.Count transactions</h4>
+        </Header>
+        <Content>
+            <TransactionsWindow />
+        </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton CssClass="e-secondary" Content="Close" OnClick="@(() => ShowTransactionsWindow = false)" />
+    </DialogButtons>
+</SfDialog>
+
+
+<div>
+    <SfSidebar 
+        Width="250px"
+        MediaQuery="600px"
+        EnableGestures="false"
+        @bind-IsOpen=@SidebarExpanded>
+        <ChildContent>
+            <label class="w-100 text-center my-3">
+                Sticky Sidebar
+                <SfCheckBox @bind-Checked=@StickySidebar></SfCheckBox>
+            </label>
+            <SfButton CssClass="d-inline-block w-100 my-1" OnClick="@(() => ShowTransactionsWindow = !ShowTransactionsWindow)">
+                🚀 @Transaction.FinishedTransactions.Count() Transactions
+            </SfButton>
+            <SfButton OnClick="@(() => Navigate(""))" CssClass="@(Nav.ToBaseRelativePath(Nav.Uri) == "" ? "w-100 my-1 e-primary" : "w-100 my-1")">
+                🏴‍☠️ Home
+            </SfButton>
+            @if (Acc.AccountNames.Count > 0)
+            {
+                if (Acc.Accounts.Count > 0)
+                {
+                    <SfButton OnClick="@(() => Navigate("ControlCenter"))" CssClass="@(Nav.ToBaseRelativePath(Nav.Uri) == "ControlCenter" ? "w-100 my-1 e-primary" : "w-100 my-1")">
+                        🎛️ Control Center
+                    </SfButton>
+                    @if (Acc.Accounts.Count == 1)
                     {
-                        if(Acc.Accounts.Count > 0)
-                        {
-                            <RadzenPanelMenuItem Text="Control Center" Icon="dashboard" Path="/ControlCenter" />
-                            <RadzenPanelMenuItem Text="Bot" Icon="android" Path="/Bot" />
-                            <RadzenPanelMenuItem Text="Accounts" Path="/Accounts" Icon="account_circle"></RadzenPanelMenuItem>
-                        }
-                        <RadzenPanelMenuItem Text="Login" Path="/Login" Icon="account_circle"></RadzenPanelMenuItem>
+                        <SfButton OnClick="@(() => Navigate("Accounts"))" CssClass="@(Nav.ToBaseRelativePath(Nav.Uri) == "Accounts" ? "w-100 my-1 e-primary" : "w-100 my-1")">
+                            @{
+                                var address = Acc.Accounts.FirstOrDefault().Account.Address;
+                                <span>📒@address.Substring(0, 4)...</span>
+                                <span>@address.Substring(address.Length-4, 4)</span>
+                            }
+                        </SfButton>
                     }
-                    <RadzenPanelMenuItem Text="Create Account" Path="/CreateAccount" Icon="account_box"></RadzenPanelMenuItem>
-                    <RadzenPanelMenuItem Path="Options" Text="Options" Icon="build" />
-                </RadzenPanelMenu>
-                <div class="p-2">
-                    <RadzenText Text="Notepad" />
-                    <RadzenTextArea @bind-Value="@NotePad" Change="@SaveNotepad" class="w-100" Rows="20" />
-                </div>
-            </RadzenSidebar>
-            <RadzenBody>
+                    else if (Acc.Accounts.Count > 1)
+                    {
+                        <SfButton OnClick="@(() => Navigate("Accounts"))" CssClass="@(Nav.ToBaseRelativePath(Nav.Uri) == "Accounts" ? "w-100 my-1 e-primary" : "w-100 my-1")">
+
+                            📒 @Acc.Accounts.DistinctBy(a => a.Account.Address).Count() Accounts
+                        </SfButton>
+                    }
+                    <SfButton OnClick="@(() => Navigate("Bot"))" CssClass="@(Nav.ToBaseRelativePath(Nav.Uri) == "Bot" ? "w-100 my-1 e-primary" : "w-100 my-1")">
+                        🤖 Bot
+                    </SfButton>
+                }
+                <SfButton OnClick="@(() => Navigate("Login"))" CssClass="@(Nav.ToBaseRelativePath(Nav.Uri) == "Login" ? "w-100 my-1 e-primary" : "w-100 my-1")">
+                    👨‍💻 Login
+                </SfButton>
+            }
+            <SfButton OnClick="@(() => Navigate("CreateAccount"))" CssClass="@(Nav.ToBaseRelativePath(Nav.Uri) == "CreateAccount" ? "w-100 my-1 e-primary" : "w-100 my-1")">
+                💻 Create Account
+            </SfButton>
+            <SfButton OnClick="@(() => Navigate("Options"))" CssClass="@(Nav.ToBaseRelativePath(Nav.Uri) == "Options" ? "w-100 my-1 e-primary" : "w-100 my-1")">
+                ⚙️ Options
+            </SfButton>
+            <SfButton CssClass="w-100 my-1" OnClick="@(() => NavigateExternal("https://dfk-project.gitbook.io/pirate-quester/"))">
+                🔗 Docs
+            </SfButton>
+            <SfButton CssClass="w-100 my-1" OnClick="@(() => NavigateExternal("https://discord.gg/kuy5tSrH9C"))">
+                🔗 Discord
+            </SfButton>
+            <p>
+                Notepad
+            </p>
+            <SfButton CssClass="w-100 e-primary" OnClick="@(() => ExpandNotepad = !ExpandNotepad)">
+                🗁 Expand
+            </SfButton>
+            <SfDialog ShowCloseIcon="true" IsModal="true" @bind-Visible="@ExpandNotepad">
+                <DialogTemplates>
+                    <Header>
+                        <h6>Notepad</h6>
+                    </Header>
+                    <Content>
+                        <SfRichTextEditor @bind-Value="NotePad" HtmlAttributes="@(new(){{"spellcheck", "false"}})" />
+                    </Content>
+                </DialogTemplates>
+                <DialogButtons>
+                    <DialogButton Content="Close" OnClick="@(() => ExpandNotepad = !ExpandNotepad)" />
+                </DialogButtons>
+            </SfDialog>
+            <div style="overflow:auto;max-height:400px;margin-top:5px;">
+                <SfRichTextEditor @bind-Value="NotePad" HtmlAttributes="@(new(){{"spellcheck", "false"}})">
+                    
+                </SfRichTextEditor>
+            </div>
+        </ChildContent>
+    </SfSidebar>
+    <div>
+        <SfAppBar>
+            <SfButton CssClass="e-inherit" IconCss="e-icons e-menu" OnClick="@(() => SidebarExpanded = !SidebarExpanded)"></SfButton>
+            <AppBarSpacer></AppBarSpacer>
+            <a href="/">
+                <img src="/Images/pirate-quester-logo.png" width="225" height="30" class="ml-5" style="background-color:#292827;" />
+            </a>
+            <h6 style="white-space:nowrap;" class="d-inline-block mx-2 mt-2">
+                @($"V{Constants.VERSION}")
+            </h6>
+            <AppBarSpacer></AppBarSpacer>
+        </SfAppBar>
+        <main @onclick=@(() => HideSidebar())>
+            <div>
                 @Body
-            </RadzenBody>
-        </RadzenLayout>
-    </main>
+            </div>
+        </main>
+    </div>
 </div>

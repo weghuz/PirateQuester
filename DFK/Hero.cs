@@ -1,4 +1,7 @@
 using Microsoft.JSInterop;
+using Nethereum.Hex.HexConvertors.Extensions;
+using Nethereum.Util;
+using Nethereum.Web3;
 using Newtonsoft.Json;
 using PirateQuester.DFK.Contracts;
 using PirateQuester.Utils;
@@ -7,7 +10,59 @@ using System.Numerics;
 namespace DFK;
 public class Hero
 {
-    public int XpToLevelUp()
+    public Hero() { }
+    public Hero(DFKContracts.HeroCore.ContractDefinition.Hero hero)
+    {
+        id = hero.Id.ToString();
+        rarity = hero.Info.Rarity;
+        generation = hero.Info.Generation;
+        firstName = (int)hero.Info.FirstName;
+        lastName = (int)hero.Info.LastName;
+        mainClass = Constants.GetClass(hero.Info.Class);
+        subClass = Constants.GetClass(hero.Info.SubClass);
+
+        staminaFullAt = (long)Functions.BigIntToLong(hero.State.StaminaFullAt);
+        level = hero.State.Level;
+        currentQuest = hero.State.CurrentQuest;
+
+        strength = hero.Stats.Strength;
+        dexterity = hero.Stats.Dexterity;
+        agility = hero.Stats.Agility;
+        vitality = hero.Stats.Vitality;
+        endurance = hero.Stats.Endurance;
+        wisdom = hero.Stats.Wisdom;
+        intelligence = hero.Stats.Intelligence;
+        luck = hero.Stats.Luck;
+        byte[] decodedGenes = DecodeRecessiveGenes(hero.Info.StatGenes);
+		profession = Constants.GetProfession(decodedGenes[11]);
+		statBoost1 = Constants.GetStatBoost(decodedGenes[31]);
+		statBoost2 = Constants.GetStatBoost(decodedGenes[35]);
+		stamina = hero.Stats.Stamina;
+	}
+
+    public byte[] DecodeRecessiveGenes(BigInteger genesBigInt) {
+		var abc = "123456789abcdefghijkmnopqrstuvwx";
+		var buf = "";
+		byte bas = 32;
+		BigInteger mod = 0;
+
+		while (genesBigInt >= bas)
+		{
+			mod = genesBigInt % bas;
+			buf += abc[int.Parse(mod.ToString())];
+			genesBigInt = (genesBigInt - mod) / bas;
+		}
+		buf += abc[int.Parse(genesBigInt.ToString())];
+		buf = buf.PadRight(48, '1');
+		byte[] result = new byte[48];
+		for (int i = 0; i < buf.Length; i += 1)
+		{
+			result[i] = (byte)abc.IndexOf(buf[i]);
+		}
+		return result.Reverse().ToArray();
+	}
+
+	public int XpToLevelUp()
     {
         int xpNeeded = 0;
         var nextLevel = level + 1;
@@ -47,6 +102,7 @@ public class Hero
     {
         staminaFullAt = h.staminaFullAt;
         level = h.level;
+        xp = h.xp;
         currentQuest = h.currentQuest;
         strength = h.strength;
         dexterity = h.dexterity;
@@ -81,7 +137,7 @@ public class Hero
 
 	public string GetCurrentQuestName()
 	{
-        QuestContract quest = QuestContractDefinitions.DFKQuestContracts.FirstOrDefault(quest => quest.Address == currentQuest);
+        QuestContract quest = QuestContractDefinitions.DFKQuestContracts.SelectMany(qc => qc.QuestContracts).FirstOrDefault(quest => quest.Address == currentQuest);
         if (quest is not null)
         {
             return $"{quest.Category}{(quest.Subcategory != quest.Category ? $":{quest.Subcategory}" : "")}";
@@ -101,8 +157,13 @@ public class Hero
 
     public decimal SalePrice(int decimals)
     {
-        decimal fixedSalePrice = long.Parse(salePrice) / 1000000000000000000;
-        return Math.Round(fixedSalePrice, decimals);
+        if(salePrice is not null)
+		{
+			BigInteger price = BigInteger.Parse(salePrice);
+			decimal fixedSalePrice = Web3.Convert.FromWei(price);
+			return Math.Round(fixedSalePrice, decimals);
+		}
+        return 0;
     }
 
     public static Hero Deserialize(string json)
@@ -129,8 +190,8 @@ public class Hero
         }
     }
 
-    public DFKAccount DFKAccount { get; set; }
-
+	public bool StaminaPotioned { get; set; } = false;
+	public DFKAccount DFKAccount { get; set; }
 	public string id { get; set; }
     public string numberId { get; set; }
     public Profile owner { get; set; }

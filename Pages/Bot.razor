@@ -4,151 +4,285 @@
 @using PirateQuester.Components
 @using PirateQuester.DFK.Contracts;
 @using PirateQuester.Utils;
+@using PirateQuester.Utils.Chain;
 <PageTitle>PQ - Bot</PageTitle>
-<BotTerminalNavigation />
-<RadzenCard class="my-1">
-	<EditForm Model="Bots.Settings">
-		<div class="my-1 text-center">
-			<RadzenButton Text="Run Bots" ButtonType="ButtonType.Submit" Disabled="Bots.CheckRunning()" Click="@Bots.RunBots" />
-			<RadzenButton Text="Stop Bots" ButtonType="ButtonType.Submit" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" Click="@Bots.StopBots" />
-		</div>
-		<div class="row">
 
-			<div class="col-md-6">
-				<RadzenLabel Text="Update Frequency (Seconds)" Component="UpdateInterval" />
-				<RadzenNumeric Name="UpdateInterval" class="w-100 my-1" @bind-Value=@Bots.Settings.UpdateInterval />
-			</div>
 
-			<div class="col-md-6">
-				<RadzenLabel Text="Min Stamina to Quest" Component="MinStamina" />
-				<RadzenNumeric Name="MinStamina" class="w-100 my-1" @bind-Value="@Bots.Settings.MinStamina" />
-			</div>
-
-			<div class="col-md-12">
-				<RadzenLabel Text="MaxGasFee (If your Max Fee is too low txns could get stuck during high traffic times.)" Component="MaxGasFee" />
-				<RadzenNumeric Name="MaxGasFee" class="w-100 my-1" @bind-Value="@Bots.Settings.MaxGasFeeGwei" />
-			</div>
-			<div class="col-12">
-				<RadzenText Text="Professions" TextStyle="TextStyle.H5" />
-				@*First 8 quests are training quests*@
-				<div class="row">
-					@foreach(QuestContract quest in QuestContractDefinitions.DFKQuestContracts.Skip(8))
+<div class="container-fluid">
+	<BotTerminalNavigation />
+	<h4 class="text-center">Settings</h4>
+	<SfCard>
+		<CardContent>
+			<EditForm Model="@Bots.Settings">
+				<DataAnnotationsValidator />
+				<div class="my-1 text-center">
+					@if (Acc.Accounts.Any(acc => acc.PQTBalance > 0))
 					{
-						<div class="col-md-4 col-lg-3">
-							<RadzenText Text="@($"{quest.Name}")"/>
-							<RadzenLabel Text="@($"Enabled:")" Component="@($"ProfessionEnabled{quest.Id}")" />
-							<RadzenCheckBox Name="@($"ProfessionEnabled{quest.Id}")"
-									TValue="bool"
-									Value="Bots.Settings.QuestEnabled[quest.Id-1]"
-									Change="@((val) => Bots.Settings.QuestEnabled[quest.Id-1] = val)" />
-						</div>
+						<SfButton CssClass="e-success mx-1" Disabled="Bots.CheckRunning()" OnClick="@Bots.RunBots">
+							Run Bots
+						</SfButton>
+						<SfButton CssClass="e-danger mx-1" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" OnClick="@Bots.StopBots" >
+							Stop Bots
+						</SfButton>
 					}
-				</div>
-				<RadzenText Text="Training" TextStyle="TextStyle.H5" />
-				<div class="row">
-
-					@foreach (DFKStatAmount stat in Bots.Settings.MinTrainingStats)
+					else
 					{
-						<div class="col-md-6">
-							<RadzenText Text="@($"{stat.Name} training.")" />
-							<RadzenLabel Text="@($"Enabled:")" Component="@($"TrainingEnabled{stat.Id}")" />
-							<RadzenCheckBox Name="@($"TrainingEnabled{stat.Id}")" 
-								TValue="bool"
-								Value="Bots.Settings.QuestEnabled[Bots.Settings.MinTrainingStats.IndexOf(stat)]"
-								Change="@((val) => Bots.Settings.QuestEnabled[Bots.Settings.MinTrainingStats.IndexOf(stat)] = val)" />
-							<br>
-							<RadzenLabel Text="@($"Min Value")" 
-								Component="@($"Training{stat.Id}")" />
-							<RadzenNumeric 
-								Name="@($"Training{stat.Id}")" class="w-100 my-1" @bind-Value=@stat.Amount />
-						</div>
+						<h4 class="text-danger">
+							You don't have PQT on any of your accounts.
+						</h4>
+						<h4 class="text-danger">
+							Visit the <SfButton OnClick=@(() => Nav.NavigateTo("Accounts"))>Accounts</SfButton> page to add an account with PQT.
+						</h4>
 					}
+					<SfButton CssClass="e-primary mx-1" HtmlAttributes="@(new(){{"type", "button"}})" OnClick="@Bots.SaveSettings">
+						Save Settings
+					</SfButton>
 				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<label for="UpdateInterval" >
+							Update Frequency (Seconds)
+						</label>
+						<SfNumericTextBox name="UpdateInterval"
+							TValue="int"
+							@bind-Value="@Bots.Settings.UpdateInterval"
+							OnChange="@((val) => {Bots.SaveSettings();})" />
+					</div>
 
-			</div>
+					<div class="col-md-6">
+						<label for="MinStamina" >
+							Min Stamina to Quest
+						</label>
+						<SfNumericTextBox name="MinStamina"
+							TValue="int"
+							@bind-Value="@Bots.Settings.MinStamina"
+							OnChange="@((val) => {Bots.SaveSettings();})" />
+					</div>
+			
+					<div class="col-md-6">
+						<label for="MaxGasFee" >
+							MaxGasFee (If your Max Fee is too low txns could get stuck during high traffic times.)
+						</label>
+						<SfNumericTextBox name="MaxGasFee"
+							TValue="int"
+							@bind-Value="@Bots.Settings.MaxGasFeeGwei"
+							OnChange="@((val) => {Bots.SaveSettings();})"/>
+					</div>
 
-			<div>
-				<div class="text-center my-2" style="font-size:12px;">
-					<RadzenLabel Text="Level Up" Component="LevelUp" /><br />
-					<RadzenCheckBox @bind-Value=@Bots.Settings.LevelUp Name="LevelUp">
-						Enable Levelup
-					</RadzenCheckBox>
-				</div>
-				@if(Bots.Settings.LevelUp)
-				{
-					<div class="row">
-						@foreach (string mainClass in Constants.Classes)
-						{
-							var suggested = Bots.Settings.SuggestedLevelUpSettings.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower());
-							var valueAttribute = Bots.Settings.LevelUpSettings.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower());
-							valueAttribute = suggested;
-							if(suggested is null)
+					<div class="col-md-6">
+						<label for="CancelTxnDelay" >
+							Cancel transaction delay. (Milliseconds)
+						</label>
+					
+						<SfNumericTextBox name="CancelTxnDelay"
+							TValue="int"
+							@bind-Value="@Bots.Settings.CancelTxnDelay"
+							OnChange="@((val) => {Bots.SaveSettings();})" />
+					</div>
+					<div class="col-md-6 text-center mb-1">
+						<label>
+							Enable Hero Selling
+							<SfCheckBox
+								@bind-Checked=@Bots.Settings.SellHeroes
+								/>
+						</label>
+					</div>
+					<div class="col-md-6 text-center mb-1">
+						<label>
+							Cancel Unpriced Hero Sales
+							<SfCheckBox @bind-Checked=@Bots.Settings.CancelUnpricedHeroSales />
+						</label>
+					</div>
+					<div class="col-md-6 text-center mb-1">
+						<label>
+							Enable Questing
+							<SfCheckBox @bind-Checked=@Bots.Settings.QuestHeroes />
+						</label>
+					</div>
+					<div class="col-md-6 text-center mb-1">
+						<label>
+							Use Stamina Potions
+							<SfCheckBox @bind-Checked=@Bots.Settings.UseStaminaPotions />
+						</label>
+						<label>
+							Force Stamina Potions On Full XP
+							<SfCheckBox @bind-Checked=@Bots.Settings.ForceStampotOnFullXP />
+						</label>
+					</div>
+					@if(Bots.Settings.QuestHeroes)
+					{
+						<div class="col-md-12 text-center">
+							<SfButton CssClass="e-primary" OnClick="(() => ShowDFKQuests = !ShowDFKQuests)">
+								@if (ShowDFKQuests)
+								{
+									<span>
+										Show Serendale Quests
+									</span>
+								}
+								else
+								{
+									<span>
+										Show Crystalvale Quests
+									</span>
+								}
+							</SfButton>
+						</div>
+						<div class="col-12 text-center">
+							@foreach (Chain chain in Constants.ChainsList)
 							{
-								Console.WriteLine(suggested.HeroClass);
-								continue;
+								@if ((ShowDFKQuests && chain.Name == "DFK") || (ShowDFKQuests is false && chain.Name == "Klaytn"))
+								{
+									<div class="row">
+										<div class="col-12">
+											<h5>
+												@($"{chain.Name} Quest Contracts")
+											</h5>
+											@*First 8 quests are training quests*@
+											<div class="row">
+												@foreach (QuestContract quest in QuestContractDefinitions.DFKQuestContracts.First(qc => qc.Chain.Name == chain.Name).QuestContracts.Skip(8))
+												{
+													var questEnabled = Bots.Settings.ChainQuestEnabled.Find(qe => qe.Chain.Name == chain.Name).QuestEnabled.First(qe => qe.QuestId == quest.Id);
+
+													<div class="col-md-4 col-lg-3">
+														<p>
+															@($"{quest.Name}")
+														</p>
+														<label class="d-inline-block">
+															Enabled
+															<SfCheckBox @bind-Checked=@questEnabled.Enabled />
+														</label>
+														<br />
+														<label class="d-inline-block">
+															Quest Eagerly
+															<SfCheckBox @bind-Checked=@questEnabled.QuestEagerly />
+														</label>
+														<label for="@($"ProfessionEnabled{chain.Name}{quest.Id}")">
+															@($"Min Stamina:")
+														</label>
+														<SfNumericTextBox name="@($"MinStam{chain.Name}{quest.Id}")"
+															TValue="int?"
+															Placeholder="@(Bots.Settings.MinStamina.ToString())"
+														@bind-Value="@questEnabled.MinStamina" />
+													</div>
+												}
+											</div>
+											<h5>
+												@($"{chain.Name} Training Quests")
+											</h5>
+											<div class="row">
+												@foreach (DFKStatAmount stat in Bots.Settings.MinTrainingStats)
+												{
+													var TQ = Bots.Settings.ChainQuestEnabled.Find(qe => qe.Chain.Name == chain.Name).QuestEnabled[Bots.Settings.MinTrainingStats.IndexOf(stat)];
+													<div class="col-md-6">
+														<p>
+															@($"{stat.Name} training.")
+														</p>
+														<label class="d-inline-block">
+															Enabled
+															<SfCheckBox @bind-Checked=@TQ.Enabled />
+														</label>
+														<label class="d-inline-block">
+															Quest Eagerly
+															<SfCheckBox @bind-Checked=@TQ.QuestEagerly />
+														</label>
+														<label for="@($"ProfessionEnabled{chain.Name}{Bots.Settings.MinTrainingStats.IndexOf(stat)}")">
+															@($"Min Stamina:")
+														</label>
+
+														<SfNumericTextBox name="@($"MinStam{chain.Name}{Bots.Settings.MinTrainingStats.IndexOf(stat)}")"
+															TValue="int?"
+															@bind-Value="@TQ.MinStamina"
+															Placeholder="@(Bots.Settings.MinStamina.ToString())" />
+														<br>
+														<label for="@($"Training{stat.Id}")">
+															@($"Min Value")
+														</label>
+														<SfNumericTextBox Name="@($"Training{stat.Id}")" @bind-Value=@stat.Amount />
+													</div>
+												}
+											</div>
+										</div>
+									</div>
+								}
 							}
+						</div>
+					}
+					
+					<div>
+						<div class="text-center my-2" style="font-size:12px;">
+							<label for="LevelUp">
+								Enable Levelup
+								<SfCheckBox TChecked="bool" @bind-Checked=@Bots.Settings.LevelUp Name="LevelUp" />
+							</label>
+						</div>
+						@if(Bots.Settings.LevelUp)
+						{
+							<div class="row">
+								@foreach (string mainClass in Constants.Classes)
+								{
+									var valueAttribute = Bots.Settings.LevelUpSettings.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower());
 							
-							<RadzenText TextStyle="TextStyle.H6" class="text-center">@(mainClass) Levelup settings</RadzenText>
-							<div class="col-md-4">
-								<RadzenCard class="m-2">
-									<RadzenText Text="Main (+1)" class="text-center" />
-									<RadzenDropDown TValue="DFKStat"
-									   Data="@Constants.DFKStats"
-									   AllowClear="false"
-									   TextProperty="Name"
-									   class="w-100"
-									   Value=@valueAttribute.MainAttribute
-									   Change="((value) => {valueAttribute.MainAttribute = value as DFKStat;})" />
-								</RadzenCard>
-							</div>
-							<div class="col-md-4">
-								<RadzenCard class="m-2">
-									<RadzenText Text="Secondary (50% +1)" class="text-center" />
-									<RadzenDropDown TValue="DFKStat"
-									   Data="@Constants.DFKStats"
-									   TextProperty="Name"
-									   AllowClear="false"
-									   class="w-100"
-									   Value=@valueAttribute.SecondaryAttribute
-									   Change="((value) => {valueAttribute.SecondaryAttribute = value as DFKStat;})" />
-								</RadzenCard>
-							</div>
-							<div class="col-md-4">
-								<RadzenCard class="m-2">
-									<RadzenText Text="Secondary (50% +1)" class="text-center" />
-									<RadzenDropDown TValue="DFKStat"
-									   Data="@Constants.DFKStats"
-									   TextProperty="Name"
-									   AllowClear="false"
-									   class="w-100"
-									   Value=@valueAttribute.TertiaryAttribute
-									   Change="((value) => {valueAttribute.TertiaryAttribute = value as DFKStat;})" />
-								</RadzenCard>
+									if(valueAttribute is null)
+									{
+										valueAttribute = Bots.Settings.SuggestedLevelUpSettings.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower());
+									}
+								
+									<h6 class="text-center">@(mainClass) Levelup settings</h6>
+									<div class="col-md-4">
+										<SfCard CssClass="m-2">
+											<CardHeader>
+												Main (+1)
+											</CardHeader>
+											<CardContent>
+												<SfDropDownList TItem="DFKStat"
+													TValue="byte"
+													DataSource="@Constants.DFKStats"
+													Value=@valueAttribute.MainAttribute.Id
+													OnChange="((value) => {valueAttribute.MainAttribute.Id = (byte)value.Value;})">
+													<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+												</SfDropDownList>
+											</CardContent>
+										</SfCard>
+									</div>
+									<div class="col-md-4">
+										<SfCard CssClass="m-2">
+											<CardHeader>
+												Secondary (50% +1)
+											</CardHeader>
+											<CardContent>
+												<SfDropDownList TItem="DFKStat"
+													TValue="byte"
+													DataSource="@Constants.DFKStats"
+													Value=@valueAttribute.SecondaryAttribute.Id
+													OnChange="((value) => {valueAttribute.SecondaryAttribute.Id = (byte)value.Value;})">
+													<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+												</SfDropDownList>
+											</CardContent>
+										</SfCard>
+									</div>
+									<div class="col-md-4">
+										<SfCard CssClass="m-2">
+											<CardHeader>
+												Secondary (50% +1)
+											</CardHeader>
+											<CardContent>
+												<SfDropDownList TItem="DFKStat"
+													TValue="byte"
+													DataSource="@Constants.DFKStats"
+												
+													Value=@valueAttribute.TertiaryAttribute.Id
+													OnChange="((value) => {valueAttribute.TertiaryAttribute.Id = (byte)value.Value;})">
+													<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+												</SfDropDownList>
+											</CardContent>
+										</SfCard>
+									</div>
+								}
 							</div>
 						}
 					</div>
-				}
-			</div>
-		</div>
-	</EditForm>
-</RadzenCard>
-@code {
-	private void DialogWindow(string message)
-	{
-		Dialog.Open("",
-	x =>
-	@<div>
-		@message
-	</div>,
-	new DialogOptions()
-	{
-		ShowTitle = true,
-		CloseDialogOnEsc = true,
-		ShowClose = true,
-		Resizable = true,
-		Draggable = true,
-		CloseDialogOnOverlayClick = true,
-		AutoFocusFirstElement = true
-	});
-	}
-}
+				</div>
+			</EditForm>
+		</CardContent>
+	</SfCard>
+</div>

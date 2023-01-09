@@ -1,12 +1,6 @@
-﻿using DFKContracts.QuestCore.ContractDefinition;
-using Microsoft.AspNetCore.Components;
-using PirateQuester.Bot;
+﻿using Microsoft.AspNetCore.Components;
 using PirateQuester.Utils;
-using Radzen;
-using System.Net.NetworkInformation;
-using Radzen.Blazor;
 using PirateQuester.Services;
-using PirateQuester.DFK.Items;
 
 namespace PirateQuester.Pages;
 
@@ -20,15 +14,18 @@ public partial class BotTerminal
 	BotService Bots { get; set; }
 	[Parameter]
 	public int BotId { get; set; }
-    public RadzenDataGrid<QuestReward> QuestRewardDataGrid { get; set; }
-    public RadzenDataGrid<Quest> RunningQuestsGrid { get; set; }
+
+	private void UpdateTerminal()
+	{
+		StateHasChanged();
+	}
 
 	protected override void OnInitialized()
 	{
-        Bots.UpdatedBot += StateHasChanged;
+		Bots.UpdatedBot += UpdateTerminal;
 		if (Bots.RunningBots.Count < BotId + 1)
 		{
-			Nav.NavigateTo($"CreateAccount");
+			Nav.NavigateTo($"Login");
 			return;
 		}
 		if (Acc.Accounts.Count == 0)

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using PirateQuester.Utils;
+using PirateQuester.ViewModels;
 
 namespace PirateQuester.Pages;
 
@@ -10,12 +11,9 @@ public partial class Accounts
 	AccountManager Acc { get; set; }
 	[Inject]
 	NavigationManager Nav { get; set; }
-
-	Dictionary<string, bool> ShowPrivateKey = new();
-
-	bool Initialized = false;
-
-	protected override void OnInitialized()
+	public string Password { get; set; }
+	
+	protected override async Task OnInitializedAsync()
 	{
 		if (Acc.Accounts.Count == 0)
 		{
@@ -28,10 +26,10 @@ public partial class Accounts
 				Nav.NavigateTo("CreateAccount");
 			}
 		}
-		foreach (string name in Acc.AccountNames)
-		{
-			ShowPrivateKey.Add(name, false);
-		}
-		Initialized = true;
+        foreach (DFKAccount acc in Acc.Accounts)
+        {
+			await acc.UpdateBalance();
+        }
+		StateHasChanged();
 	}
 }

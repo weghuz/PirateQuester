@@ -4,6 +4,8 @@ using Nethereum.Contracts;
 using Nethereum.Hex.HexTypes;
 using PirateQuester.DFK.Contracts;
 using PirateQuester.DFK.Items;
+using PirateQuester.Pages;
+using PirateQuester.Services;
 using PirateQuester.Utils;
 using System.Numerics;
 using Utils;
@@ -24,7 +26,9 @@ public class DFKBot
 	public event AddBotLog BotLogAdded;
     public DFKAccount Account { get; set; }
     public DFKBotSettings Settings { get; set; }
+    public List<QuestEnabled> ChainQuestSettings { get; set; }
     public bool StopBot { get; set; }
+	public BotService Bots { get; private set; }
 	public bool IsRunning { get; set; } = false;
     public void Log(string message)
     {
@@ -41,34 +45,49 @@ public class DFKBot
     public async Task UpdateHeroes()
     {
         Log("Updating Heroes...");
-        await Account.UpdateHeroes();
+		await Account.InitializeAccount();
+        Log($"Account updated with {Account.BotHeroes.Count} heroes.");
         HeroesUpdated?.Invoke();
 	}
 
-    public async void StartBot(DFKAccount account, DFKBotSettings settings)
+    public async void StartBot(DFKAccount account, DFKBotSettings settings, BotService bots)
 	{
+		Bots = bots;
 		IsRunning = true;
 		Account = account;
         Settings = settings;
 		Log($"Bot added for account {account.Account.Address}!");
-		Log("Welcome to Pirate Quester Bot V0.1!");
+		Log($"Welcome to Pirate Quester Bot {Constants.VERSION}!");
 		Log("Booting up...");
 		Log($"Interval: {Settings.UpdateInterval}");
 
-
-		//account.Signer.Processing.Logs.CreateProcessor<QuestRewardEventDTO>((log) => Console.WriteLine(log.Log.Data));
-
-		await account.InitializeAccount(settings);
 		while (true)
 		{
-			await UpdateHeroes();
-			await Update();
-            if (StopBot)
-                break;
-			await UpdateQuestRewards();
-			await Task.Delay(1000 * Settings.UpdateInterval);
-			if (StopBot)
-				break;
+			try
+            {
+				await account.UpdateBalance();
+				Console.WriteLine($"PQT Balance: {account.PQTBalance} {account.Account.Address}");
+				if (account.PQTBalance < 1)
+                {
+                    Log("No PQT Balance, stopping bot.");
+                    StopBot = true;
+                    break;
+                }
+                await UpdateHeroes();
+
+				await Update();
+				
+				await UpdateQuestRewards();
+				if (StopBot)
+					break;
+				await Task.Delay(1000 * Settings.UpdateInterval);
+				if (StopBot)
+					break;
+			}
+			catch(Exception e)
+			{
+				Log($"{account.Account.Address}\n{e.Message}\n{e.StackTrace}\n{e.InnerException?.Message}");
+			}
 		}
 		IsRunning = false;
 		Log($"Bot for account {account.Account.Address} stopped...");
@@ -77,21 +96,43 @@ public class DFKBot
 	private async Task UpdateQuestRewards()
 	{
 		Log($"Updating Questrewards");
-		List<EventLog<RewardMintedEventDTO>> EventLog = await LogReader.GetQuestRewardLogs(Account);
+		List<EventLog<RewardMintedEventDTO>> RewardsEventLog = await LogReader.GetQuestRewardLogs(Account);
+		List<EventLog<QuestCompletedEventDTO>> CompletedEventLog = await LogReader.GetCompletedQuestsLogs(Account);
 		List<QuestReward> questRewards = new();
-		foreach (BigInteger questId in EventLog.Select(el => el.Event.QuestId).Distinct())
+		foreach (BigInteger questId in CompletedEventLog.Select(el => el.Event.QuestId).Distinct())
 		{
-			if(!QuestRewards.Any(qr => qr.QuestId == questId))
+			var questReward = QuestRewards.FirstOrDefault(qr => qr.QuestId == questId);
+			if (questReward is null)
 			{
-				List<RewardMintedEventDTO> rewards = EventLog.Where(el => el.Event.QuestId == questId).Select(el => el.Event).ToList();
-				QuestReward questReward = new QuestReward(questId);
+				questReward = new QuestReward(questId);
+				List<RewardMintedEventDTO> rewards = RewardsEventLog.Where(el => el.Event.QuestId == questId).Select(el => el.Event).ToList();
+
+				QuestCompletedEventDTO questLog = CompletedEventLog.Where(el => el.Event.QuestId == questId).Select(el => el.Event).FirstOrDefault();
+				var quest = questLog.Quest;
+
+				questReward.StartDateTime = Functions.UnixTimeStampToDateTime(Functions.BigIntToLong(quest.StartAtTime));
+				questReward.CompleteDateTime = Functions.UnixTimeStampToDateTime(Functions.BigIntToLong(quest.CompleteAtTime));
+				questReward.Quest = QuestContractDefinitions.GetQuestContractFromAddress(quest.QuestAddress);
+				questReward.Rewards = new();
 				foreach (RewardMintedEventDTO reward in rewards)
 				{
 					if(questReward.Heroes.Any(id => id == reward.HeroId) is false)
 					{
 						questReward.Heroes.Add(reward.HeroId);
 					}
-					var item = ItemContractDefinitions.GetItem(reward.Reward);
+                    DFKItem item = null;
+                    try
+					{
+						item = new DFKItem(ItemContractDefinitions.GetItem(new()
+						{
+							Address = reward.Reward,
+							Chain = Account.Chain
+						}));
+					}
+					catch(Exception e)
+					{
+                        Log($"Error getting item {reward.Reward} for quest {questId}.\n{e.Message}\n{e.StackTrace}");
+                    }
 					if (item is not null)
 					{
 						item.Amount = ulong.Parse(reward.Amount.ToString());
@@ -101,7 +142,14 @@ public class DFKBot
 					{
 						questReward.Rewards.AddItem(new()
 						{
-							Address = reward.Reward,
+							Addresses = new()
+							{
+								new()
+								{
+                                    Address = reward.Reward,
+									Chain = Account.Chain
+                                }
+							},
 							Amount = ulong.Parse(reward.Amount.ToString())
 						});
 					}
@@ -110,7 +158,7 @@ public class DFKBot
 			}
 		}
 		questRewards.AddRange(QuestRewards);
-		QuestRewards = questRewards;
+		QuestRewards = questRewards.OrderByDescending(q => q.QuestId).ToList();
 		Log($"Quest rewards updated.");
 	}
 
@@ -126,6 +174,11 @@ public class DFKBot
 			try
 			{
 				var quests = (await Account.Quest.GetAccountActiveQuestsQueryAsync(Account.Account.Address)).ReturnValue1.DistinctBy(q => q.Id).ToList();
+				foreach (Quest q in quests)
+				{
+					q.StartDateTime = Functions.UnixTimeStampToDateTime(Functions.BigIntToLong(q.StartAtTime));
+					q.CompleteDateTime = Functions.UnixTimeStampToDateTime(Functions.BigIntToLong(q.CompleteAtTime));
+				}
 				return quests;
 			}
 			catch(Exception e)
@@ -148,58 +201,105 @@ public class DFKBot
         return stam;
 	}
 
+	public int GetMinStaminaBotHero(DFKBotHero h)
+	{
+		if(h.Quest is null && h.SuggestedQuest is null)
+		{
+			return 999;
+		}
+		return ChainQuestSettings.FirstOrDefault(qs => qs.QuestId == (h.Quest?.Id ?? h.SuggestedQuest.Id))?.MinStamina ?? Settings.MinStamina;
+	}
+
 	public async Task Update()
     {
+		ChainQuestSettings = Settings.ChainQuestEnabled.Find(cqe => cqe.Chain.Name == Account.Chain.Name).QuestEnabled;
 		await UpdateCurrentBlock();
 		var quests = await GetUpdatedQuests();
 		RunningQuests = new(quests);
-		foreach (Quest q in quests)
+		if(Settings.QuestHeroes is false)
 		{
-			q.StartDateTime = Functions.UnixTimeStampToDateTime(Functions.BigIntToLong(q.StartAtTime));
-			q.CompleteDateTime = Functions.UnixTimeStampToDateTime(Functions.BigIntToLong(q.CompleteAtTime));
-			var questContract = QuestContractDefinitions.GetQuestContractFromAddress(q.QuestAddress);
-
-			if(DateTime.UtcNow > q.CompleteDateTime)
+			Log($"QuestHeroes disabled. Not checking completed quests.");
+		}
+		else
+		{
+			Log($"{RunningQuests.Count} Active quests.");
+			foreach (Quest q in quests)
 			{
-				try
+				if (DateTime.UtcNow > q.CompleteDateTime)
 				{
-					Log($"Quest #{q.Id} {q.QuestName()} is ready to complete, completing...");
-					string okMessage = await new Transaction().CompleteQuest(Account, q.Heroes.First(), Settings.MaxGasFeeGwei);
-					Log(okMessage);
-					RunningQuests.RemoveAll(remQ => remQ.Id == q.Id);
+					try
+					{
+						List<BigInteger> onSaleHeroIds = new();
+						foreach (DFKBotHero h in Account.BotHeroes.Where(bh => q.Heroes.Any(qh => qh == bh.ID)))
+						{
+							if (h.Hero.salePrice is not null)
+							{
+								onSaleHeroIds.Add(h.ID);
+							}
+						}
+						if (onSaleHeroIds.Count > 0)
+						{
+							Log($"{(onSaleHeroIds.Count == 1 ? "Hero" : "Heroes")} #{string.Join(", #", onSaleHeroIds)} {(onSaleHeroIds.Count == 1 ? "is" : "are")} on sale, can not complete quest.");
+							continue;
+						}
+						Log($"Quest #{q.Id} {q.QuestName} is ready to complete, completing...");
+						string okMessage = await Transaction.CompleteQuest(Account, q.Heroes.First(), Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+						foreach (DFKBotHero h in Account.BotHeroes.Where(bh => q.Heroes.Any(qh => qh == bh.ID)))
+						{
+							h.Hero.staminaFullAt = (long)Functions.UnixTime() + (h.Hero.stamina * 1200);
+						}
+						RunningQuests.Remove(q);
+						Log(okMessage);
+					}
+					catch (Exception e)
+					{
+						Log(e.Message);
+					}
 				}
-				catch (Exception e)
-				{
-					Log(e.Message);
-				}
+				await Task.Delay(1);
 			}
-			await Task.Delay(1);
 		}
 
 		if (StopBot)
 		{
 			return;
 		}
-		if(Settings.LevelUp)
+
+		List<Meditation> activeMeditations = (await Account.Meditation.GetActiveMeditationsQueryAsync(Account.Account.Address)).ReturnValue1;
+		
+		if (Settings.LevelUp)
 		{
-			List<Meditation> activeMeditations = (await Account.Meditation.GetActiveMeditationsQueryAsync(Account.Account.Address)).ReturnValue1;
 			List<DFKBotHero> readyToLevelHeroes = Account.BotHeroes
-				.Where(h => h.Hero.xp >= h.Hero.XpToLevelUp()
-				&& h.Hero.currentQuest == QuestContractDefinitions.NULL_ADDRESS
-				&& h.Hero.StaminaCurrent() <= Settings.MinStamina
+				.Where(h => (h.LevelingEnabled is null ? true : h.LevelingEnabled.Value)
+				&& h.Hero.xp >= h.Hero.XpToLevelUp()
+				&& RunningQuests.Any(rq => rq.Heroes.Contains(h.ID)) is false
+				&& h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h)
+				&& h.Hero.salePrice is null
 				&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
 				.ToList();
 			Log($"{activeMeditations.Count} Active meditations.");
 			foreach (Meditation meditation in activeMeditations)
 			{
-				if(meditation.StartBlock <= CurrentBlock - 20)
+				if (meditation.StartBlock <= CurrentBlock - 20)
 				{
 					DFKBotHero hero = Account.BotHeroes.FirstOrDefault(h => h.ID == meditation.HeroId);
+					if (hero.LevelingEnabled is not null && hero.LevelingEnabled.Value is false)
+					{
+						continue;
+					}
 					Log($"Hero {hero.ID} is ready to complete meditating.\nCompleting Meditation...");
 					try
 					{
-						string okMessage = await new Transaction().CompleteMeditation(Account, hero.ID, Settings.MaxGasFeeGwei);
+						string okMessage = await Transaction.CompleteMeditation(Account, hero.ID, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
 						Log($"Hero {hero.ID} Leveled up from {hero.Hero.level} to {hero.Hero.level + 1}!");
+
+						hero.Hero.staminaFullAt = (long)Functions.UnixTime();
+						hero.Hero.level += 1;
+						if (hero.Hero.level % 2 == 0)
+						{
+							hero.Hero.stamina += 1;
+						}
+						
 						Log(okMessage);
 					}
 					catch (Exception e)
@@ -214,21 +314,22 @@ public class DFKBot
 			{
 				Log($"Hero {h.ID} is ready to level up.\nStarting Meditation...");
 				LevelUpSetting setting = Settings.LevelUpSettings.FirstOrDefault(levelSetting => levelSetting.HeroClass == h.Hero.mainClass.ToLower());
-				if(setting is null)
+				if (setting is null)
 				{
 					Log($"Found no levelup settings for {h.Hero.mainClass}.");
 					continue;
 				}
 				try
 				{
-					string okMessage = await new Transaction().StartMeditation(Account, h.ID, setting.MainAttribute.Id, setting.SecondaryAttribute.Id, setting.TertiaryAttribute.Id, Settings.MaxGasFeeGwei);
+					string okMessage = await Transaction.StartMeditation(Account, h.ID, h.LevelUpSetting.MainAttribute?.Id ?? setting.MainAttribute.Id, h.LevelUpSetting.SecondaryAttribute?.Id ?? setting.SecondaryAttribute.Id, h.LevelUpSetting.TertiaryAttribute?.Id ?? setting.TertiaryAttribute.Id, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
 					Log($"Hero started meditating with Stat settings: \nMain(+1):{setting.MainAttribute.Name}\nSecondary(50%+1):{setting.SecondaryAttribute.Name}\nTertiary(50%+1):{setting.TertiaryAttribute.Name}!");
+					
 					Log(okMessage);
 				}
 				catch (Exception e)
 				{
 					Log(e.Message);
-					if(e.Message.Contains("burn"))
+					if (e.Message.Contains("burn"))
 					{
 						break;
 					}
@@ -239,6 +340,11 @@ public class DFKBot
 			{
 				return;
 			}
+		}
+
+		if (StopBot)
+		{
+			return;
 		}
 
 		if (Settings.UseStaminaPotions)
@@ -394,7 +500,7 @@ public class DFKBot
 		else
 		{
 			List<DFKBotHero> readyHeroes = Account.BotHeroes
-				.Where(h => (h.Hero.StaminaCurrent() == h.Hero.stamina ? h.Hero.stamina : h.Hero.StaminaCurrent() - 1) >= GetMinStaminaBotHero(h)
+				.Where(h => h.Hero.StaminaCurrent() >= GetMinStaminaBotHero(h)
 				&& RunningQuests.SelectMany(rq => rq.Heroes).Contains(h.ID) is false
 				&& h.Hero.salePrice is null
 				&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
@@ -545,26 +651,35 @@ public class DFKBot
 					{
 						continue;
 					}
-				}
-                int maxAttempts = heroBatch.Min(h => quest.AvailableAttempts(h));
-                if(maxAttempts == 0)
-                {
-                    Log("Available attempts too low.");
-                    continue;
-                }
-				try
-				{
-					Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => h.id))}.");
-					string okMessage = await new Transaction().StartQuest(Account,
-						heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
-						quest, maxAttempts, Settings.MaxGasFeeGwei);
-					Log(okMessage);
-				}
-				catch (Exception e)
-				{
-					Log(e.Message);
+
+					//Order for optimal mining if mining
+					if (quest.Category == "Mining")
+					{
+						heroBatch = heroBatch.OrderByDescending(h => h.mining + h.strength + h.endurance).ToList();
+					}
+
+					int maxAttempts = heroBatch.Select(h => quest.AvailableAttempts(h)).Min();
+
+					if (maxAttempts == 0)
+					{
+						Log("Available attempts too low.");
+						continue;
+					}
+					try
+					{
+						Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => h.id))}.");
+						string okMessage = await Transaction.StartQuest(Account,
+							heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
+							quest, maxAttempts, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+						Log(okMessage);
+					}
+					catch (Exception e)
+					{
+						Log(e.Message);
+					}
 				}
 			}
+
 			await Task.Delay(1);
 		}
 		Log($"Iteration complete");
