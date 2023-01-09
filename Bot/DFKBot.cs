@@ -271,7 +271,7 @@ public class DFKBot
 				if (meditation.StartBlock <= CurrentBlock - 20)
 				{
 					DFKBotHero hero = Account.BotHeroes.FirstOrDefault(h => h.ID == meditation.HeroId);
-					if (hero.LevelingEnabled is null || hero.LevelingEnabled.Value is false)
+					if (hero.LevelingEnabled is not null && hero.LevelingEnabled.Value is false)
 					{
 						continue;
 					}
@@ -456,7 +456,7 @@ public class DFKBot
             List<DFKBotHero> heroesToCancelAuction = Account.BotHeroes
 				.Where(h => (Settings.CancelUnpricedHeroSales ? h.Hero.salePrice is not null : h.BotSalePrice is not null) 
 					&& h.Hero.salePrice is not null
-					&& h.Hero.StaminaCurrent() > GetMinStaminaBotHero(h)
+					&& h.Hero.StaminaCurrent() >= GetMinStaminaBotHero(h)
 					&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
 				.ToList();
             Log($"There are {heroesToCancelAuction.Count} heroes on auction that need to be cancelled to quest.");

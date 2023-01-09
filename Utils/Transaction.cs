@@ -151,13 +151,68 @@ public static class Transaction
 				Console.WriteLine($"Heroes approved for meditation. {approvalReceipt.TransactionHash}");
 			}
 			var handler = account.Signer.Eth.GetContractTransactionHandler<StartMeditationFunction>();
-			var startMeditationFunc = new StartMeditationFunction()
+            // PQ STATS ASSIGNMENT
+            //{ new(0, "Strength") },
+            //{ new(1, "Dexterity") },
+            //{ new(2, "Agility") },
+            //{ new(3, "Vitality") },
+            //{ new(4, "Endurance") },
+            //{ new(5, "Intelligence") },
+            //{ new(6, "Wisdom") },
+            //{ new(7, "Luck") }
+            // MEDITATION CIRCLE STATS ASSIGNMENT
+            //0: "Strength",
+            //1: "Agility",
+            //2: "Intelligence",
+            //3: "Wisdom",
+            //4: "Luck",
+            //5: "Vitality",
+            //6: "Endurance",
+            //7: "Dexterity",
+            byte fixedStat1 = stat1 switch
+            {
+                0 => 0,
+                1 => 7,
+                2 => 1,
+                3 => 5,
+                4 => 6,
+                5 => 2,
+                6 => 3,
+                7 => 4,
+                _ => 0
+            }; 
+            byte fixedStat2 = stat2 switch
+            {
+                0 => 0,
+                1 => 7,
+                2 => 1,
+                3 => 5,
+                4 => 6,
+                5 => 2,
+                6 => 3,
+                7 => 4,
+                _ => 0
+            }; 
+            byte fixedStat3 = stat3 switch
+            {
+                0 => 0,
+                1 => 7,
+                2 => 1,
+                3 => 5,
+                4 => 6,
+                5 => 2,
+                6 => 3,
+                7 => 4,
+                _ => 0
+            };
+
+            var startMeditationFunc = new StartMeditationFunction()
 			{
 				AttunementCrystal = NULL_ADDRESS,
 				HeroId = heroId,
-				PrimaryStat = stat1,
-				SecondaryStat = stat2,
-				TertiaryStat = stat3,
+				PrimaryStat = fixedStat1,
+				SecondaryStat = fixedStat2,
+				TertiaryStat = fixedStat3,
 				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, EthUnit.Gwei),
 				MaxPriorityFeePerGas = 0
 			};
