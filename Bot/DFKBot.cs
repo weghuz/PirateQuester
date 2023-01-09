@@ -1,6 +1,7 @@
 ﻿using DFK;
 using DFKContracts.QuestCore.ContractDefinition;
 using Nethereum.Contracts;
+using Nethereum.Hex.HexTypes;
 using PirateQuester.DFK.Contracts;
 using PirateQuester.DFK.Items;
 using PirateQuester.Utils;
@@ -136,6 +137,17 @@ public class DFKBot
 		return new();
 	}
 
+	public int GetMinStaminaBotHero(DFKBotHero h)
+	{
+		if(h.Quest is null && h.SuggestedQuest is null)
+		{
+			return 999;
+		}
+		int stam = ChainQuestSettings.FirstOrDefault(qs => qs.QuestId == (h.Quest?.Id ?? h.SuggestedQuest.Id))?.MinStamina ?? Settings.MinStamina;
+		
+        return stam;
+	}
+
 	public async Task Update()
     {
 		await UpdateCurrentBlock();
@@ -229,45 +241,309 @@ public class DFKBot
 			}
 		}
 
-		List<DFKBotHero> readyHeroes = Account.BotHeroes
-            .Where(h => h.Hero.StaminaCurrent() >= Settings.MinStamina
-            && h.Hero.currentQuest == QuestContractDefinitions.NULL_ADDRESS
-			&& h.Hero.salePrice is null)
-            .ToList();
-        Log($"{readyHeroes.Count} heroes ready to quest");
-
-		foreach (QuestContract quest in readyHeroes
-			.Select(r => r.GetActiveQuest())
-			.DistinctBy(q => q.Id)
-			.Where(q => Settings.QuestEnabled.All(qe => Settings.QuestEnabled[q.Id])))
+		if (Settings.UseStaminaPotions)
 		{
-			if(RunningQuests.Any(rq => rq.QuestAddress == quest.Address && rq.CompleteDateTime >= DateTime.UtcNow.AddMinutes(30)))
+			Log($"Stamina Potions: {Account.StaminaPotionBalance}");
+
+			var staminaPotionHeroes = Account.BotHeroes.Where(hero => 
+				(hero.UseStaminaPotionsAmount is not null 
+				|| hero.StaminaPotionUntilLevel is not null)
+				&& hero.Hero.StaminaCurrent() <= 5
+				&& (Settings.ForceStampotOnFullXP ? true : hero.Hero.xp != hero.Hero.XpToLevelUp())
+				&& !activeMeditations.Any(med => med.HeroId.ToString() == hero.Hero.id)).ToList();
+
+			string staminaPotionAddress = ItemContractDefinitions.InventoryItems.First(item => item.Name == "Stamina Potion").Addresses.First(a => a.Chain.Name == Account.Chain.Name).Address;
+			Log($"Heroes ready to be stamina potioned: {string.Join(", ", staminaPotionHeroes.Select(h => h.ID))}");
+			if (Account.StaminaPotionBalance == 0 && staminaPotionHeroes.Count > 0)
 			{
-				continue;
+				Log($"The account is completely out of stamina potions.");
 			}
-			List<Hero> readyQuestHeroes = readyHeroes.Where(h =>
-				h.GetActiveQuest().Id == quest.Id)
-					.Select(h => h.Hero).ToList();
-			Log($"Found {readyQuestHeroes.Count} heroes ready to start {quest.Name}.");
-            for(int i = 0; i <= readyQuestHeroes.Count; i+= quest.Category != "Gardening" ? 6 : 2)
+			else
 			{
-                List<Hero> heroBatch = readyQuestHeroes.Skip(i).Take(quest.Category != "Gardening" ? 6 : 2).ToList();
-				
-				if (heroBatch.Count() < (quest.Category != "Gardening" ? 6 : 2))
+				foreach (DFKBotHero h in staminaPotionHeroes)
 				{
-					List<Hero> heroesCatchingUp = Account.Heroes.Where(h => h.StaminaCurrent() > Settings.MinStamina - 5 && h.StaminaCurrent() < Settings.MinStamina && h.currentQuest == QuestContractDefinitions.NULL_ADDRESS).ToList();
-					if (heroesCatchingUp.Count() > 0)
+					if (h.StaminaPotionUntilLevel is not null && h.Hero.level >= h.StaminaPotionUntilLevel)
 					{
-						Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.id))} to make a full sqad for {quest.Name}.");
-						heroBatch = heroBatch.Where(h => h.StaminaCurrent() == h.stamina).ToList();
-						if (heroBatch.Count() > 0)
+						Log($"Hero #{h.ID} is level {h.Hero.level}, no longer using stamina potions.");
+						var heroSettings = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
+						h.StaminaPotionUntilLevel = null;
+						heroSettings.StaminaPotionUntilLevel = h.StaminaPotionUntilLevel;
+						continue;
+					}
+					else if (h.StaminaPotionUntilLevel is not null && Account.StaminaPotionBalance > 0 && h.Hero.StaminaCurrent() <= 5)
+					{
+						if(h.Hero.level < h.StaminaPotionUntilLevel.Value)
 						{
-							Log($"{string.Join(", ", heroBatch.Select(h => h.id))} are so energetic they don't care.");
+							Log($"Hero #{h.ID} is level {h.Hero.level}, need to reach level {h.StaminaPotionUntilLevel} to stop using stamina potions. Hero is at 5 stamina or less. Using Potion...");
+							try
+							{
+								string okMessage = await Transaction.UseComsumableItem(Account, h.ID, staminaPotionAddress, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+								h.Hero.staminaFullAt -= 30000;
+								h.Hero.StaminaPotioned = true;
+								Account.StaminaPotionBalance--;
+								Log(okMessage);
+							}
+							catch (Exception e)
+							{
+								Log(e.Message);
+							}
 						}
 						else
 						{
+							Log($"Hero #{h.ID} reached level {h.Hero.level}, no longer using stamina potions.");
+						}
+					}
+					if (h.UseStaminaPotionsAmount is not null && h.UseStaminaPotionsAmount <= 0)
+					{
+						Log($"Hero #{h.ID} has no stamina potions left.");
+						h.UseStaminaPotionsAmount = null;
+						continue;
+					}
+					else if (h.UseStaminaPotionsAmount is not null && Account.StaminaPotionBalance > 0 && h.Hero.StaminaCurrent() <= 5)
+					{
+						if(h.UseStaminaPotionsAmount.Value > 0)
+						{
+							Log($"Hero #{h.ID} has {h.UseStaminaPotionsAmount} stamina potions left to use. Hero is at 5 stamina or less. Using Potion...");
+							try
+							{
+								string okMessage = await Transaction.UseComsumableItem(Account, h.ID, staminaPotionAddress, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+								h.Hero.staminaFullAt -= 30000;
+								h.UseStaminaPotionsAmount--;
+								var heroSettings = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
+								heroSettings.UseStaminaPotionsAmount = h.UseStaminaPotionsAmount;
+								Account.StaminaPotionBalance -= 1;
+								h.Hero.StaminaPotioned = true;
+								Log(okMessage);
+							}
+							catch (Exception e)
+							{
+								Log(e.Message);
+							}
+						}
+						else
+						{
+							Log($"Used all stamina potions for hero #{h.ID}.");
+						}
+					}
+				}
+			}
+			Bots.SaveSettings();
+		}
+
+		if (StopBot)
+		{
+			return;
+		}
+
+		if (Settings.SellHeroes)
+		{
+			List<DFKBotHero> heroesToSell = Account.BotHeroes
+				.Where(h => h.BotSalePrice is not null
+					&& h.Hero.salePrice is null
+					&& RunningQuests.Any(rq => rq.Heroes.Contains(h.ID)) is false
+					&& h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h)
+					&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
+				.ToList();
+			Log($"There are {heroesToSell.Count} heroes to sell.");
+			foreach(DFKBotHero h in heroesToSell)
+			{
+                Log($"Selling hero #{h.ID} for {h.BotSalePrice} {(Account.Chain.Name == "DFK" ? "Crystal" : "Jade")}...");
+                try
+                {
+                    string okMessage = await Transaction.StartAuction(Account, h.ID, h.BotSalePrice.Value, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+                    h.Hero.salePrice = h.BotSalePrice.Value.ToString();
+                    Log(okMessage);
+                }
+                catch (Exception e)
+                {
+                    Log(e.Message);
+                }
+            }
+            List<DFKBotHero> heroesToCancelAuction = Account.BotHeroes
+				.Where(h => (Settings.CancelUnpricedHeroSales ? h.Hero.salePrice is not null : h.BotSalePrice is not null) 
+					&& h.Hero.salePrice is not null
+					&& h.Hero.StaminaCurrent() >= GetMinStaminaBotHero(h)
+					&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
+				.ToList();
+            Log($"There are {heroesToCancelAuction.Count} heroes on auction that need to be cancelled to quest.");
+			foreach(DFKBotHero h in heroesToCancelAuction)
+			{
+                Log($"Cancelling auction for hero #{h.ID}...");
+                try
+                {
+                    string okMessage = await Transaction.CancelAuction(Account, h.ID, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+					h.Hero.salePrice = null;
+                    Log(okMessage);
+                }
+                catch (Exception e)
+                {
+                    Log(e.Message);
+                }
+            }
+        }
+
+		if (StopBot)
+		{
+			return;
+		}
+
+		if (Settings.QuestHeroes is false)
+		{
+			Log($"QuestHeroes disabled. Not questing heroes.");
+		}
+		else
+		{
+			List<DFKBotHero> readyHeroes = Account.BotHeroes
+				.Where(h => (h.Hero.StaminaCurrent() == h.Hero.stamina ? h.Hero.stamina : h.Hero.StaminaCurrent() - 1) >= GetMinStaminaBotHero(h)
+				&& RunningQuests.SelectMany(rq => rq.Heroes).Contains(h.ID) is false
+				&& h.Hero.salePrice is null
+				&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
+				.ToList();
+			Log($"{readyHeroes.Count} heroes ready to quest");
+			var enabledQuests = Settings.ChainQuestEnabled.Find(cqe => cqe.Chain.Name == Account.Chain.Name).QuestEnabled.Where(q => q.Enabled).ToList();
+			foreach (QuestContract quest in readyHeroes
+				.Select(r => r.GetActiveQuest())
+				.DistinctBy(q => q.Id)
+				.Where(q => enabledQuests.Select(qe => qe.QuestId).Contains(q.Id)))
+			{
+				var questsOfType = RunningQuests.Where(rq => quest.Address == rq.QuestAddress);
+				QuestEnabled questSettings = enabledQuests.FirstOrDefault(qe => qe.QuestId == quest.Id);
+				if (questsOfType.Any(rq => rq.CompleteDateTime >= DateTime.UtcNow.AddHours(12)) || questsOfType.Count() >= 10)
+				{
+					continue;
+				}
+				List<Hero> readyQuestHeroes = readyHeroes.Where(h =>
+					h.GetActiveQuest().Id == quest.Id
+					&& (quest.Category.ToLower() == "training"
+					|| h.Hero.profession == quest.Category.ToLower()))
+						.Select(h => h.Hero).ToList();
+				List<Hero> readyQuestUnalignedHeroes = readyHeroes.Where(h =>
+					h.GetActiveQuest().Id == quest.Id
+					&& h.Hero.profession != quest.Category.ToLower()
+					&& quest.Category.ToLower() != "training")
+						.Select(h => h.Hero).ToList();
+
+				Log($"Found {readyQuestHeroes.Count} profession aligned heroes ready to start {quest.Name}.");
+				for (int i = 0; i <= readyQuestHeroes.Count; i += quest.MaxHeroesPerQuest(Account))
+				{
+					List<Hero> heroBatch = readyQuestHeroes.Skip(i).Take(quest.MaxHeroesPerQuest(Account)).ToList();
+
+					int heroesSetForQuest = Account.BotHeroes.Where(h =>
+						h.GetActiveQuest().Id == quest.Id
+						&& h.Hero.profession == quest.Category.ToLower()
+						&& (h.Hero.salePrice == null || Settings.CancelUnpricedHeroSales))
+						.Count();
+
+					if (heroBatch.Count() < quest.MaxHeroesPerQuest(Account) && heroBatch.Count() < heroesSetForQuest)
+					{
+						if (enabledQuests.FirstOrDefault(qe => qe.QuestId == quest.Id).QuestEagerly is false)
+						{
+							Log($"Not enough heroes to start {quest.Name}. {heroBatch.Count()} heroes {(heroBatch.Count() == 1 ? "is" : "are")} ready, {quest.MaxHeroesPerQuest(Account)} are needed.");
 							continue;
 						}
+						else
+						{
+							List<Hero> heroesCatchingUp = Account.BotHeroes.Where(h =>
+								h.GetActiveQuest().Id == quest.Id
+								&& h.Hero.StaminaCurrent() > GetMinStaminaBotHero(h) - 5
+								&& h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h)
+								&& RunningQuests.SelectMany(rq => rq.Heroes).Contains(h.ID) is false
+								&& h.Hero.profession == quest.Category.ToLower())
+								.Select(h => h.Hero)
+								.ToList();
+							if (heroesCatchingUp.Count() > 0)
+							{
+								Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.id))} to make a full sqad for {quest.Name}.");
+								var checkBatch = heroBatch.Where(h => h.StaminaCurrent() == h.stamina || h.StaminaPotioned).ToList();
+								if (checkBatch.Count() > 0)
+								{
+									Log($"{string.Join(", ", heroBatch.Select(h => h.id))} are so energetic they don't care.");
+								}
+								else
+								{
+									continue;
+								}
+							}
+						}
+					}
+					if (heroBatch is null || heroBatch.Count == 0)
+					{
+						continue;
+					}
+
+					//Order for optimal mining if mining
+					if (quest.Category == "Mining")
+					{
+						heroBatch = heroBatch.OrderByDescending(h => h.mining + h.strength + h.endurance).ToList();
+					}
+
+					int maxAttempts = heroBatch.Select(h => quest.AvailableAttempts(h)).Min();
+
+					if (maxAttempts == 0)
+					{
+						Log("Available attempts too low.");
+						continue;
+					}
+					try
+					{
+						Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => h.id))}.");
+						string okMessage = await Transaction.StartQuest(Account,
+							heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
+							quest, maxAttempts, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+						Log(okMessage);
+					}
+					catch (Exception e)
+					{
+						Log(e.Message);
+					}
+				}
+
+				Log($"Found {readyQuestUnalignedHeroes.Count} profession unaligned heroes ready to start {quest.Name}.");
+				for (int i = 0; i <= readyQuestUnalignedHeroes.Count; i += quest.MaxHeroesPerQuest(Account))
+				{
+					List<Hero> heroBatch = readyQuestUnalignedHeroes.Skip(i).Take(quest.MaxHeroesPerQuest(Account)).ToList();
+
+					int heroesSetForQuest = Account.BotHeroes.Where(h =>
+						h.GetActiveQuest().Id == quest.Id
+						&& h.Hero.profession != quest.Category.ToLower()
+						&& (h.Hero.salePrice == null || Settings.CancelUnpricedHeroSales))
+						.Count();
+
+					if (heroBatch.Count() < quest.MaxHeroesPerQuest(Account) && heroBatch.Count() < heroesSetForQuest)
+					{
+						if (enabledQuests.FirstOrDefault(qe => qe.QuestId == quest.Id).QuestEagerly is false)
+						{
+							Log($"Not enough heroes to start {quest.Name}. {heroBatch.Count()} heroes {(heroBatch.Count() == 1 ? "is" : "are")} ready, {quest.MaxHeroesPerQuest(Account)} are needed.");
+							continue;
+						}
+						else
+						{
+							List<Hero> heroesCatchingUp = Account.BotHeroes.Where(h =>
+								h.GetActiveQuest().Id == quest.Id
+								&& h.Hero.profession != quest.Category.ToLower()
+								&& h.Hero.StaminaCurrent() > GetMinStaminaBotHero(h) - 5
+								&& h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h)
+								&& RunningQuests.SelectMany(rq => rq.Heroes).Contains(h.ID) is false)
+								.Select(h => h.Hero)
+								.ToList();
+							if (heroesCatchingUp.Count() > 0)
+							{
+								Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.id))} to make a full sqad for {quest.Name}.");
+								var checkBatch = heroBatch.Where(h => h.StaminaCurrent() == h.stamina || h.StaminaPotioned).ToList();
+								if (checkBatch.Count() > 0)
+								{
+									Log($"{string.Join(", ", heroBatch.Select(h => h.id))} are so energetic they don't care.");
+								}
+								else
+								{
+									continue;
+								}
+							}
+						}
+					}
+					if (heroBatch is null || heroBatch.Count == 0)
+					{
+						continue;
 					}
 				}
                 int maxAttempts = heroBatch.Min(h => quest.AvailableAttempts(h));
