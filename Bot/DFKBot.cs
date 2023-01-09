@@ -200,16 +200,7 @@ public class DFKBot
 		
         return stam;
 	}
-
-	public int GetMinStaminaBotHero(DFKBotHero h)
-	{
-		if(h.Quest is null && h.SuggestedQuest is null)
-		{
-			return 999;
-		}
-		return ChainQuestSettings.FirstOrDefault(qs => qs.QuestId == (h.Quest?.Id ?? h.SuggestedQuest.Id))?.MinStamina ?? Settings.MinStamina;
-	}
-
+	
 	public async Task Update()
     {
 		ChainQuestSettings = Settings.ChainQuestEnabled.Find(cqe => cqe.Chain.Name == Account.Chain.Name).QuestEnabled;
