@@ -42,7 +42,15 @@ public class DFKBot
         BotLogAdded?.Invoke();
 	}
 
-    public async Task UpdateHeroes()
+
+	internal Tuple<List<DFKBotLogMessage>, List<QuestReward>> GetLogsAndStop()
+	{
+		StopBot = true;
+		
+		return new Tuple<List<DFKBotLogMessage>, List<QuestReward>>(DFKBotLog, QuestRewards);
+	}
+
+	public async Task UpdateHeroes()
     {
         Log("Updating Heroes...");
 		await Account.InitializeAccount();
@@ -233,7 +241,7 @@ public class DFKBot
 							Log($"{(onSaleHeroIds.Count == 1 ? "Hero" : "Heroes")} #{string.Join(", #", onSaleHeroIds)} {(onSaleHeroIds.Count == 1 ? "is" : "are")} on sale, can not complete quest.");
 							continue;
 						}
-						Log($"Quest #{q.Id} {q.QuestName} is ready to complete, completing...");
+						Log($"Quest #{q.Id} {q.QuestName} with heroes {string.Join(", ", Account.BotHeroes.Where(bh => q.Heroes.Any(qh => qh == bh.ID)).Select(hero => $"{hero.Hero.id} {hero.Hero.GetRarity()} {hero.Hero.mainClass} {hero.Hero.profession}"))} is ready to complete, completing...");
 						string okMessage = await Transaction.CompleteQuest(Account, q.Heroes.First(), Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
 						foreach (DFKBotHero h in Account.BotHeroes.Where(bh => q.Heroes.Any(qh => qh == bh.ID)))
 						{
@@ -274,7 +282,8 @@ public class DFKBot
 				if (meditation.StartBlock <= CurrentBlock - 20)
 				{
 					DFKBotHero hero = Account.BotHeroes.FirstOrDefault(h => h.ID == meditation.HeroId);
-					if (hero.LevelingEnabled is not null && hero.LevelingEnabled.Value is false)
+                    LevelUpSetting setting = Settings.LevelUpSettings.FirstOrDefault(levelSetting => levelSetting.HeroClass == hero.Hero.mainClass.ToLower());
+                    if (hero.LevelingEnabled is not null && hero.LevelingEnabled.Value is false)
 					{
 						continue;
 					}
@@ -282,7 +291,7 @@ public class DFKBot
 					try
 					{
 						string okMessage = await Transaction.CompleteMeditation(Account, hero.ID, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
-						Log($"Hero {hero.ID} Leveled up from {hero.Hero.level} to {hero.Hero.level + 1}!");
+						Log($"Hero {hero.ID} {hero.Hero.GetRarity()} {hero.Hero.mainClass} {hero.Hero.profession} Leveled up from {hero.Hero.level} to {hero.Hero.level + 1}!\nUsing these settings:\nMain(+1):{hero.LevelUpSetting.MainAttribute?.Name ?? setting.MainAttribute.Name}\nSecondary(50%+1):{hero.LevelUpSetting.SecondaryAttribute?.Name ?? setting.SecondaryAttribute.Name}\nTertiary(50%+1):{hero.LevelUpSetting.TertiaryAttribute?.Name ?? setting.TertiaryAttribute.Name}!");
 
 						hero.Hero.staminaFullAt = (long)Functions.UnixTime();
 						hero.Hero.level += 1;
@@ -313,7 +322,7 @@ public class DFKBot
 				try
 				{
 					string okMessage = await Transaction.StartMeditation(Account, h.ID, h.LevelUpSetting.MainAttribute?.Id ?? setting.MainAttribute.Id, h.LevelUpSetting.SecondaryAttribute?.Id ?? setting.SecondaryAttribute.Id, h.LevelUpSetting.TertiaryAttribute?.Id ?? setting.TertiaryAttribute.Id, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
-					Log($"Hero started meditating with Stat settings: \nMain(+1):{setting.MainAttribute.Name}\nSecondary(50%+1):{setting.SecondaryAttribute.Name}\nTertiary(50%+1):{setting.TertiaryAttribute.Name}!");
+					Log($"Hero {h.Hero.GetRarity()} {h.Hero.mainClass} {h.Hero.profession} started meditating with Stat settings: \nMain(+1):{h.LevelUpSetting.MainAttribute?.Name ?? setting.MainAttribute.Name}\nSecondary(50%+1):{h.LevelUpSetting.SecondaryAttribute?.Name ?? setting.SecondaryAttribute.Name}\nTertiary(50%+1):{h.LevelUpSetting.TertiaryAttribute?.Name ?? setting.TertiaryAttribute.Name}!");
 					
 					Log(okMessage);
 				}
@@ -371,7 +380,7 @@ public class DFKBot
 					{
 						if(h.Hero.level < h.StaminaPotionUntilLevel.Value)
 						{
-							Log($"Hero #{h.ID} is level {h.Hero.level}, need to reach level {h.StaminaPotionUntilLevel} to stop using stamina potions. Hero is at 5 stamina or less. Using Potion...");
+							Log($"Hero #{h.ID} is level {h.Hero.level} XP: {h.Hero.xp}/{h.Hero.XpToLevelUp()}, need to reach level {h.StaminaPotionUntilLevel} to stop using stamina potions. Hero is at {h.Hero.StaminaCurrent()} stamina, using Potion...");
 							try
 							{
 								string okMessage = await Transaction.UseComsumableItem(Account, h.ID, staminaPotionAddress, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
@@ -400,7 +409,7 @@ public class DFKBot
 					{
 						if(h.UseStaminaPotionsAmount.Value > 0)
 						{
-							Log($"Hero #{h.ID} has {h.UseStaminaPotionsAmount} stamina potions left to use. Hero is at 5 stamina or less. Using Potion...");
+							Log($"Hero #{h.ID} {h.Hero.GetRarity()} {h.Hero.mainClass} {h.Hero.profession} is level {h.Hero.level} XP: {h.Hero.xp}/{h.Hero.XpToLevelUp()} has {h.UseStaminaPotionsAmount} stamina potions left to use. Hero is at {h.Hero.StaminaCurrent()} stamina, using Potion...");
 							try
 							{
 								string okMessage = await Transaction.UseComsumableItem(Account, h.ID, staminaPotionAddress, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
@@ -582,9 +591,9 @@ public class DFKBot
 						continue;
 					}
 					try
-					{
-						Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => h.id))}.");
-						string okMessage = await Transaction.StartQuest(Account,
+                    {
+                        Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => $"{h.id}: {h.GetRarity()} {h.mainClass} {h.profession} {h.StaminaCurrent()}/{h.stamina}"))} with {maxAttempts} attempts.");
+                        string okMessage = await Transaction.StartQuest(Account,
 							heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
 							quest, maxAttempts, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
 						Log(okMessage);
@@ -658,7 +667,7 @@ public class DFKBot
 					}
 					try
 					{
-						Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => h.id))}.");
+						Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => $"{h.id}: {h.GetRarity()} {h.mainClass} {h.profession} {h.StaminaCurrent()}/{h.stamina}"))} with {maxAttempts} attempts.");
 						string okMessage = await Transaction.StartQuest(Account,
 							heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
 							quest, maxAttempts, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
@@ -675,4 +684,5 @@ public class DFKBot
 		}
 		Log($"Iteration complete");
     }
+
 }

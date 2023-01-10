@@ -64,7 +64,8 @@
 										@if (reward.Name is not null)
 										{
 											<SfTooltip ID="tooltip"
-												IsSticky="true"
+												IsSticky="false"
+												CloseDelay="500"
 												Target="#target"
 												Content="@($"{reward.Name}({reward.TokenName}): {string.Join(", ", reward.Addresses.Select(a => $"<br />{a.Chain.Identifier} {a.Address}"))}<br />{reward.Description}")">
 												@Math.Round((reward.Decimals == 0 ? reward.Amount : reward.Amount / Math.Pow(10, reward.Decimals)), 3)

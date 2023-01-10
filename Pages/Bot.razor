@@ -24,6 +24,9 @@
 						<SfButton CssClass="e-danger mx-1" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" OnClick="@Bots.StopBots" >
 							Stop Bots
 						</SfButton>
+						<SfButton CssClass="e-primary mx-1" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" OnClick="@DownloadLogsAndRefreshBots">
+							Download Logs + Refresh bots
+						</SfButton>
 					}
 					else
 					{

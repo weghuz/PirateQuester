@@ -185,8 +185,8 @@ public class Hero
         }
         else
         {
-            //REMOVE 3 MINUTES FROM STAMINA TO PREVENT TOO LITTLE STAMINA FAILED BUG EVM ERROR
-			decimal staminaLeft = (staminaFullAt - now - 180)/1200;
+            //REMOVE 5 MINUTES FROM STAMINA TO PREVENT TOO LITTLE STAMINA FAILED BUG EVM ERROR
+			decimal staminaLeft = (staminaFullAt - now + 300)/1200;
             return stamina - (int)Math.Floor(staminaLeft) - 1;
         }
     }
