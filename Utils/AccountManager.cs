@@ -60,6 +60,10 @@ public class AccountManager
 
     public async Task Create(AccountViewModel model, DFKBotSettings settings)
     {
+        if(model.PrivateKey is null)
+        {
+            _js.InvokeVoid("alert", "Please enter a private key.");
+        }
         if (model.Password.Length < 8 || model.RecheckPassword.Length < 8)
         {
             _js.InvokeVoid("alert", "Password needs to have 8 or more characters.");
@@ -74,7 +78,7 @@ public class AccountManager
         {
             model.PrivateKey = $"0x{model.PrivateKey}";
         }
-        if (!model.GenerateAccount && model.PrivateKey is not null && (model.PrivateKey.Length != 66))
+        if (model.PrivateKey is not null && (model.PrivateKey.Length != 66))
         {
             _js.InvokeVoid("alert", "The private key is in and incorrect format.");
             return;
@@ -91,17 +95,9 @@ public class AccountManager
         }
         AccountNames.Add(model.Name);
         _js.Invoke<string>("localStorage.setItem", new string[] { "AccountNames", JsonConvert.SerializeObject(AccountNames) });
-        string json;
-        if (model.GenerateAccount)
-        {
-            json = Encrypt.GenerateAccount(model.Password);
-            _js.InvokeVoid("localStorage.setItem", new string[] { model.Name, json });
-        }
-        else
-        {
-            json = Encrypt.CreateAccount(model.PrivateKey, model.Password);
-            _js.InvokeVoid("localStorage.setItem", new string[] { model.Name, json });
-        }
+        string json = Encrypt.CreateAccount(model.PrivateKey, model.Password);
+        _js.InvokeVoid("localStorage.setItem", new string[] { model.Name, json });
+        
         foreach (Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled && cs.Name != "Avalanche"))
         {
             DFKAccount account = new(model.Name, Encrypt.GetAccount(model.Password, json), chain, AccSettings.ChainSettings.FirstOrDefault(cs => cs.Name == "Avalanche"), settings);

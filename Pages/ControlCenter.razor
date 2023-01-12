@@ -86,16 +86,18 @@
 								</div>
 								<div class="row">
 									<div class="col-4">
-										<SfTooltip ID="StaminaAmountTooltip" 
-											IsSticky="false" 
-											Target="#tooltipTarget" 
-											Content="@("Setting this will use the # of stamina potions set for the hero when the bot is running.")">
-                                            <div>
-												<span id="tooltipTarget">
-													Use Stamina Pot Amount
-                                                </span>
-                                            </div>
-										</SfTooltip>
+										<p class="mt-2">
+											<SfTooltip ID="StaminaAmountTooltip" 
+												IsSticky="false" 
+												Target="#tooltipTarget" 
+												Content="@("Setting this will use the # of stamina potions set for the hero when the bot is running.")">
+												<div>
+													<span id="tooltipTarget">
+														Use Stamina Pot Amount
+													</span>
+												</div>
+											</SfTooltip>
+										</p>
 									</div>
 									<div class="col-8">
 										<SfNumericTextBox @bind-Value=@StaminaPotAmount TValue="int?" Min="0" Max="99999">
