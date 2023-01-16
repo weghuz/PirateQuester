@@ -9,14 +9,6 @@
             <div class="row">
                 <div class="col-md-6">
                     <p class="mb-1">
-                        (Remove all Accounts from memory)
-                    </p>
-                    <SfButton OnClick="ClearLocalStorage" CssClass="e-primary" >
-                        Clear Local Storage
-                    </SfButton>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1">
                         (Remove all Settings from memory, useful if you crash a lot)
                     </p>
                     <SfButton OnClick="ClearProblematicStorage" CssClass="e-primary">
@@ -26,6 +18,23 @@
                 <div class="col-md-6 mt-4">
                     <SfButton OnClick="ToggleDarkMode" CssClass="e-primary">
                         Toggle Dark Mode
+                    </SfButton>
+                </div>
+                <div class="col-md-6 mt-4">
+                    <SfButton OnClick="ClearTableCache" CssClass="e-primary">
+                        Clear Table Cache
+                    </SfButton>
+                </div>
+                <div class="col-md-6 mt-4">
+                    <SfButton CssClass="e-primary mx-1" HtmlAttributes="@(new(){{"type", "button"}})" OnClick="@ExportBotSettings">
+                        Export Bot Settings
+                    </SfButton>
+                </div>
+                <div class="col-md-6 mt-4">
+                    <InputFile OnChange="OnInputFileChange" />
+                    
+                    <SfButton CssClass="e-primary mx-1" HtmlAttributes="@(new(){{"type", "button"}})" OnClick="@ImportBotSettings">
+                        Import Bot Settings
                     </SfButton>
                 </div>
             </div>
@@ -76,5 +85,21 @@
             </div>
 
         </CardContent>
+    </SfCard>
+    <SfCard CssClass="p-5">
+        <div class="row">
+            <div class="col-12 text-center">
+                <div class="d-inline-block">
+
+                    <p class="mb-1">
+                        Completely clear local memory<br />
+                        (Remove all Accounts and all settings from local storage)
+                    </p>
+                    <SfButton OnClick="ClearLocalStorage" CssClass="e-danger">
+                        Clear Local Storage
+                    </SfButton>
+                </div>
+            </div>
+        </div>
     </SfCard>
 </div>

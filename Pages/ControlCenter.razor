@@ -197,6 +197,9 @@
 								>
 								Set preference
 							</SfButton>
+							<SfButton OnClick="@ClearFilters">
+								Clear Table Filters
+							</SfButton>
 							<SfButton OnClick="@ResetSelection"
 								CssClass="e-warning"
 								HtmlAttributes="@(new Dictionary<string, object>() { { "type", "button" } })"
@@ -231,15 +234,11 @@
 			AllowPaging="true"
 			AllowResizing="true"
 			AllowSorting="true"
-			AllowExcelExport="true"
 			AllowReordering="true"
 			AllowMultiSorting="true"
-			AllowPdfExport="true"
-			EnableAdaptiveUI="true"
-			Height="650px"
-			Width="100%">
+			Height="650px">
 			<GridSelectionSettings EnableSimpleMultiRowSelection="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple" AllowDragSelection="true" ></GridSelectionSettings>
-			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
+			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
 			<GridPageSettings PageSizes="@(new string[] { "5", "10", "15", "20", "50", "All" })" PageSize="@PageSize"></GridPageSettings>
 			<GridColumns>
 				<GridColumn Field="BotSalePrice" HeaderText="Bot Price" Width="100" />
@@ -377,18 +376,18 @@
 						</div>
 					</Template>
 				</GridColumn>
-				<GridColumn Field="Hero.level" HeaderText="LVL" Width="90"></GridColumn>
-				<GridColumn Field="Hero.generation" HeaderText="Gen" Width="90"></GridColumn>
-				<GridColumn Field="Hero.statBoost1" HeaderText="SB1" Width="90"></GridColumn>
-				<GridColumn Field="Hero.statBoost2" HeaderText="SB2" Width="90"></GridColumn>
-				<GridColumn Field="Hero.strength" HeaderText="STR" Width="90"></GridColumn>
-				<GridColumn Field="Hero.dexterity" HeaderText="DEX" Width="90"></GridColumn>
-				<GridColumn Field="Hero.agility" HeaderText="AGI" Width="90"></GridColumn>
-				<GridColumn Field="Hero.vitality" HeaderText="VIT" Width="90"></GridColumn>
-				<GridColumn Field="Hero.endurance" HeaderText="END" Width="90"></GridColumn>
-				<GridColumn Field="Hero.intelligence" HeaderText="INT" Width="90"></GridColumn>
-				<GridColumn Field="Hero.wisdom" HeaderText="WIS" Width="90"></GridColumn>
-				<GridColumn Field="Hero.luck" HeaderText="LCK" Width="90"></GridColumn>
+				<GridColumn Field="Hero.level" HeaderText="LVL" Width="100"></GridColumn>
+				<GridColumn Field="Hero.generation" HeaderText="Gen" Width="100"></GridColumn>
+				<GridColumn Field="Hero.statBoost1" HeaderText="SB1" Width="100"></GridColumn>
+				<GridColumn Field="Hero.statBoost2" HeaderText="SB2" Width="100"></GridColumn>
+				<GridColumn Field="Hero.strength" HeaderText="STR" Width="100"></GridColumn>
+				<GridColumn Field="Hero.dexterity" HeaderText="DEX" Width="100"></GridColumn>
+				<GridColumn Field="Hero.agility" HeaderText="AGI" Width="100"></GridColumn>
+				<GridColumn Field="Hero.vitality" HeaderText="VIT" Width="100"></GridColumn>
+				<GridColumn Field="Hero.endurance" HeaderText="END" Width="100"></GridColumn>
+				<GridColumn Field="Hero.intelligence" HeaderText="INT" Width="100"></GridColumn>
+				<GridColumn Field="Hero.wisdom" HeaderText="WIS" Width="100"></GridColumn>
+				<GridColumn Field="Hero.luck" HeaderText="LCK" Width="100"></GridColumn>
 			</GridColumns>
 		</SfGrid>
 

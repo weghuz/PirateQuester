@@ -1,10 +1,8 @@
 ﻿using DFK;
 using DFKContracts.QuestCore.ContractDefinition;
 using Nethereum.Contracts;
-using Nethereum.Hex.HexTypes;
 using PirateQuester.DFK.Contracts;
 using PirateQuester.DFK.Items;
-using PirateQuester.Pages;
 using PirateQuester.Services;
 using PirateQuester.Utils;
 using System.Numerics;
@@ -354,7 +352,7 @@ public class DFKBot
 			var staminaPotionHeroes = Account.BotHeroes.Where(hero => 
 				(hero.UseStaminaPotionsAmount is not null 
 				|| hero.StaminaPotionUntilLevel is not null)
-				&& hero.Hero.StaminaCurrent() <= 5
+				&& hero.Hero.StaminaCurrent() <= hero.Hero.stamina - 20
 				&& (Settings.ForceStampotOnFullXP ? true : hero.Hero.xp != hero.Hero.XpToLevelUp())
 				&& !activeMeditations.Any(med => med.HeroId.ToString() == hero.Hero.id)).ToList();
 

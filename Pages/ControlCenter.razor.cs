@@ -170,8 +170,13 @@ public partial class ControlCenter
 		HeroGridReference.Refresh();
 		StateHasChanged();
 	}
-	
-	public async void ResetSelection()
+	public async void ClearFilters()
+	{
+		await HeroGridReference.ClearFilteringAsync();
+		await HeroGridReference.ClearSortingAsync();
+	}
+
+    public async void ResetSelection()
 	{
 		SelectedDFKQuest = null;
 		SelectedKlaytnQuest = null;

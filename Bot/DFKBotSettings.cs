@@ -24,7 +24,8 @@ namespace PirateQuester.Bot
 				}
 			};
 		}
-
+		public int ClearLogsInterval { get; set; } = 86400;
+		public bool DownloadClearedLogs { get; set; } = false;
         public int CancelTxnDelay { get; set; } = 60000;
 		public int UpdateInterval { get; set; } = 180;
         public int MinStamina { get; set; } = 20;
@@ -187,7 +188,7 @@ namespace PirateQuester.Bot
             new()
             {
                 HeroClass = "sage",
-                MainAttribute = Constants.DFKStats[0],
+                MainAttribute = Constants.DFKStats[5],
                 SecondaryAttribute = Constants.DFKStats[4],
                 TertiaryAttribute = Constants.DFKStats[1],
             },

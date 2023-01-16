@@ -254,7 +254,7 @@ namespace PirateQuester.DFK.Items
 			{
 				Id = 11,
 				TokenName = "DFKYELOWEGG",
-				Name = "Grey Pet Egg",
+				Name = "Yellow Pet Egg",
 				Description = "You sense something slumbering inside.",
                 Addresses = new(){
                     new()
@@ -1036,7 +1036,7 @@ namespace PirateQuester.DFK.Items
 			{
 				Id = 39,
 				TokenName = "DFKSPCKLTL",
-				Name = "Silverfin",
+				Name = "Speckle Tail",
 				Description = "",
                 Addresses = new(){
                     new()

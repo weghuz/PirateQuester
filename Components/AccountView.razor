@@ -115,7 +115,6 @@
 										else
 										{
 											<h6>@Accounts[0].Name</h6>
-											<p><img src="@("Images/PirateQuesterToken.png")" style="width: 18px; height:18px;" title="PQT" /> Balance: @Accounts[0].AvaxBalance</p>
 											<p>Buy @BuyAmount <img src="@("Images/PirateQuesterToken.png")" style="width: 18px; height:18px;" title="PQT" />?</p>
 											<p>For @Math.Round(PQTPrice, 2) ?</p>
 											<h6 class="danger">This will transfer @(BuyAmount * PQTPrice) AVAX to the contract.</h6>
@@ -158,8 +157,7 @@
 										<div class="row">
 											<div class="col-12 text-center">
 												<h6>Buying <img src="@("Images/PirateQuesterToken.png")" style="width: 18px; height:18px;" title="PQT" /> for @Accounts[0].Name</h6>
-												<p><img src="@("Images/PirateQuesterToken.png")" style="width: 18px; height:18px;" title="PQT" /> Balance: @Accounts[0].PQTBalance</p>
-												<p>For more information about the <img src="@("Images/PirateQuesterToken.png")" style="width: 18px; height:18px;" title="PQT" /> token, visit: </p>
+												<p>For more information about the Pirate Quester Token token, visit: </p>
 												<ul>
 													<li>
 														<a href="https://dfk-project.gitbook.io/pirate-quester/" target="_blank">The docs</a>
@@ -169,7 +167,7 @@
 													</li>
 												</ul>
 
-												<h6>AVAX balance: @(Accounts[0].AvaxBalance)</h6>
+												<h6>AVAX balance: <img src="@("Images/Avalanche.svg")" style="width: 18px; height:18px;" title="PQT" /> @(Accounts[0].AvaxBalance)</h6>
 												<label for="PQTBuyAmount">
 													Amount to buy:
 													<SfNumericTextBox TValue="int" id="PQTBuyAmount" @bind-Value=BuyAmount Min="1" />

@@ -36,8 +36,12 @@ public partial class MainLayout : LayoutComponentBase
 			StickySidebar = JsonConvert.DeserializeObject<bool>(sticky);
 			
 		}
-		NotePad = JsonConvert.DeserializeObject<string>(JS.Invoke<string>("localStorage.getItem", "notePad"));
-		
+		string notepad = JS.Invoke<string>("localStorage.getItem", "notePad");
+		if(notepad is not null)
+		{
+			NotePad = JsonConvert.DeserializeObject<string>(notepad);
+		}
+
 		LoadDarkMode();
 		Transaction.TransactionAdded += UpdateUI;
 		DFKAccount.UpdatedAccount += UpdateUI;
