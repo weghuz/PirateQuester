@@ -240,6 +240,29 @@
 			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
 			<GridPageSettings PageSizes="@(new string[] { "5", "10", "15", "20", "50", "All" })" PageSize="@PageSize"></GridPageSettings>
 			<GridColumns>
+				<GridColumn Field="Hero.salePrice" HeaderText="Sale Price" Width="120">
+					<Template>
+						<div>
+							@((context as DFKBotHero).Hero.SalePrice(2))
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="Hero.id" HeaderText="Id" Width="120"></GridColumn>
+				<GridColumn Field="Hero.mainClass" HeaderText="Class" Width="120"></GridColumn>
+				<GridColumn Field="Hero.subClass" HeaderText="Subclass" Width="120"></GridColumn>
+				<GridColumn Field="Hero.level" HeaderText="LVL" Width="90"></GridColumn>
+				<GridColumn Field="Hero.generation" HeaderText="Gen" Width="90"></GridColumn>
+				<GridColumn Field="summons" HeaderText="Summons" Width="120">
+					<Template>
+						<div>
+							@{
+								var hero = (context as DFKBotHero).Hero;
+								<span>@(hero.maxSummons - hero.summons) / @hero.maxSummons</span>
+							}
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="Hero.profession" HeaderText="Profession" Width="130"></GridColumn>
 				<GridColumn Field="BotSalePrice" HeaderText="Bot Price" Width="100" />
 				<GridColumn Field="LevelingEnabled" HeaderText="Leveling Enabled" Width="120"></GridColumn>
 				<GridColumn Field="StaminaPotionUntilLevel" HeaderText="Stampot to Level" Width="120">
@@ -295,7 +318,6 @@
 				</GridColumn>
 				<GridColumn Field="Quest.Name" HeaderText="Prefer Quest" Width="120"></GridColumn>
 				<GridColumn Field="Hero.network" HeaderText="Chain" Width="100" />
-				<GridColumn Field="Hero.id" HeaderText="Id" Width="120"></GridColumn>
 				<GridColumn Field="Hero.rarity" HeaderText="Rarity" Width="120">
 					<Template>
 						<div>
@@ -306,6 +328,48 @@
 						</div>
 					</Template>
 				</GridColumn>
+				<GridColumn Field="Hero.staminaFullAt" HeaderText="Stamina" Width="120">
+					<Template>
+						<div>
+							@{
+								var hero = context as DFKBotHero;
+								@hero.Hero.StaminaCurrent() @("/") @hero.Hero.stamina
+							}
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="SuggestedQuest.Name" HeaderText="Suggested Quest" Width="280"></GridColumn>
+				<GridColumn Field="Hero.mining" HeaderText="Mining" Width="120"></GridColumn>
+				<GridColumn Field="Hero.gardening" HeaderText="Gardening" Width="130"></GridColumn>
+				<GridColumn Field="Hero.foraging" HeaderText="Foraging" Width="120"></GridColumn>
+				<GridColumn Field="Hero.fishing" HeaderText="Fishing" Width="120"></GridColumn>
+				<GridColumn Field="Hero.currentQuest" HeaderText="Current Quest" Width="280">
+					<Template>
+						<div>
+							@{
+								var hero = context as DFKBotHero;
+								@hero.Hero.GetCurrentQuestName();
+							}
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="firstName" HeaderText="Name" Width="250">
+					<Template>
+						<div>
+							@((context as DFKBotHero).Hero.FullName())
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="Hero.statBoost1" HeaderText="SB1" Width="90"></GridColumn>
+				<GridColumn Field="Hero.statBoost2" HeaderText="SB2" Width="90"></GridColumn>
+				<GridColumn Field="Hero.strength" HeaderText="STR" Width="90"></GridColumn>
+				<GridColumn Field="Hero.dexterity" HeaderText="DEX" Width="90"></GridColumn>
+				<GridColumn Field="Hero.agility" HeaderText="AGI" Width="90"></GridColumn>
+				<GridColumn Field="Hero.vitality" HeaderText="VIT" Width="90"></GridColumn>
+				<GridColumn Field="Hero.endurance" HeaderText="END" Width="90"></GridColumn>
+				<GridColumn Field="Hero.intelligence" HeaderText="INT" Width="90"></GridColumn>
+				<GridColumn Field="Hero.wisdom" HeaderText="WIS" Width="90"></GridColumn>
+				<GridColumn Field="Hero.luck" HeaderText="LCK" Width="90"></GridColumn>
 				<GridColumn Field="Hero.owner.Id" HeaderText="Wallet" Width="250">
 					<Template>
 						<div>
@@ -326,67 +390,6 @@
 						</div>
 					</Template>
 				</GridColumn>
-				<GridColumn Field="Hero.salePrice" HeaderText="Sale Price" Width="120">
-					<Template>
-						<div>
-							@((context as DFKBotHero).Hero.SalePrice(2))
-						</div>
-					</Template>
-				</GridColumn>
-				<GridColumn Field="Hero.staminaFullAt" HeaderText="Stamina" Width="120">
-					<Template>
-						<div>
-							@{
-								var hero = context as DFKBotHero;
-								@hero.Hero.StaminaCurrent() @("/") @hero.Hero.stamina
-							}
-						</div>
-					</Template>
-				</GridColumn>
-				<GridColumn Field="SuggestedQuest.Name" HeaderText="Suggested Quest" Width="280"></GridColumn>
-				<GridColumn Field="Hero.mainClass" HeaderText="Class" Width="120"></GridColumn>
-				<GridColumn Field="Hero.subClass" HeaderText="Subclass" Width="120"></GridColumn>
-				<GridColumn Field="Hero.profession" HeaderText="Profession" Width="130"></GridColumn>
-				<GridColumn Field="Hero.mining" HeaderText="Mining" Width="120"></GridColumn>
-				<GridColumn Field="Hero.gardening" HeaderText="Gardening" Width="130"></GridColumn>
-				<GridColumn Field="Hero.foraging" HeaderText="Foraging" Width="120"></GridColumn>
-				<GridColumn Field="Hero.fishing" HeaderText="Fishing" Width="120"></GridColumn>
-				<GridColumn Field="Hero.currentQuest" HeaderText="Current Quest" Width="280">
-					<Template>
-						<div>
-							@{
-								var hero = context as DFKBotHero;
-								@hero.Hero.GetCurrentQuestName();
-							}
-						</div>
-					</Template>
-				</GridColumn>
-				<GridColumn Field="rarity" HeaderText="Rarity" Width="120">
-					<Template>
-						<div>
-							@((context as DFKBotHero).Hero.GetRarity())
-						</div>
-					</Template>
-				</GridColumn>
-				<GridColumn Field="firstName" HeaderText="Name" Width="250">
-					<Template>
-						<div>
-							@((context as DFKBotHero).Hero.FullName())
-						</div>
-					</Template>
-				</GridColumn>
-				<GridColumn Field="Hero.level" HeaderText="LVL" Width="90"></GridColumn>
-				<GridColumn Field="Hero.generation" HeaderText="Gen" Width="90"></GridColumn>
-				<GridColumn Field="Hero.statBoost1" HeaderText="SB1" Width="90"></GridColumn>
-				<GridColumn Field="Hero.statBoost2" HeaderText="SB2" Width="90"></GridColumn>
-				<GridColumn Field="Hero.strength" HeaderText="STR" Width="90"></GridColumn>
-				<GridColumn Field="Hero.dexterity" HeaderText="DEX" Width="90"></GridColumn>
-				<GridColumn Field="Hero.agility" HeaderText="AGI" Width="90"></GridColumn>
-				<GridColumn Field="Hero.vitality" HeaderText="VIT" Width="90"></GridColumn>
-				<GridColumn Field="Hero.endurance" HeaderText="END" Width="90"></GridColumn>
-				<GridColumn Field="Hero.intelligence" HeaderText="INT" Width="90"></GridColumn>
-				<GridColumn Field="Hero.wisdom" HeaderText="WIS" Width="90"></GridColumn>
-				<GridColumn Field="Hero.luck" HeaderText="LCK" Width="90"></GridColumn>
 			</GridColumns>
 		</SfGrid>
 

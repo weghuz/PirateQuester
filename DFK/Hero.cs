@@ -40,15 +40,14 @@ public class Hero
 		stamina = hero.Stats.Stamina;
 	}
 
-    public byte[] DecodeRecessiveGenes(BigInteger genesBigInt) {
+    public static byte[] DecodeRecessiveGenes(BigInteger genesBigInt) {
 		var abc = "123456789abcdefghijkmnopqrstuvwx";
 		var buf = "";
 		byte bas = 32;
-		BigInteger mod = 0;
 
 		while (genesBigInt >= bas)
 		{
-			mod = genesBigInt % bas;
+			BigInteger mod = genesBigInt % bas;
 			buf += abc[int.Parse(mod.ToString())];
 			genesBigInt = (genesBigInt - mod) / bas;
 		}
@@ -64,19 +63,19 @@ public class Hero
 
 	public int XpToLevelUp()
     {
-        int xpNeeded = 0;
-        var nextLevel = level + 1;
-        if(nextLevel < 6)
+		var nextLevel = level + 1;
+		int xpNeeded;
+		if (nextLevel < 6)
 		{
 			xpNeeded = nextLevel * 1000;
 		}
-        else if(nextLevel < 9)
+		else if (nextLevel < 9)
 		{
 			xpNeeded = 4000 + (nextLevel - 5) * 2000;
 		}
-        else if(level < 16)
+		else if (level < 16)
 		{
-            xpNeeded = 12000 + (nextLevel - 9) * 4000;
+			xpNeeded = 12000 + (nextLevel - 9) * 4000;
 
 		}
 		else if (level < 36)
@@ -85,17 +84,17 @@ public class Hero
 		}
 		else if (level < 56)
 		{
-            xpNeeded = 140000 + (nextLevel - 36) * 7500;
+			xpNeeded = 140000 + (nextLevel - 36) * 7500;
 		}
 		else if (level > 56)
 		{
-            xpNeeded = 290000 + (nextLevel - 56) * 10000;
+			xpNeeded = 290000 + (nextLevel - 56) * 10000;
 		}
-        else
-        {
-            xpNeeded = 0;
-        }
-        return xpNeeded;
+		else
+		{
+			xpNeeded = 0;
+		}
+		return xpNeeded;
 	}
 
     public void UpdateHeroValues(Hero h)
@@ -185,8 +184,8 @@ public class Hero
         }
         else
         {
-            //REMOVE 5 MINUTES FROM STAMINA TO PREVENT TOO LITTLE STAMINA FAILED BUG EVM ERROR
-			decimal staminaLeft = (staminaFullAt - now + 300)/1200;
+            //REMOVE 4 MINUTES FROM STAMINA TO PREVENT TOO LITTLE STAMINA FAILED BUG EVM ERROR
+			decimal staminaLeft = (staminaFullAt - now + 240)/1200;
             return stamina - (int)Math.Floor(staminaLeft) - 1;
         }
     }

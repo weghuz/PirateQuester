@@ -7,6 +7,7 @@ using PirateQuester.DFK.Items;
 using PirateQuester.Pages;
 using PirateQuester.Services;
 using PirateQuester.Utils;
+using System.Linq;
 using System.Numerics;
 using Utils;
 using Meditation = DFKContracts.MeditationCircle.ContractDefinition.Meditation;
@@ -41,8 +42,7 @@ public class DFKBot
         });
         BotLogAdded?.Invoke();
 	}
-
-
+	
 	internal Tuple<List<DFKBotLogMessage>, List<QuestReward>> GetLogsAndStop()
 	{
 		StopBot = true;
@@ -269,7 +269,7 @@ public class DFKBot
 		if (Settings.LevelUp)
 		{
 			List<DFKBotHero> readyToLevelHeroes = Account.BotHeroes
-				.Where(h => (h.LevelingEnabled is null ? true : h.LevelingEnabled.Value)
+				.Where(h => (h.LevelingEnabled is null || h.LevelingEnabled.Value)
 				&& h.Hero.xp >= h.Hero.XpToLevelUp()
 				&& RunningQuests.Any(rq => rq.Heroes.Contains(h.ID)) is false
 				&& h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h)
@@ -355,7 +355,7 @@ public class DFKBot
 				(hero.UseStaminaPotionsAmount is not null 
 				|| hero.StaminaPotionUntilLevel is not null)
 				&& hero.Hero.StaminaCurrent() <= 5
-				&& (Settings.ForceStampotOnFullXP ? true : hero.Hero.xp != hero.Hero.XpToLevelUp())
+				&& (Settings.ForceStampotOnFullXP || (hero.Hero.xp != hero.Hero.XpToLevelUp()))
 				&& !activeMeditations.Any(med => med.HeroId.ToString() == hero.Hero.id)).ToList();
 
 			string staminaPotionAddress = ItemContractDefinitions.InventoryItems.First(item => item.Name == "Stamina Potion").Addresses.First(a => a.Chain.Name == Account.Chain.Name).Address;
@@ -540,11 +540,11 @@ public class DFKBot
 						&& (h.Hero.salePrice == null || Settings.CancelUnpricedHeroSales))
 						.Count();
 
-					if (heroBatch.Count() < quest.MaxHeroesPerQuest(Account) && heroBatch.Count() < heroesSetForQuest)
+					if (heroBatch.Count < quest.MaxHeroesPerQuest(Account) && heroBatch.Count < heroesSetForQuest)
 					{
 						if (enabledQuests.FirstOrDefault(qe => qe.QuestId == quest.Id).QuestEagerly is false)
 						{
-							Log($"Not enough heroes to start {quest.Name}. {heroBatch.Count()} heroes {(heroBatch.Count() == 1 ? "is" : "are")} ready, {quest.MaxHeroesPerQuest(Account)} are needed.");
+							Log($"Not enough heroes to start {quest.Name}. {heroBatch.Count} heroes {(heroBatch.Count == 1 ? "is" : "are")} ready, {quest.MaxHeroesPerQuest(Account)} are needed.");
 							continue;
 						}
 						else
@@ -557,11 +557,11 @@ public class DFKBot
 								&& h.Hero.profession == quest.Category.ToLower())
 								.Select(h => h.Hero)
 								.ToList();
-							if (heroesCatchingUp.Count() > 0)
+							if (heroesCatchingUp.Count > 0)
 							{
 								Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.id))} to make a full sqad for {quest.Name}.");
 								var checkBatch = heroBatch.Where(h => h.StaminaCurrent() == h.stamina || h.StaminaPotioned).ToList();
-								if (checkBatch.Count() > 0)
+								if (checkBatch.Count > 0)
 								{
 									Log($"{string.Join(", ", heroBatch.Select(h => h.id))} are so energetic they don't care.");
 								}
@@ -615,11 +615,11 @@ public class DFKBot
 						&& (h.Hero.salePrice == null || Settings.CancelUnpricedHeroSales))
 						.Count();
 
-					if (heroBatch.Count() < quest.MaxHeroesPerQuest(Account) && heroBatch.Count() < heroesSetForQuest)
+					if (heroBatch.Count < quest.MaxHeroesPerQuest(Account) && heroBatch.Count < heroesSetForQuest)
 					{
 						if (enabledQuests.FirstOrDefault(qe => qe.QuestId == quest.Id).QuestEagerly is false)
 						{
-							Log($"Not enough heroes to start {quest.Name}. {heroBatch.Count()} heroes {(heroBatch.Count() == 1 ? "is" : "are")} ready, {quest.MaxHeroesPerQuest(Account)} are needed.");
+							Log($"Not enough heroes to start {quest.Name}. {heroBatch.Count} heroes {(heroBatch.Count == 1 ? "is" : "are")} ready, {quest.MaxHeroesPerQuest(Account)} are needed.");
 							continue;
 						}
 						else
@@ -632,11 +632,11 @@ public class DFKBot
 								&& RunningQuests.SelectMany(rq => rq.Heroes).Contains(h.ID) is false)
 								.Select(h => h.Hero)
 								.ToList();
-							if (heroesCatchingUp.Count() > 0)
+							if (heroesCatchingUp.Count > 0)
 							{
 								Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.id))} to make a full sqad for {quest.Name}.");
 								var checkBatch = heroBatch.Where(h => h.StaminaCurrent() == h.stamina || h.StaminaPotioned).ToList();
-								if (checkBatch.Count() > 0)
+								if (checkBatch.Count > 0)
 								{
 									Log($"{string.Join(", ", heroBatch.Select(h => h.id))} are so energetic they don't care.");
 								}
