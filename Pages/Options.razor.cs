@@ -26,7 +26,6 @@ public partial class Options
         JS.InvokeVoidAsync("localStorage.removeItem", "gridQuestRewardsGrid", "");
         JS.InvokeVoidAsync("localStorage.removeItem", "gridControlCenterHeroGrid", "");
         JS.InvokeVoidAsync("localStorage.removeItem", "ChainSettings", "");
-        JS.InvokeVoid("location.reload");
     }
 
     void ExportBotSettings()
@@ -89,7 +88,6 @@ public partial class Options
         {
             JS.InvokeVoid("localStorage.clear");
         }
-        JS.InvokeVoid("location.reload");
     }
     void ToggleDarkMode()
     {

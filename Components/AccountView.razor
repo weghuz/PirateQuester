@@ -214,24 +214,7 @@
 		</h6>
 		<div class="row">
 			<div class="col-12">
-				<SfButton CssClass="e-danger mr-3" OnClick="@(() => ShowDeleteAccountDialog = true)">
-					Delete Account
-				</SfButton>
-				<SfDialog ShowCloseIcon="true" IsModal="true" @bind-Visible="@ShowDeleteAccountDialog">
-					<DialogTemplates>
-						<Header>
-							Delete @Accounts[0].Name
-						</Header>
-						<Content>
-								<SfTextBox CssClass="my-2" @bind-Value=@Password Type="InputType.Password" Placeholder="Enter accounts Password" />
-						</Content>
-					</DialogTemplates>
-					<DialogButtons>
-						<DialogButton CssClass="e-secondary" Content="Close" OnClick="@(() => ShowDeleteAccountDialog = false)" />
-						<DialogButton CssClass="e-danger" Content="Delete Account" OnClick="CheckPasswordDeleteAccountDialog" />
-					</DialogButtons>
-				</SfDialog>
-				<SfButton CssClass="e-success mr-3" OnClick="@(() => ShowRenameAccountDialog = true)">
+				<SfButton CssClass="e-primary mr-3" OnClick="@(() => ShowRenameAccountDialog = true)">
 					Rename Account
 				</SfButton>
 				<SfDialog ShowCloseIcon="true" IsModal="true" @bind-Visible="@ShowRenameAccountDialog">
@@ -248,7 +231,11 @@
 						<DialogButton CssClass="e-success" Content="Rename Account" OnClick="RenameAccount" />
 					</DialogButtons>
 				</SfDialog>
-
+				
+				<SfButton CssClass="e-primary" OnClick="ExportAccount">
+					Export Account
+				</SfButton>
+				
 				<SfButton CssClass="e-danger" OnClick="@(() => ShowPrivateKeyDialog = true)">
 					Show Private Key
 				</SfButton>
@@ -273,6 +260,23 @@
 					<DialogButtons>
 						<DialogButton CssClass="e-secondary" Content="Close" OnClick="@(() => ShowPrivateKeyDialog = false)" />
 						<DialogButton CssClass="e-primary" Content="Show Private Key" OnClick="CheckPasswordDialog" />
+					</DialogButtons>
+				</SfDialog>
+				<SfButton CssClass="e-danger float-end mr-3" OnClick="@(() => ShowDeleteAccountDialog = true)">
+					Delete Account
+				</SfButton>
+				<SfDialog ShowCloseIcon="true" IsModal="true" @bind-Visible="@ShowDeleteAccountDialog">
+					<DialogTemplates>
+						<Header>
+							Delete @Accounts[0].Name
+						</Header>
+						<Content>
+							<SfTextBox CssClass="my-2" @bind-Value=@Password Type="InputType.Password" Placeholder="Enter accounts Password" />
+						</Content>
+					</DialogTemplates>
+					<DialogButtons>
+						<DialogButton CssClass="e-secondary" Content="Close" OnClick="@(() => ShowDeleteAccountDialog = false)" />
+						<DialogButton CssClass="e-danger" Content="Delete Account" OnClick="CheckPasswordDeleteAccountDialog" />
 					</DialogButtons>
 				</SfDialog>
 			</div>

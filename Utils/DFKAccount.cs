@@ -115,7 +115,7 @@ namespace PirateQuester.Utils
 				{ HeroesArgument.owner, Account.Address },
                 { HeroesArgument.network, Chain.Identifier }
             };
-			string request = API.HeroesRequestBuilder(args, "id owner {id name} rarity generation firstName lastName mainClassStr subClassStr professionStr staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina statBoost1 statBoost2 salePrice xp network mining foraging fishing gardening mainClassStr subClassStr professionStr statBoost1StrDeprecated statBoost2StrDeprecated");
+			string request = API.HeroesRequestBuilder(args, "id owner {id name} rarity generation firstName lastName mainClassStr subClassStr professionStr staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina statBoost1 statBoost2 salePrice xp network mining foraging fishing gardening mainClassStr subClassStr professionStr statBoost1StrDeprecated statBoost2StrDeprecated summons maxSummons summonsRemaining");
 			var heroes = (await API.GetHeroes(request)).ToList();
 			foreach (Hero h in heroes)
 			{

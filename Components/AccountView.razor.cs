@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Nethereum.Web3;
-using Newtonsoft.Json;
-using PirateQuester.Pages;
 using PirateQuester.Services;
 using PirateQuester.Utils;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 using Utils;
 
 namespace PirateQuester.Components
@@ -40,8 +40,13 @@ namespace PirateQuester.Components
 		{
 			PQTPrice = Math.Round(Web3.Convert.FromWei(await Accounts[0].PQT.PriceQueryAsync()), 2);
 		}
-		
-        private void CheckPasswordDialog()
+
+		private void ExportAccount()
+		{
+			JS.Invoke<string>("download", $"ENCRYPTED_PQ_ACCOUNT_{Accounts[0].Name}_{Accounts[0].Account.Address}", JS.Invoke<string>("localStorage.getItem", Accounts[0].Name));
+		}
+
+		private void CheckPasswordDialog()
 		{
 			if (CheckPassword(Accounts[0].Name, Password))
 			{
@@ -49,13 +54,14 @@ namespace PirateQuester.Components
 			}
 			Password = "";
 		}
+		
         private void RenameAccount()
         {
             Acc.AccountNames = Acc.AccountNames.Where(accName => accName != Accounts[0].Name).ToList();
 			Acc.AccountNames.Add(NewAccountName);
 			var scryptEncodedAccount = JS.Invoke<string>("localStorage.getItem", Accounts[0].Name);
             JS.InvokeVoid("localStorage.setItem", NewAccountName, scryptEncodedAccount);
-            JS.InvokeVoid("localStorage.setItem", "AccountNames", JsonConvert.SerializeObject(Acc.AccountNames));
+            JS.InvokeVoid("localStorage.setItem", "AccountNames", JsonSerializer.Serialize(Acc.AccountNames));
 			JS.InvokeVoid("localStorage.removeItem", Accounts[0].Name);
             JS.InvokeVoid("alert", "Account renamed from " + Accounts[0].Name + " to " + NewAccountName);
 			foreach(DFKAccount acc in Accounts)
@@ -71,7 +77,7 @@ namespace PirateQuester.Components
 			{
 				JS.InvokeVoid("localStorage.removeItem", Accounts[0].Name);
 				Acc.AccountNames.Remove(Accounts[0].Name);
-				JS.InvokeVoid("localStorage.setItem", "AccountNames", JsonConvert.SerializeObject(Acc.AccountNames));
+				JS.InvokeVoid("localStorage.setItem", "AccountNames", JsonSerializer.Serialize(Acc.AccountNames));
 				JS.InvokeVoid("alert", "Account deleted from local storage. Log out to reflect changes.");
 				ShowDeleteAccountDialog = false;
 			}
