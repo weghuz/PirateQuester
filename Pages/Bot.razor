@@ -24,8 +24,11 @@
 						<SfButton CssClass="e-danger mx-1" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" OnClick="@Bots.StopBots" >
 							Stop Bots
 						</SfButton>
-						<SfButton CssClass="e-primary mx-1" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" OnClick="@DownloadLogsAndRefreshBots">
-							Download Logs + Refresh bots
+						<SfButton CssClass="e-primary mx-1" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" OnClick="RefreshBots">
+							Clear Logs
+						</SfButton>
+						<SfButton CssClass="e-primary mx-1" HtmlAttributes="@(new(){{"type", "button"}})" OnClick="@Bots.SaveSettings">
+							Save Settings
 						</SfButton>
 					}
 					else
@@ -37,11 +40,24 @@
 							Visit the <SfButton OnClick=@(() => Nav.NavigateTo("Accounts"))>Accounts</SfButton> page to add an account with PQT.
 						</h4>
 					}
-					<SfButton CssClass="e-primary mx-1" HtmlAttributes="@(new(){{"type", "button"}})" OnClick="@Bots.SaveSettings">
-						Save Settings
-					</SfButton>
 				</div>
 				<div class="row">
+					<div class="col-md-6">
+						<label for="UpdateInterval">
+							Download cleared logs
+							<SfCheckBox @bind-Checked=@Bots.Settings.DownloadClearedLogs />
+						</label>
+					</div>
+					<div class="col-md-6">
+						<label for="UpdateInterval" >
+							Clear logs interval (Seconds) (0 to turn off)<br />
+						</label>
+						<SfNumericTextBox name="UpdateInterval"
+							TValue="int"
+							@bind-Value="@Bots.Settings.ClearLogsInterval"
+							OnChange="@((val) => {Bots.SaveSettings();})"
+								/>
+					</div>
 					<div class="col-md-6">
 						<label for="UpdateInterval" >
 							Update Frequency (Seconds)
@@ -61,7 +77,7 @@
 							@bind-Value="@Bots.Settings.MinStamina"
 							OnChange="@((val) => {Bots.SaveSettings();})" />
 					</div>
-			
+					
 					<div class="col-md-6">
 						<label for="MaxGasFee" >
 							MaxGasFee (If your Max Fee is too low txns could get stuck during high traffic times.)
@@ -229,7 +245,7 @@
 									{
 										valueAttribute = Bots.Settings.SuggestedLevelUpSettings.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower());
 									}
-								
+									
 									<h6 class="text-center">@(mainClass) Levelup settings</h6>
 									<div class="col-md-4">
 										<SfCard CssClass="m-2">
@@ -240,8 +256,7 @@
 												<SfDropDownList TItem="DFKStat"
 													TValue="byte"
 													DataSource="@Constants.DFKStats"
-													Value=@valueAttribute.MainAttribute.Id
-													OnChange="((value) => {valueAttribute.MainAttribute.Id = (byte)value.Value;})">
+													@bind-value="valueAttribute.MainAttribute.Id">
 													<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
 												</SfDropDownList>
 											</CardContent>
@@ -256,8 +271,7 @@
 												<SfDropDownList TItem="DFKStat"
 													TValue="byte"
 													DataSource="@Constants.DFKStats"
-													Value=@valueAttribute.SecondaryAttribute.Id
-													OnChange="((value) => {valueAttribute.SecondaryAttribute.Id = (byte)value.Value;})">
+													@bind-Value=@valueAttribute.SecondaryAttribute.Id>
 													<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
 												</SfDropDownList>
 											</CardContent>
@@ -272,9 +286,7 @@
 												<SfDropDownList TItem="DFKStat"
 													TValue="byte"
 													DataSource="@Constants.DFKStats"
-												
-													Value=@valueAttribute.TertiaryAttribute.Id
-													OnChange="((value) => {valueAttribute.TertiaryAttribute.Id = (byte)value.Value;})">
+													@bind-Value=@valueAttribute.TertiaryAttribute.Id>
 													<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
 												</SfDropDownList>
 											</CardContent>

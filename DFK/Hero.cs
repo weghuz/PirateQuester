@@ -206,7 +206,9 @@ public class Hero
     public int lastName { get; set; }
     public int shinyStyle { get; set; }
     public string mainClass { get; set; }
+    public string mainClassStr { get; set; }
     public string subClass { get; set; }
+    public string subClassStr { get; set; }
     public int summonedTime { get; set; }
     public int nextSummonTime { get; set; }
     public Hero summonerId { get; set; }
@@ -259,15 +261,18 @@ public class Hero
     public int foraging { get; set; }
     public int fishing { get; set; }
     public string profession { get; set; }
+    public string professionStr { get; set; }
     public string passive1 { get; set; }
     public string passive2 { get; set; }
     public string active1 { get; set; }
     public string active2 { get; set; }
     public string statBoost1 { get; set; }
+    public string statBoost1StrDeprecated { get; set; }
     public string statBoost2 { get; set; }
+    public string statBoost2StrDeprecated { get; set; }
     public string statsUnknown1 { get; set; }
-    public string element { get; set; }
     public string statsUnknown2 { get; set; }
+    public string element { get; set; }
     public string gender { get; set; }
     public string headAppendage { get; set; }
     public string backAppendage { get; set; }
@@ -275,11 +280,11 @@ public class Hero
     public string hairStyle { get; set; }
     public string hairColor { get; set; }
     public string visualUnknown1 { get; set; }
+    public string visualUnknown2 { get; set; }
     public string eyeColor { get; set; }
     public string skinColor { get; set; }
     public string appendageColor { get; set; }
     public string backAppendageColor { get; set; }
-    public string visualUnknown2 { get; set; }
     public Auction assistingAuction { get; set; }
     public string assistingPrice { get; set; }
     public Auction saleAuction { get; set; }

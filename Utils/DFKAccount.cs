@@ -115,9 +115,39 @@ namespace PirateQuester.Utils
 				{ HeroesArgument.owner, Account.Address },
                 { HeroesArgument.network, Chain.Identifier }
             };
-			string request = API.HeroesRequestBuilder(args, "id owner {id name} rarity generation firstName lastName mainClass subClass staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina profession statBoost1 statBoost2 salePrice xp network mining foraging fishing gardening");
-			Heroes = (await API.GetHeroes(request)).ToList();
-		}
+			string request = API.HeroesRequestBuilder(args, "id owner {id name} rarity generation firstName lastName mainClassStr subClassStr professionStr staminaFullAt level currentQuest strength intelligence wisdom luck agility vitality endurance dexterity stamina statBoost1 statBoost2 salePrice xp network mining foraging fishing gardening mainClassStr subClassStr professionStr statBoost1StrDeprecated statBoost2StrDeprecated");
+			var heroes = (await API.GetHeroes(request)).ToList();
+			foreach (Hero h in heroes)
+			{
+				h.mainClass = null;
+                if (h.mainClass is null || h.mainClass is "")
+				{
+					h.mainClass = h.mainClassStr;
+				}
+				h.subClass = "";
+
+                if (h.subClass is null || h.subClass is "")
+                {
+                    h.subClass = h.subClassStr;
+                }
+
+				if (h.profession is null || h.profession is "")
+                {
+                    h.profession = h.professionStr;
+                }
+
+				if (h.statBoost1 is null || h.statBoost1 is "")
+                {
+                    h.statBoost1 = h.statBoost1StrDeprecated;
+                }
+
+				if (h.statBoost2 is null || h.statBoost2 is "")
+                {
+                    h.statBoost2 = h.statBoost2StrDeprecated;
+                }
+            }
+			Heroes = heroes;
+        }
 
 		public async Task UpdateHeroes()
 		{

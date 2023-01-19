@@ -9,7 +9,7 @@ using Utils;
 
 namespace PirateQuester.Components
 {
-	public partial class AccountView
+    public partial class AccountView
 	{
 		[Inject]
 		public AccountManager Acc { get; set; }
@@ -35,7 +35,8 @@ namespace PirateQuester.Components
         public string ErrorMessage { get; set; }
         public decimal PQTPrice { get; set; }
 		public int BuyAmount { get; set; } = 1;
-		protected override async void OnInitialized()
+        public AccountUpdaterService AccountUpdater { get; set; }
+        protected override async void OnInitialized()
 		{
 			PQTPrice = Math.Round(Web3.Convert.FromWei(await Accounts[0].PQT.PriceQueryAsync()), 2);
 		}

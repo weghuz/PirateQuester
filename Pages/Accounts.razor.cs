@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using PirateQuester.Services;
 using PirateQuester.Utils;
 using PirateQuester.ViewModels;
+using static PirateQuester.Utils.DFKAccount;
 
 namespace PirateQuester.Pages;
 
@@ -11,7 +13,12 @@ public partial class Accounts
 	AccountManager Acc { get; set; }
 	[Inject]
 	NavigationManager Nav { get; set; }
-	public string Password { get; set; }
+	[Inject]
+	public AccountUpdaterService AccountUpdater { get; set; }
+	public CancellationTokenSource cancelWorkToken { get; set; }
+    public string Password { get; set; }
+	
+	
 	
 	protected override async Task OnInitializedAsync()
 	{
@@ -30,6 +37,18 @@ public partial class Accounts
         {
 			await acc.UpdateBalance();
         }
+		cancelWorkToken = new();
+		AccountUpdater.DoWorkAsync(cancelWorkToken.Token, () =>
+		{
+			StateHasChanged();
+		});
 		StateHasChanged();
 	}
+
+	//Implement Dispose and Cancel cancelWorkToken
+	public void Dispose()
+	{
+		cancelWorkToken.Cancel();
+	}
+
 }

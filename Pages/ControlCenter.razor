@@ -86,16 +86,18 @@
 								</div>
 								<div class="row">
 									<div class="col-4">
-										<SfTooltip ID="StaminaAmountTooltip" 
-											IsSticky="false" 
-											Target="#tooltipTarget" 
-											Content="@("Setting this will use the # of stamina potions set for the hero when the bot is running.")">
-                                            <div>
-												<span id="tooltipTarget">
-													Use Stamina Pot Amount
-                                                </span>
-                                            </div>
-										</SfTooltip>
+										<p class="mt-2">
+											<SfTooltip ID="StaminaAmountTooltip" 
+												IsSticky="false" 
+												Target="#tooltipTarget" 
+												Content="@("Setting this will use the # of stamina potions set for the hero when the bot is running.")">
+												<div>
+													<span id="tooltipTarget">
+														Use Stamina Pot Amount
+													</span>
+												</div>
+											</SfTooltip>
+										</p>
 									</div>
 									<div class="col-8">
 										<SfNumericTextBox @bind-Value=@StaminaPotAmount TValue="int?" Min="0" Max="99999">
@@ -195,6 +197,9 @@
 								>
 								Set preference
 							</SfButton>
+							<SfButton OnClick="@ClearFilters">
+								Clear Table Filters
+							</SfButton>
 							<SfButton OnClick="@ResetSelection"
 								CssClass="e-warning"
 								HtmlAttributes="@(new Dictionary<string, object>() { { "type", "button" } })"
@@ -229,15 +234,11 @@
 			AllowPaging="true"
 			AllowResizing="true"
 			AllowSorting="true"
-			AllowExcelExport="true"
 			AllowReordering="true"
 			AllowMultiSorting="true"
-			AllowPdfExport="true"
-			EnableAdaptiveUI="true"
-			Height="650px"
-			Width="100%">
+			Height="650px">
 			<GridSelectionSettings EnableSimpleMultiRowSelection="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple" AllowDragSelection="true" ></GridSelectionSettings>
-			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
+			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
 			<GridPageSettings PageSizes="@(new string[] { "5", "10", "15", "20", "50", "All" })" PageSize="@PageSize"></GridPageSettings>
 			<GridColumns>
 				<GridColumn Field="Hero.salePrice" HeaderText="Sale Price" Width="120">

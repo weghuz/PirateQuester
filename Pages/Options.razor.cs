@@ -1,6 +1,11 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using PirateQuester.Utils;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using PirateQuester.Services;
+using Microsoft.AspNetCore.Components.Forms;
+using PirateQuester.Bot;
 
 namespace PirateQuester.Pages;
 
@@ -10,6 +15,10 @@ public partial class Options
     public IJSInProcessRuntime JS { get; set; }
     [Inject]
     public AccountSettings AccSettings { get; set; }
+    [Inject]
+    public BotService Bots { get; set; }
+
+    public string UploadedBotSettings { get; set; }
     void ClearProblematicStorage()
     {
         JS.InvokeVoidAsync("localStorage.removeItem", "DFKBotSettings", "");
@@ -18,6 +27,60 @@ public partial class Options
         JS.InvokeVoidAsync("localStorage.removeItem", "gridControlCenterHeroGrid", "");
         JS.InvokeVoidAsync("localStorage.removeItem", "ChainSettings", "");
         JS.InvokeVoid("location.reload");
+    }
+
+    void ExportBotSettings()
+    {
+        JS.Invoke<string>("download", $"PirateQuesterDFKBotSettings-{DateTime.Now:yyyy-MM-ddThh:mm}", JsonSerializer.Serialize(Bots.Settings, new JsonSerializerOptions()
+        {
+            ReferenceHandler = ReferenceHandler.IgnoreCycles,
+        }));
+    }
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+
+        foreach (var file in e.GetMultipleFiles(1))
+        {
+            try
+            {
+                var fileContent = new StreamContent(file.OpenReadStream(file.Size));
+                UploadedBotSettings = await fileContent.ReadAsStringAsync();
+                Console.WriteLine(UploadedBotSettings);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+    }
+    void ImportBotSettings()
+    {
+        if(UploadedBotSettings is null)
+        {
+            JS.InvokeVoid("alert", "No file selected");
+            return;
+        }
+        if(JS.Invoke<bool>("confirm", "Are you sure you want to import bot settings? This will overwrite your current settings."))
+        {
+            try
+            {
+                Bots.ImportBotSettings(UploadedBotSettings);
+                Bots.SaveSettings();
+                JS.InvokeVoid("alert", "Bot settings imported successfully");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                JS.InvokeVoid("alert", "Invalid bot settings file");
+            }
+        }
+    }
+
+    void ClearTableCache()
+    {
+        JS.InvokeVoid("localStorage.removeItem", "gridQuestRewardsGrid", "");
+        JS.InvokeVoid("localStorage.removeItem", "gridControlCenterHeroGrid", "");
     }
     
     void ClearLocalStorage()

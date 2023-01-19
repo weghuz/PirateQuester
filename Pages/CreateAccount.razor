@@ -48,21 +48,14 @@
     <SfCard>
         <CardContent>
             <EditForm OnValidSubmit="@(() => Create())" Model="@model">
-                <label class="text-center mb-2">
-                    <h6 class="mb-1">Generate Account</h6>
-                    <SfCheckBox TChecked="bool" @bind-bind-Checked="model.GenerateAccount" Name="GenerateAccount" />
-                </label>
                 <h6 class="mb-1">
                     Account Name
                 </h6>
                 <SfTextBox @bind-Value="model.Name" TChecked="bool" />
-                @if (model.GenerateAccount is false)
-                {
-                    <h6 class="mb-1">
-                        Private Key
-                    </h6>
-                    <SfTextBox Type="InputType.Password" @bind-Value="model.PrivateKey" Name="PrivateKey" />
-                }
+                <h6 class="mb-1">
+                    Private Key
+                </h6>
+                <SfTextBox Type="InputType.Password" @bind-Value="model.PrivateKey" Name="PrivateKey" />
                 
                 <h6 class="mb-1">
                     Password
