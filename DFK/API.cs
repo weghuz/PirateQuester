@@ -53,6 +53,20 @@ public static class API
 			{
 				var httpData = await Client.PostAsync(URL, data);
 				var response = JsonConvert.DeserializeObject<HeroesResponse>(await httpData.Content.ReadAsStringAsync());
+				foreach (Hero hero in response.data.heroes)
+				{
+                    hero.profession = hero.professionStr;
+                    hero.mainClass = hero.mainClassStr;
+                    hero.subClass = hero.subClassStr;
+                    //switch
+					//{
+                    //  0 => "mining",
+					//	2 => "gardening",
+					//	4 => "fishing",
+                    //  6 => "foraging"
+					//	_ => "foraging"
+					//}
+				}
 				return response.data.heroes;
 			}
 			catch (Exception e)
