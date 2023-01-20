@@ -246,7 +246,7 @@
 				<GridColumn Field="Hero.subClass" HeaderText="Subclass" Width="120"></GridColumn>
 				<GridColumn Field="Hero.level" HeaderText="LVL" Width="90"></GridColumn>
 				<GridColumn Field="Hero.generation" HeaderText="Gen" Width="90"></GridColumn>
-				<GridColumn Field="Hero.summons" HeaderText="Summons" Width="120">
+				<GridColumn Field="Hero.summonsRemaining" HeaderText="Summons" Width="120">
 					<Template>
 						<div>
 							@{
@@ -257,7 +257,7 @@
 								}
 								else
 								{
-								<span>@(hero.summonsRemaining) / @hero.maxSummons</span>
+									<span>@(hero.summonsRemaining) / @hero.maxSummons</span>
 								}
 							}
 						</div>
