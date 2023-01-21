@@ -40,9 +40,7 @@ namespace PirateQuester.Bot
 					&& questSettings.ChainIdentifier == Account.Chain.Identifier
 					&& chainQuestSettings.QuestEnabled[questSettings.QuestId.Value].Enabled)
 				{
-					SuggestedQuest = chainQuests[questSettings.QuestId.Value];
 					Quest = chainQuests[questSettings.QuestId.Value];
-					return;
 				}
 			}
 			List<int> stats = new()
@@ -83,29 +81,17 @@ namespace PirateQuester.Bot
 							SuggestedQuest = lockedMining;
 							return;
 						}
-					}
+                    }
 
 					if (SuggestedQuest.Category == "Gardening")
 					{
-						int assigned = Account
-							.BotHeroes
-							.Where(botHero => botHero.SuggestedQuest.Id == SuggestedQuest.Id).Count();
-						if (assigned == 0)
-						{
-							return;
-						}
-						foreach (QuestContract quest in chainQuests
+						var gardeningQuests = chainQuests
 							.Where(q => q.Category == "Gardening"
-							&& chainQuestSettings.QuestEnabled[q.Id].Enabled))
-						{
-							int currentQuestAssigned = Hero.DFKAccount.BotHeroes.Where(botHero => botHero.SuggestedQuest.Id == quest.Id).Count();
+							&& chainQuestSettings.QuestEnabled[q.Id].Enabled).ToList();
 
-							if (currentQuestAssigned < assigned)
-							{
-								SuggestedQuest = quest;
-								return;
-							}
-						}
+						int minAssigned = gardeningQuests.Min(gq => Hero.DFKAccount.BotHeroes.Where(botHero => botHero.SuggestedQuest.Id == gq.Id).Count());
+
+						SuggestedQuest = gardeningQuests.FirstOrDefault(gq => Hero.DFKAccount.BotHeroes.Where(botHero => botHero.SuggestedQuest.Id == gq.Id).Count() == minAssigned);
 					}
 					return;
 				}
@@ -132,38 +118,26 @@ namespace PirateQuester.Bot
 				if (chainQuestSettings.QuestEnabled[8].Enabled && h.mining > 0 && Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 8).Count() < 18)
 				{
 					SuggestedQuest = chainQuests[8];
-				}
+                    return;
+                }
+
 				var foragers = Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 11).Count();
 				var fishers = Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 10).Count();
 				if (foragers > fishers && chainQuestSettings.QuestEnabled[10].Enabled)
 				{
 					SuggestedQuest = chainQuests[10];
-				}
+                    return;
+                }
 				else if (chainQuestSettings.QuestEnabled[11].Enabled)
 				{
 					SuggestedQuest = chainQuests[11];
+					return;
 				}
-				int min = 0;
-				foreach (QuestContract qc in chainQuests.Where(cq => chainQuestSettings.QuestEnabled[cq.Id].Enabled))
-				{
-					int assigned = Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == qc.Id).Count();
-					if (min == 0)
-					{
-						min = assigned;
-						SuggestedQuest = qc;
-						continue;
-					}
-					if (assigned < min)
-					{
-						SuggestedQuest = qc;
-						min = assigned;
-					}
-				}
-
 			}
 		}
-
-		public LevelUpSetting LevelUpSetting { get; set; } = new();
+		
+        public BigInteger FloorEstimate { get; set; }
+        public LevelUpSetting LevelUpSetting { get; set; } = new();
 		public int? StaminaPotionUntilLevel { get; set; }
 		public int? UseStaminaPotionsAmount { get; set; }
 		public bool? LevelingEnabled { get; set; }

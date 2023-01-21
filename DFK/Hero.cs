@@ -175,7 +175,7 @@ public class Hero
         return JsonConvert.SerializeObject(this);
     }
 
-    public int StaminaCurrent()
+    public int StaminaCurrent(int offset = 0)
     {
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 		if (now >= staminaFullAt)
@@ -184,8 +184,7 @@ public class Hero
         }
         else
         {
-            //REMOVE 3 MINUTES FROM STAMINA TO PREVENT TOO LITTLE STAMINA FAILED BUG EVM ERROR
-			decimal staminaLeft = (staminaFullAt - now + 180)/1200;
+			decimal staminaLeft = (staminaFullAt - now + offset)/1200;
             return stamina - (int)Math.Floor(staminaLeft) - 1;
         }
     }

@@ -34,7 +34,7 @@ public partial class ControlCenter
 	public int SelectedHeroCount { get; set; }
 	public decimal? SalePrice { get; set; }
 	public LevelUpSetting LevelSettings { get; set; } = new();
-	public int PageSize { get; set; } = 50;
+	public static int PageSize { get; set; } = 50;
     protected override void OnInitialized()
 	{
 		TableHeroes = Acc.Accounts.SelectMany(a => a.BotHeroes).ToList();

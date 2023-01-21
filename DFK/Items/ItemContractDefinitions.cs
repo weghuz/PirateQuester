@@ -615,7 +615,7 @@ namespace PirateQuester.DFK.Items
                 },
                 Category = ItemCategory.Material,
 				ItemEnum = DFKItemEnum.DFKLFINCR,
-				Image = "Images/Items/insight-crystal-lesser.gif",
+				Image = "Images/Items/finesse-crystal-lesser.gif",
 				Decimals = 0
 			},
 			new()

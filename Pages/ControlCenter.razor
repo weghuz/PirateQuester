@@ -56,6 +56,17 @@
 								<div class="row">
 									<div class="col-4">
 										<p class="mt-2">
+											Undersell Warning
+										</p>
+									</div>
+									<div class="col-8">
+										<SfNumericTextBox @bind-Value=@Bots.Settings.WarnFloorPercentage TValue="decimal?">
+										</SfNumericTextBox>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-4">
+										<p class="mt-2">
 											Sale Price
 										</p>
 									</div>
@@ -245,6 +256,16 @@
 				<GridColumn Field="Hero.mainClass" HeaderText="Class" Width="120"></GridColumn>
 				<GridColumn Field="Hero.subClass" HeaderText="Subclass" Width="120"></GridColumn>
 				<GridColumn Field="Hero.level" HeaderText="LVL" Width="90"></GridColumn>
+				<GridColumn Field="Hero.xp" HeaderText="XP" Width="120">
+					<Template>
+						<div>
+							@{
+								var hero = context as DFKBotHero;
+								<span>@Functions.FormatThousndK(hero.Hero.xp) / @Functions.FormatThousndK(hero.Hero.XpToLevelUp())</span>
+							}
+						</div>
+					</Template>
+				</GridColumn>
 				<GridColumn Field="Hero.generation" HeaderText="Gen" Width="90"></GridColumn>
 				<GridColumn Field="Hero.summonsRemaining" HeaderText="Summons" Width="120">
 					<Template>
@@ -299,6 +320,7 @@
 						</div>
 					</Template>
 				</GridColumn>
+
 				<GridColumn Field="LevelUpSetting.MainAttribute.Name" HeaderText="Lvlup Settings" Width="120">
 					<Template>
 						<div>

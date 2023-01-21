@@ -30,7 +30,8 @@ namespace PirateQuester.Bot
 		public int UpdateInterval { get; set; } = 180;
         public int MinStamina { get; set; } = 20;
         public int MaxGasFeeGwei { get; set; } = 200;
-		public bool LevelUp { get; set; } = true;
+        public decimal? WarnFloorPercentage { get; set; } = 90;
+        public bool LevelUp { get; set; } = true;
         public bool UseStaminaPotions { get; set; } = true;
         public bool ForceStampotOnFullXP { get; set; } = false;
         public bool QuestHeroes { get; set; } = true;

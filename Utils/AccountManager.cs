@@ -8,6 +8,7 @@ using PirateQuester.Bot;
 using PirateQuester.Pages;
 using PirateQuester.Services;
 using PirateQuester.ViewModels;
+using Syncfusion.Blazor.Grids.Internal;
 using System.Runtime;
 using Utils;
 
@@ -105,9 +106,29 @@ public class AccountManager
             await account.InitializeAccount();
         }
 		return;
-    }
+	}
 
-    public List<string> GetAccountNames()
+	internal bool ImportAccount(ImportAccountViewModel model)
+    {
+        Console.WriteLine(model.AccountName);
+        Console.WriteLine(model.UploadedAccount);
+        if (model.UploadedAccount is null)
+        {
+            _js.InvokeVoid("alert", "No file selected.");
+            return false;
+        }
+        if (model.AccountName is null)
+        {
+            _js.InvokeVoid("alert", "No account name.");
+            return false;
+        }
+        AccountNames.Add(model.AccountName);
+		_js.Invoke<string>("localStorage.setItem", new string[] { "AccountNames", JsonConvert.SerializeObject(AccountNames) });
+		_js.InvokeVoid("localStorage.setItem", new string[] { model.AccountName, model.UploadedAccount });
+        return true;
+	}
+
+	public List<string> GetAccountNames()
     {
         string accNames = _js.Invoke<string>("localStorage.getItem", "AccountNames");
         if (accNames is null)

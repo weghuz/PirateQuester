@@ -18,8 +18,7 @@ public static class Encrypt
             new ScryptParams { Dklen = 32, N = 32, R = 3, P = 8 });
         return keyStoreService.SerializeKeyStoreToJson(keyStore);
     }
-
-
+    
     public static string CreateAccount(string privateKey, string password)
     {
         var keyStoreService = new KeyStoreScryptService();

@@ -3,9 +3,6 @@
 @using System.ComponentModel.DataAnnotations;
 @using Utils;
 @using Newtonsoft.Json
-@code{
-    AccountViewModel model = new();
-}
 
 <div class="container">
     <h4 class="text-center">Create Account</h4>
@@ -45,38 +42,72 @@
             </p>
         </CardContent>
     </SfCard>
+    <SfCard CssClass="row">
+        <div class="col-12 text-center">
+            <SfButton OnClick="ShowCreateAccount" CssClass="@(ShowingState == "create" ? "e-primary d-inline" : "e-secondary d-inline")" style="max-width:200px;">
+                Create
+            </SfButton>
+            <SfButton OnClick="ShowImportAccount" CssClass="@(ShowingState == "import" ? "e-primary d-inline" : "e-secondary d-inline")" style="max-width:200px;">
+                Import
+            </SfButton>
+        </div>
+    </SfCard>
     <SfCard>
         <CardContent>
-            <EditForm OnValidSubmit="@(() => Create())" Model="@model">
-                <h6 class="mb-1">
-                    Account Name
-                </h6>
-                <SfTextBox @bind-Value="model.Name" TChecked="bool" />
-                <h6 class="mb-1">
-                    Private Key
-                </h6>
-                <SfTextBox Type="InputType.Password" @bind-Value="model.PrivateKey" Name="PrivateKey" />
-                
-                <h6 class="mb-1">
-                    Password
-                </h6>
-                <SfTextBox Type="InputType.Password" @bind-Value="model.Password" />
+            @if(ShowingState == "import")
+            {
+                <EditForm OnValidSubmit="ImportAccount" Model="@createModel">
+                    <h6 class="mb-1">
+                        Account Name
+                    </h6>
+                    <SfTextBox @bind-Value="importModel.AccountName" />
 
-                <h6 class="mb-1">
-                    Re-type Password
-                </h6>
-                <SfTextBox Type="InputType.Password" @bind-Value="model.RecheckPassword" />
+                    <h6 class="mb-1">
+                        Pirate Quester Encoded Account File
+                    </h6>
+                    <InputFile OnChange="OnInputFileChange" />
+                    <div class="mt-1">
+                        <SfButton CssClass="e-success">
+                            Import
+                        </SfButton>
+                    </div>
+                </EditForm>
+            }
+            else
+            {
+                <EditForm OnValidSubmit="@(() => Create())" Model="@createModel">
+                    <h6 class="mb-1">
+                        Account Name
+                    </h6>
+                    <SfTextBox @bind-Value="createModel.Name" />
+                    <h6 class="mb-1">
+                        Private Key
+                    </h6>
+                    <SfTextBox Type="InputType.Password" @bind-Value="createModel.PrivateKey" Name="PrivateKey" />
 
-                <SfButton CssClass="e-success">
-                    Create
-                </SfButton>
-            </EditForm>
+                    <h6 class="mb-1">
+                        Password
+                    </h6>
+                    <SfTextBox Type="InputType.Password" @bind-Value="createModel.Password" />
+
+                    <h6 class="mb-1">
+                        Re-type Password
+                    </h6>
+                    <SfTextBox Type="InputType.Password" @bind-Value="createModel.RecheckPassword" />
+                    
+                    <div class="mt-1">
+                        <SfButton CssClass="e-success">
+                            Create
+                        </SfButton>
+                    </div>
+                </EditForm>
+            }
         </CardContent>
     </SfCard>
     <SfDialog ShowCloseIcon="false" IsModal="true" @bind-Visible="@Creating" Width="50%">
         <DialogTemplates>
             <Content>
-                <h4 class="text-center">Creating account for @model.Name...</h4>
+                <h4 class="text-center">Creating account for @createModel.Name...</h4>
                 <SfSpinner Visible="true"></SfSpinner>
             </Content>
         </DialogTemplates>

@@ -1,9 +1,7 @@
 ﻿using Microsoft.JSInterop;
 using PirateQuester.Bot;
 using PirateQuester.Utils;
-using System.Text.Json.Serialization;
 using System.Text.Json;
-using PirateQuester.Models;
 
 namespace PirateQuester.Services
 {
@@ -19,8 +17,6 @@ namespace PirateQuester.Services
         public delegate void BotUpdated();
 		public event BotUpdated UpdatedBot;
 
-
-		
         public BotService(AccountManager acc, IJSInProcessRuntime js)
 		{
 			JS = js;
@@ -32,7 +28,6 @@ namespace PirateQuester.Services
 
 		public void ImportBotSettings(string settingsJson)
 		{
-
             if (settingsJson is not null)
             {
                 try

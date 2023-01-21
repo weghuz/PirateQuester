@@ -498,7 +498,7 @@ public class DFKBot
 		else
 		{
 			List<DFKBotHero> readyHeroes = Account.BotHeroes
-				.Where(h => h.Hero.StaminaCurrent() >= GetMinStaminaBotHero(h)
+				.Where(h => h.Hero.StaminaCurrent(240) >= GetMinStaminaBotHero(h)
 				&& RunningQuests.SelectMany(rq => rq.Heroes).Contains(h.ID) is false
 				&& h.Hero.salePrice is null
 				&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
@@ -549,16 +549,16 @@ public class DFKBot
 						{
 							List<Hero> heroesCatchingUp = Account.BotHeroes.Where(h =>
 								h.GetActiveQuest().Id == quest.Id
-								&& h.Hero.StaminaCurrent() > GetMinStaminaBotHero(h) - 5
-								&& h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h)
+								&& h.Hero.StaminaCurrent(240) > GetMinStaminaBotHero(h) - 5
+								&& h.Hero.StaminaCurrent(240) < GetMinStaminaBotHero(h)
 								&& RunningQuests.SelectMany(rq => rq.Heroes).Contains(h.ID) is false
 								&& h.Hero.profession == quest.Category.ToLower())
 								.Select(h => h.Hero)
 								.ToList();
 							if (heroesCatchingUp.Count > 0)
 							{
-								Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.id))} to make a full sqad for {quest.Name}.");
-								var checkBatch = heroBatch.Where(h => h.StaminaCurrent() == h.stamina || h.StaminaPotioned).ToList();
+								Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.id))} to make a full squad for {quest.Name}.");
+								var checkBatch = heroBatch.Where(h => h.StaminaCurrent(240) == h.stamina || h.StaminaPotioned).ToList();
 								if (checkBatch.Count > 0)
 								{
 									Log($"{string.Join(", ", heroBatch.Select(h => h.id))} are so energetic they don't care.");
@@ -590,7 +590,7 @@ public class DFKBot
 					}
 					try
                     {
-                        Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => $"{h.id}: {h.GetRarity()} {h.mainClass} {h.profession} {h.StaminaCurrent()}/{h.stamina}"))} with {maxAttempts} attempts.");
+                        Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => $"{h.id}: {h.GetRarity()} {h.mainClass} {h.profession} {h.StaminaCurrent(240)}/{h.stamina}"))} with {maxAttempts} attempts.");
                         string okMessage = await Transaction.StartQuest(Account,
 							heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
 							quest, maxAttempts, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
@@ -625,15 +625,15 @@ public class DFKBot
 							List<Hero> heroesCatchingUp = Account.BotHeroes.Where(h =>
 								h.GetActiveQuest().Id == quest.Id
 								&& h.Hero.profession != quest.Category.ToLower()
-								&& h.Hero.StaminaCurrent() > GetMinStaminaBotHero(h) - 5
-								&& h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h)
+								&& h.Hero.StaminaCurrent(240) > GetMinStaminaBotHero(h) - 5
+								&& h.Hero.StaminaCurrent(240) < GetMinStaminaBotHero(h)
 								&& RunningQuests.SelectMany(rq => rq.Heroes).Contains(h.ID) is false)
 								.Select(h => h.Hero)
 								.ToList();
 							if (heroesCatchingUp.Count > 0)
 							{
-								Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.id))} to make a full sqad for {quest.Name}.");
-								var checkBatch = heroBatch.Where(h => h.StaminaCurrent() == h.stamina || h.StaminaPotioned).ToList();
+								Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.id))} to make a full squad for {quest.Name}.");
+								var checkBatch = heroBatch.Where(h => h.StaminaCurrent(240) == h.stamina || h.StaminaPotioned).ToList();
 								if (checkBatch.Count > 0)
 								{
 									Log($"{string.Join(", ", heroBatch.Select(h => h.id))} are so energetic they don't care.");
@@ -665,7 +665,7 @@ public class DFKBot
 					}
 					try
 					{
-						Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => $"{h.id}: {h.GetRarity()} {h.mainClass} {h.profession} {h.StaminaCurrent()}/{h.stamina}"))} with {maxAttempts} attempts.");
+						Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => $"{h.id}: {h.GetRarity()} {h.mainClass} {h.profession} {h.StaminaCurrent(240)}/{h.stamina}"))} with {maxAttempts} attempts.");
 						string okMessage = await Transaction.StartQuest(Account,
 							heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
 							quest, maxAttempts, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
