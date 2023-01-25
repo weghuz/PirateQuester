@@ -91,7 +91,7 @@
                         <h6>Notepad</h6>
                     </Header>
                     <Content>
-                        <SfRichTextEditor @bind-Value="NotePad" HtmlAttributes="@(new(){{"spellcheck", "false"}})" />
+                        <SfRichTextEditor @bind-Value="NotePad" @attributes="@(new Dictionary<string, object>(){{"spellcheck", "false"}})" />
                     </Content>
                 </DialogTemplates>
                 <DialogButtons>
@@ -99,9 +99,7 @@
                 </DialogButtons>
             </SfDialog>
             <div style="overflow:auto;max-height:400px;margin-top:5px;">
-                <SfRichTextEditor @bind-Value="NotePad" HtmlAttributes="@(new(){{"spellcheck", "false"}})">
-                    
-                </SfRichTextEditor>
+                <SfRichTextEditor @bind-Value="NotePad" @attributes="@(new Dictionary<string, object>(){{"spellcheck", "false"}})" />
             </div>
         </ChildContent>
     </SfSidebar>

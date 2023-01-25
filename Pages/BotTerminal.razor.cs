@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
-using PirateQuester.Utils;
 using PirateQuester.Services;
+using PirateQuester.Utils;
 
 namespace PirateQuester.Pages;
 

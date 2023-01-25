@@ -9,15 +9,15 @@ namespace PirateQuester.Services
 	{
 		public List<DFKBot> RunningBots { get; set; } = new();
 		public DFKBotSettings Settings { get; set; } = new();
-        public bool Running { get; set; } = false;
-        public IJSInProcessRuntime JS { get; set; }
-        public AccountManager Acc { get; }
+		public bool Running { get; set; } = false;
+		public IJSInProcessRuntime JS { get; set; }
+		public AccountManager Acc { get; }
 		public CancellationTokenSource ClearLogsCancellationTokenSource { get; set; }
-        public ClearLogsService ClearLogsService { get; set; }
-        public delegate void BotUpdated();
+		public ClearLogsService ClearLogsService { get; set; }
+		public delegate void BotUpdated();
 		public event BotUpdated UpdatedBot;
 
-        public BotService(AccountManager acc, IJSInProcessRuntime js)
+		public BotService(AccountManager acc, IJSInProcessRuntime js)
 		{
 			JS = js;
 			Acc = acc;
@@ -28,51 +28,51 @@ namespace PirateQuester.Services
 
 		public void ImportBotSettings(string settingsJson)
 		{
-            if (settingsJson is not null)
-            {
-                try
-                {
-                    var settings = JsonSerializer.Deserialize<DFKBotSettingsDTO>(settingsJson);
-                    Settings.CancelTxnDelay = settings.CancelTxnDelay;
-                    Settings.ChainQuestEnabled = settings.ChainQuestEnabled ?? new()
-                    {
-                        new()
-                        {
-                            Chain = Constants.ChainsList[0],
-                            QuestEnabled = Enumerable.Range(0, 25).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList()
-                        },
-                        new ()
-                        {
-                            Chain = Constants.ChainsList[1],
-                            QuestEnabled = Enumerable.Range(0, 23).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList()
-                        }
-                    };
-                    Settings.UpdateInterval = settings.UpdateInterval;
-                    Settings.LevelUp = settings.LevelUp;
-                    Settings.MaxGasFeeGwei = settings.MaxGasFeeGwei;
-                    Settings.HeroQuestSettings = settings.HeroQuestSettings;
-                    Settings.MinStamina = settings.MinStamina;
-                    Settings.MinTrainingStats = settings.MinTrainingStats;
-                    Settings.LevelUpSettings = settings.LevelUpSettings;
-                    Settings.UseStaminaPotions = settings.UseStaminaPotions;
-                    Settings.QuestHeroes = settings.QuestHeroes;
-                    Settings.ForceStampotOnFullXP = settings.ForceStampotOnFullXP;
-                    Settings.ClearLogsInterval = settings.ClearLogsInterval;
-                    Settings.DownloadClearedLogs = settings.DownloadClearedLogs;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    Settings = new();
-                }
-            }
-        }
+			if (settingsJson is not null)
+			{
+				try
+				{
+					var settings = JsonSerializer.Deserialize<DFKBotSettingsDTO>(settingsJson);
+					Settings.CancelTxnDelay = settings.CancelTxnDelay;
+					Settings.ChainQuestEnabled = settings.ChainQuestEnabled ?? new()
+					{
+						new()
+						{
+							Chain = Constants.ChainsList[0],
+							QuestEnabled = Enumerable.Range(0, 25).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList()
+						},
+						new ()
+						{
+							Chain = Constants.ChainsList[1],
+							QuestEnabled = Enumerable.Range(0, 23).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList()
+						}
+					};
+					Settings.UpdateInterval = settings.UpdateInterval;
+					Settings.LevelUp = settings.LevelUp;
+					Settings.MaxGasFeeGwei = settings.MaxGasFeeGwei;
+					Settings.HeroQuestSettings = settings.HeroQuestSettings;
+					Settings.MinStamina = settings.MinStamina;
+					Settings.MinTrainingStats = settings.MinTrainingStats;
+					Settings.LevelUpSettings = settings.LevelUpSettings;
+					Settings.UseStaminaPotions = settings.UseStaminaPotions;
+					Settings.QuestHeroes = settings.QuestHeroes;
+					Settings.ForceStampotOnFullXP = settings.ForceStampotOnFullXP;
+					Settings.ClearLogsInterval = settings.ClearLogsInterval;
+					Settings.DownloadClearedLogs = settings.DownloadClearedLogs;
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine(e);
+					Settings = new();
+				}
+			}
+		}
 
 		public void SaveSettings()
 		{
 			DFKBotSettingsDTO dto = new();
-            dto.ClearLogsInterval = Settings.ClearLogsInterval;
-            dto.DownloadClearedLogs = Settings.DownloadClearedLogs;
+			dto.ClearLogsInterval = Settings.ClearLogsInterval;
+			dto.DownloadClearedLogs = Settings.DownloadClearedLogs;
 			dto.CancelTxnDelay = Settings.CancelTxnDelay;
 			dto.ChainQuestEnabled = Settings.ChainQuestEnabled;
 			dto.UpdateInterval = Settings.UpdateInterval;
@@ -121,7 +121,7 @@ namespace PirateQuester.Services
 					Console.WriteLine($"No PQT Balance to run account {acc.Name}");
 					continue;
 				}
-				if(acc.Heroes.Count == 0)
+				if (acc.Heroes.Count == 0)
 				{
 					Console.WriteLine($"No heroes for {acc.Name}:{acc.Account.Address}");
 					continue;
@@ -143,7 +143,7 @@ namespace PirateQuester.Services
 			InvokeUpdates();
 			if (Settings.ClearLogsInterval > 0)
 			{
-				if(ClearLogsCancellationTokenSource is not null)
+				if (ClearLogsCancellationTokenSource is not null)
 				{
 					ClearLogsCancellationTokenSource.Cancel();
 				}
@@ -151,7 +151,7 @@ namespace PirateQuester.Services
 				ClearLogsService = new(this, ClearLogsCancellationTokenSource.Token);
 				ClearLogsService.WaitThenClearLogs();
 			}
-			
+
 			return Task.CompletedTask;
 		}
 

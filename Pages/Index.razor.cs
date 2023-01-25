@@ -1,6 +1,6 @@
 ﻿namespace PirateQuester.Pages
 {
-    public partial class Index
-    {
-    }
+	public partial class Index
+	{
+	}
 }

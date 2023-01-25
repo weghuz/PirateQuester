@@ -11,6 +11,6 @@
 		Material,
 		Junk,
 		Story,
-        Consumable
-    }
+		Consumable
+	}
 }

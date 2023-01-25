@@ -1,6 +1,6 @@
 ﻿namespace PirateQuester.DFK.Items
 {
-    public class DFKInventory : Contract
+	public class DFKInventory : Contract
 	{
 		public List<DFKItem> Items { get; set; } = new();
 		public delegate void UpdateItems();
@@ -21,10 +21,10 @@
 
 		public void AddItems(List<DFKItem> items)
 		{
-			foreach(DFKItem item in items)
+			foreach (DFKItem item in items)
 			{
 				AddItem(item);
 			}
 		}
-    }
+	}
 }

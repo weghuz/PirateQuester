@@ -1,5 +1,4 @@
-﻿using DFK;
-using DFKContracts.QuestCore.ContractDefinition;
+﻿using DFKContracts.QuestCore.ContractDefinition;
 using PirateQuester.DFK.Contracts;
 using System.Numerics;
 
@@ -22,5 +21,5 @@ namespace PirateQuester.DFK.Items
 		public BigInteger QuestId { get; set; }
 		public List<BigInteger> Heroes { get; set; } = new();
 		public DFKInventory Rewards { get; set; }
-    }
+	}
 }

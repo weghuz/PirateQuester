@@ -5,7 +5,6 @@ using PirateQuester.DFK.Contracts;
 using PirateQuester.DFK.Items;
 using PirateQuester.Services;
 using PirateQuester.Utils;
-using System.Linq;
 using System.Numerics;
 using Utils;
 using Meditation = DFKContracts.MeditationCircle.ContractDefinition.Meditation;
@@ -20,48 +19,48 @@ public class DFKBot
 	public ulong CurrentBlock { get; set; }
 	public delegate void UpdatedHeroes();
 
-    public event UpdatedHeroes HeroesUpdated;
+	public event UpdatedHeroes HeroesUpdated;
 	public delegate void AddBotLog();
 	public event AddBotLog BotLogAdded;
-    public DFKAccount Account { get; set; }
-    public DFKBotSettings Settings { get; set; }
-    public List<QuestEnabled> ChainQuestSettings { get; set; }
-    public bool StopBot { get; set; }
+	public DFKAccount Account { get; set; }
+	public DFKBotSettings Settings { get; set; }
+	public List<QuestEnabled> ChainQuestSettings { get; set; }
+	public bool StopBot { get; set; }
 	public BotService Bots { get; private set; }
 	public bool IsRunning { get; set; } = false;
-    public void Log(string message)
-    {
-        Console.WriteLine(message);
+	public void Log(string message)
+	{
+		Console.WriteLine(message);
 		DFKBotLog.Add(new()
-        {
-            Id = DFKBotLog.Count + 1,
-            Message = message + "\n",
-            TimeStamp = DateTime.Now.ToLocalTime()
-        });
-        BotLogAdded?.Invoke();
+		{
+			Id = DFKBotLog.Count + 1,
+			Message = message + "\n",
+			TimeStamp = DateTime.Now.ToLocalTime()
+		});
+		BotLogAdded?.Invoke();
 	}
-	
+
 	internal Tuple<List<DFKBotLogMessage>, List<QuestReward>> GetLogsAndStop()
 	{
 		StopBot = true;
-		
+
 		return new Tuple<List<DFKBotLogMessage>, List<QuestReward>>(DFKBotLog, QuestRewards);
 	}
 
 	public async Task UpdateHeroes()
-    {
-        Log("Updating Heroes...");
+	{
+		Log("Updating Heroes...");
 		await Account.InitializeAccount();
-        Log($"Account updated with {Account.BotHeroes.Count} heroes.");
-        HeroesUpdated?.Invoke();
+		Log($"Account updated with {Account.BotHeroes.Count} heroes.");
+		HeroesUpdated?.Invoke();
 	}
 
-    public async void StartBot(DFKAccount account, DFKBotSettings settings, BotService bots)
+	public async void StartBot(DFKAccount account, DFKBotSettings settings, BotService bots)
 	{
 		Bots = bots;
 		IsRunning = true;
 		Account = account;
-        Settings = settings;
+		Settings = settings;
 		Log($"Bot added for account {account.Account.Address}!");
 		Log($"Welcome to Pirate Quester Bot {Constants.VERSION}!");
 		Log("Booting up...");
@@ -70,19 +69,19 @@ public class DFKBot
 		while (true)
 		{
 			try
-            {
+			{
 				await account.UpdateBalance();
 				Console.WriteLine($"PQT Balance: {account.PQTBalance} {account.Account.Address}");
 				if (account.PQTBalance < 1)
-                {
-                    Log("No PQT Balance, stopping bot.");
-                    StopBot = true;
-                    break;
-                }
-                await UpdateHeroes();
+				{
+					Log("No PQT Balance, stopping bot.");
+					StopBot = true;
+					break;
+				}
+				await UpdateHeroes();
 
 				await Update();
-				
+
 				await UpdateQuestRewards();
 				if (StopBot)
 					break;
@@ -90,7 +89,7 @@ public class DFKBot
 				if (StopBot)
 					break;
 			}
-			catch(Exception e)
+			catch (Exception e)
 			{
 				Log($"{account.Account.Address}\n{e.Message}\n{e.StackTrace}\n{e.InnerException?.Message}");
 			}
@@ -122,12 +121,12 @@ public class DFKBot
 				questReward.Rewards = new();
 				foreach (RewardMintedEventDTO reward in rewards)
 				{
-					if(questReward.Heroes.Any(id => id == reward.HeroId) is false)
+					if (questReward.Heroes.Any(id => id == reward.HeroId) is false)
 					{
 						questReward.Heroes.Add(reward.HeroId);
 					}
-                    DFKItem item = null;
-                    try
+					DFKItem item = null;
+					try
 					{
 						item = new DFKItem(ItemContractDefinitions.GetItem(new()
 						{
@@ -135,10 +134,10 @@ public class DFKBot
 							Chain = Account.Chain
 						}));
 					}
-					catch(Exception e)
+					catch (Exception e)
 					{
-                        Log($"Error getting item {reward.Reward} for quest {questId}.\n{e.Message}\n{e.StackTrace}");
-                    }
+						Log($"Error getting item {reward.Reward} for quest {questId}.\n{e.Message}\n{e.StackTrace}");
+					}
 					if (item is not null)
 					{
 						item.Amount = ulong.Parse(reward.Amount.ToString());
@@ -152,9 +151,9 @@ public class DFKBot
 							{
 								new()
 								{
-                                    Address = reward.Reward,
+									Address = reward.Reward,
 									Chain = Account.Chain
-                                }
+								}
 							},
 							Amount = ulong.Parse(reward.Amount.ToString())
 						});
@@ -175,7 +174,7 @@ public class DFKBot
 
 	public async Task<List<Quest>> GetUpdatedQuests()
 	{
-		for(int i = 0; i < 10; i++)
+		for (int i = 0; i < 10; i++)
 		{
 			try
 			{
@@ -187,7 +186,7 @@ public class DFKBot
 				}
 				return quests;
 			}
-			catch(Exception e)
+			catch (Exception e)
 			{
 				Console.WriteLine(e.Message);
 				await Task.Delay(i * 100);
@@ -198,22 +197,22 @@ public class DFKBot
 
 	public int GetMinStaminaBotHero(DFKBotHero h)
 	{
-		if(h.Quest is null && h.SuggestedQuest is null)
+		if (h.Quest is null && h.SuggestedQuest is null)
 		{
 			return 999;
 		}
 		int stam = ChainQuestSettings.FirstOrDefault(qs => qs.QuestId == (h.Quest?.Id ?? h.SuggestedQuest.Id))?.MinStamina ?? Settings.MinStamina;
-		
-        return stam;
+
+		return stam;
 	}
-	
+
 	public async Task Update()
-    {
+	{
 		ChainQuestSettings = Settings.ChainQuestEnabled.Find(cqe => cqe.Chain.Name == Account.Chain.Name).QuestEnabled;
 		await UpdateCurrentBlock();
 		var quests = await GetUpdatedQuests();
 		RunningQuests = new(quests);
-		if(Settings.QuestHeroes is false)
+		if (Settings.QuestHeroes is false)
 		{
 			Log($"QuestHeroes disabled. Not checking completed quests.");
 		}
@@ -241,11 +240,7 @@ public class DFKBot
 						}
 						Log($"Quest #{q.Id} {q.QuestName} with heroes {string.Join(", ", Account.BotHeroes.Where(bh => q.Heroes.Any(qh => qh == bh.ID)).Select(hero => $"{hero.Hero.id} {hero.Hero.GetRarity()} {hero.Hero.mainClass} {hero.Hero.profession}"))} is ready to complete, completing...");
 						string okMessage = await Transaction.CompleteQuest(Account, q.Heroes.First(), Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
-						foreach (DFKBotHero h in Account.BotHeroes.Where(bh => q.Heroes.Any(qh => qh == bh.ID)))
-						{
-							h.Hero.staminaFullAt = (long)Functions.UnixTime() + (h.Hero.stamina * 1200);
-						}
-						RunningQuests.Remove(q);
+
 						Log(okMessage);
 					}
 					catch (Exception e)
@@ -263,7 +258,7 @@ public class DFKBot
 		}
 
 		List<Meditation> activeMeditations = (await Account.Meditation.GetActiveMeditationsQueryAsync(Account.Account.Address)).ReturnValue1;
-		
+
 		if (Settings.LevelUp)
 		{
 			List<DFKBotHero> readyToLevelHeroes = Account.BotHeroes
@@ -280,8 +275,8 @@ public class DFKBot
 				if (meditation.StartBlock <= CurrentBlock - 20)
 				{
 					DFKBotHero hero = Account.BotHeroes.FirstOrDefault(h => h.ID == meditation.HeroId);
-                    LevelUpSetting setting = Settings.LevelUpSettings.FirstOrDefault(levelSetting => levelSetting.HeroClass == hero.Hero.mainClass.ToLower());
-                    if (hero.LevelingEnabled is not null && hero.LevelingEnabled.Value is false)
+					LevelUpSetting setting = Settings.LevelUpSettings.FirstOrDefault(levelSetting => levelSetting.HeroClass == hero.Hero.mainClass.ToLower());
+					if (hero.LevelingEnabled is not null && hero.LevelingEnabled.Value is false)
 					{
 						continue;
 					}
@@ -297,7 +292,7 @@ public class DFKBot
 						{
 							hero.Hero.stamina += 1;
 						}
-						
+
 						Log(okMessage);
 					}
 					catch (Exception e)
@@ -321,7 +316,7 @@ public class DFKBot
 				{
 					string okMessage = await Transaction.StartMeditation(Account, h.ID, h.LevelUpSetting.MainAttribute?.Id ?? setting.MainAttribute.Id, h.LevelUpSetting.SecondaryAttribute?.Id ?? setting.SecondaryAttribute.Id, h.LevelUpSetting.TertiaryAttribute?.Id ?? setting.TertiaryAttribute.Id, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
 					Log($"Hero {h.Hero.GetRarity()} {h.Hero.mainClass} {h.Hero.profession} started meditating with Stat settings: \nMain(+1):{h.LevelUpSetting.MainAttribute?.Name ?? setting.MainAttribute.Name}\nSecondary(50%+1):{h.LevelUpSetting.SecondaryAttribute?.Name ?? setting.SecondaryAttribute.Name}\nTertiary(50%+1):{h.LevelUpSetting.TertiaryAttribute?.Name ?? setting.TertiaryAttribute.Name}!");
-					
+
 					Log(okMessage);
 				}
 				catch (Exception e)
@@ -349,8 +344,8 @@ public class DFKBot
 		{
 			Log($"Stamina Potions: {Account.StaminaPotionBalance}");
 
-			var staminaPotionHeroes = Account.BotHeroes.Where(hero => 
-				(hero.UseStaminaPotionsAmount is not null 
+			var staminaPotionHeroes = Account.BotHeroes.Where(hero =>
+				(hero.UseStaminaPotionsAmount is not null
 				|| hero.StaminaPotionUntilLevel is not null)
 				&& hero.Hero.StaminaCurrent() <= hero.Hero.stamina - 20
 				&& (Settings.ForceStampotOnFullXP ? true : hero.Hero.xp != hero.Hero.XpToLevelUp())
@@ -376,7 +371,7 @@ public class DFKBot
 					}
 					else if (h.StaminaPotionUntilLevel is not null && Account.StaminaPotionBalance > 0 && h.Hero.StaminaCurrent() <= 5)
 					{
-						if(h.Hero.level < h.StaminaPotionUntilLevel.Value)
+						if (h.Hero.level < h.StaminaPotionUntilLevel.Value)
 						{
 							Log($"Hero #{h.ID} is level {h.Hero.level} XP: {h.Hero.xp}/{h.Hero.XpToLevelUp()}, need to reach level {h.StaminaPotionUntilLevel} to stop using stamina potions. Hero is at {h.Hero.StaminaCurrent()} stamina, using Potion...");
 							try
@@ -405,7 +400,7 @@ public class DFKBot
 					}
 					else if (h.UseStaminaPotionsAmount is not null && Account.StaminaPotionBalance > 0 && h.Hero.StaminaCurrent() <= 5)
 					{
-						if(h.UseStaminaPotionsAmount.Value > 0)
+						if (h.UseStaminaPotionsAmount.Value > 0)
 						{
 							Log($"Hero #{h.ID} {h.Hero.GetRarity()} {h.Hero.mainClass} {h.Hero.profession} is level {h.Hero.level} XP: {h.Hero.xp}/{h.Hero.XpToLevelUp()} has {h.UseStaminaPotionsAmount} stamina potions left to use. Hero is at {h.Hero.StaminaCurrent()} stamina, using Potion...");
 							try
@@ -449,42 +444,42 @@ public class DFKBot
 					&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
 				.ToList();
 			Log($"There are {heroesToSell.Count} heroes to sell.");
-			foreach(DFKBotHero h in heroesToSell)
+			foreach (DFKBotHero h in heroesToSell)
 			{
-                Log($"Selling hero #{h.ID} for {h.BotSalePrice} {(Account.Chain.Name == "DFK" ? "Crystal" : "Jade")}...");
-                try
-                {
-                    string okMessage = await Transaction.StartAuction(Account, h.ID, h.BotSalePrice.Value, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
-                    h.Hero.salePrice = h.BotSalePrice.Value.ToString();
-                    Log(okMessage);
-                }
-                catch (Exception e)
-                {
-                    Log(e.Message);
-                }
-            }
-            List<DFKBotHero> heroesToCancelAuction = Account.BotHeroes
-				.Where(h => (Settings.CancelUnpricedHeroSales ? h.Hero.salePrice is not null : h.BotSalePrice is not null) 
+				Log($"Selling hero #{h.ID} for {h.BotSalePrice} {(Account.Chain.Name == "DFK" ? "Crystal" : "Jade")}...");
+				try
+				{
+					string okMessage = await Transaction.StartAuction(Account, h.ID, h.BotSalePrice.Value, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+					h.Hero.salePrice = h.BotSalePrice.Value.ToString();
+					Log(okMessage);
+				}
+				catch (Exception e)
+				{
+					Log(e.Message);
+				}
+			}
+			List<DFKBotHero> heroesToCancelAuction = Account.BotHeroes
+				.Where(h => (Settings.CancelUnpricedHeroSales ? h.Hero.salePrice is not null : h.BotSalePrice is not null)
 					&& h.Hero.salePrice is not null
 					&& h.Hero.StaminaCurrent() >= GetMinStaminaBotHero(h)
 					&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
 				.ToList();
-            Log($"There are {heroesToCancelAuction.Count} heroes on auction that need to be cancelled to quest.");
-			foreach(DFKBotHero h in heroesToCancelAuction)
+			Log($"There are {heroesToCancelAuction.Count} heroes on auction that need to be cancelled to quest.");
+			foreach (DFKBotHero h in heroesToCancelAuction)
 			{
-                Log($"Cancelling auction for hero #{h.ID}...");
-                try
-                {
-                    string okMessage = await Transaction.CancelAuction(Account, h.ID, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+				Log($"Cancelling auction for hero #{h.ID}...");
+				try
+				{
+					string okMessage = await Transaction.CancelAuction(Account, h.ID, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
 					h.Hero.salePrice = null;
-                    Log(okMessage);
-                }
-                catch (Exception e)
-                {
-                    Log(e.Message);
-                }
-            }
-        }
+					Log(okMessage);
+				}
+				catch (Exception e)
+				{
+					Log(e.Message);
+				}
+			}
+		}
 
 		if (StopBot)
 		{
@@ -589,9 +584,9 @@ public class DFKBot
 						continue;
 					}
 					try
-                    {
-                        Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => $"{h.id}: {h.GetRarity()} {h.mainClass} {h.profession} {h.StaminaCurrent(240)}/{h.stamina}"))} with {maxAttempts} attempts.");
-                        string okMessage = await Transaction.StartQuest(Account,
+					{
+						Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => $"{h.id}: {h.GetRarity()} {h.mainClass} {h.profession} {h.StaminaCurrent(240)}/{h.stamina}"))} with {maxAttempts} attempts.");
+						string okMessage = await Transaction.StartQuest(Account,
 							heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
 							quest, maxAttempts, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
 						Log(okMessage);
@@ -681,6 +676,6 @@ public class DFKBot
 			await Task.Delay(1);
 		}
 		Log($"Iteration complete");
-    }
+	}
 
 }

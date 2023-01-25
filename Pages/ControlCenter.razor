@@ -56,11 +56,11 @@
 								<div class="row">
 									<div class="col-4">
 										<p class="mt-2">
-											Undersell Warning
+											Undersell Warning %
 										</p>
 									</div>
 									<div class="col-8">
-										<SfNumericTextBox @bind-Value=@Bots.Settings.WarnFloorPercentage TValue="decimal?">
+										<SfNumericTextBox @bind-Value=@Bots.Settings.WarnFloorPercentage TValue="decimal">
 										</SfNumericTextBox>
 									</div>
 								</div>
@@ -229,6 +229,12 @@
 								>
 								Refresh Heroes
 							</SfButton>
+							<SfButton OnClick="PricingService.UpdateHeroPrices"
+                                      CssClass="e-info"
+								HtmlAttributes="@(new Dictionary<string, object>() { { "type", "button" } })"
+								>
+								Estimate Floor prices
+							</SfButton>
 						</div>
 					</form>
 				</CardContent>
@@ -253,6 +259,16 @@
 			<GridPageSettings PageSizes="@(new string[] { "5", "10", "15", "20", "50", "All" })" PageSize="@PageSize"></GridPageSettings>
 			<GridColumns>
 				<GridColumn Field="Hero.id" HeaderText="Id" Width="120"></GridColumn>
+				<GridColumn Field="Hero.rarity" HeaderText="Rarity" Width="120">
+					<Template>
+						<div>
+							@{
+								var hero = context as DFKBotHero;
+								<span>@hero.Hero.GetRarity()</span>
+							}
+						</div>
+					</Template>
+				</GridColumn>
 				<GridColumn Field="Hero.mainClass" HeaderText="Class" Width="120"></GridColumn>
 				<GridColumn Field="Hero.subClass" HeaderText="Subclass" Width="120"></GridColumn>
 				<GridColumn Field="Hero.level" HeaderText="LVL" Width="90"></GridColumn>
@@ -285,6 +301,28 @@
 					</Template>
 				</GridColumn>
 				<GridColumn Field="Hero.profession" HeaderText="Profession" Width="130"></GridColumn>
+				<GridColumn Field="FloorEstimate" HeaderText="Floor Estimate" Width="130">
+					<Template>
+						<div>
+							@(Math.Round((context as DFKBotHero).FloorEstimate, 2))
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="FloorEstimateFields" HeaderText="Floor Security" Width="130">
+					<Template>
+						<div>
+							@{
+								var hero = context as DFKBotHero;
+								if(hero.FloorEstimateFields is not null)
+								{
+									<span>
+										@string.Join(", ", hero.FloorEstimateFields)
+									</span>
+								}
+							}
+						</div>
+					</Template>
+				</GridColumn>
 				<GridColumn Field="Hero.salePrice" HeaderText="Sale Price" Width="120">
 					<Template>
 						<div>
@@ -380,16 +418,6 @@
 					</Template>
 				</GridColumn>
 				<GridColumn Field="Hero.network" HeaderText="Chain" Width="100" />
-				<GridColumn Field="Hero.rarity" HeaderText="Rarity" Width="120">
-					<Template>
-						<div>
-							@{
-								var hero = context as DFKBotHero;
-								<span>@hero.Hero.GetRarity()</span>
-							}
-						</div>
-					</Template>
-				</GridColumn>
 				<GridColumn Field="Hero.staminaFullAt" HeaderText="Stamina" Width="120">
 					<Template>
 						<div>

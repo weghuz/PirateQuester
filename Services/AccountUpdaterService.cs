@@ -2,14 +2,14 @@
 
 namespace PirateQuester.Services
 {
-    public class AccountUpdaterService
-    {
-        public AccountManager Acc { get; set; }
-        public AccountUpdaterService(AccountManager acc) 
-        {
+	public class AccountUpdaterService
+	{
+		public AccountManager Acc { get; set; }
+		public AccountUpdaterService(AccountManager acc)
+		{
 			Acc = acc;
 		}
-		
+
 		public async void DoWorkAsync(CancellationToken stoppingToken, Action updateState)
 		{
 			while (!stoppingToken.IsCancellationRequested)

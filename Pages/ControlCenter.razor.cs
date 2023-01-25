@@ -1,11 +1,10 @@
-﻿using PirateQuester.DFK.Contracts;
-using PirateQuester.Utils;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using PirateQuester.Bot;
+using PirateQuester.DFK.Contracts;
 using PirateQuester.Services;
+using PirateQuester.Utils;
 using Syncfusion.Blazor.Grids;
-using System.Security;
 
 namespace PirateQuester.Pages;
 
@@ -20,12 +19,14 @@ public partial class ControlCenter
 	public IJSInProcessRuntime JS { get; set; }
 	[Inject]
 	public BotService Bots { get; set; }
+	[Inject]
+	public HeroPricingService PricingService { get; set; }
 	public List<DFKBotHero> TableHeroes { get; set; } = new();
-    public bool SetQuest { get; set; }
-    public bool SetPrice { get; set; }
-    public bool SetStampot { get; set; }
-    public bool SetLevelup { get; set; }
-    public int? SelectedDFKQuest { get; set; }
+	public bool SetQuest { get; set; }
+	public bool SetPrice { get; set; }
+	public bool SetStampot { get; set; }
+	public bool SetLevelup { get; set; }
+	public int? SelectedDFKQuest { get; set; }
 	public int? SelectedKlaytnQuest { get; set; }
 	public int? StaminaPotLevel { get; set; }
 	public int? StaminaPotAmount { get; set; }
@@ -35,7 +36,7 @@ public partial class ControlCenter
 	public decimal? SalePrice { get; set; }
 	public LevelUpSetting LevelSettings { get; set; } = new();
 	public static int PageSize { get; set; } = 50;
-    protected override void OnInitialized()
+	protected override void OnInitialized()
 	{
 		TableHeroes = Acc.Accounts.SelectMany(a => a.BotHeroes).ToList();
 		if (Acc.Accounts.Count == 0)
@@ -46,7 +47,7 @@ public partial class ControlCenter
 		{
 			bot.HeroesUpdated += StateHasChanged;
 		};
-    }
+	}
 
 	public async void RefreshTableHeroes()
 	{
@@ -69,7 +70,7 @@ public partial class ControlCenter
 		foreach (DFKBotHero h in HeroGridReference.SelectedRecords)
 		{
 			var selectedQuest = h.Account.Chain.Name == "DFK" ? SelectedDFKQuest : SelectedKlaytnQuest;
-			if(SetQuest)
+			if (SetQuest)
 			{
 				if (selectedQuest.HasValue)
 				{
@@ -80,7 +81,7 @@ public partial class ControlCenter
 					h.Quest = null;
 				}
 			}
-			if(SetLevelup)
+			if (SetLevelup)
 			{
 				h.LevelingEnabled = LevelingEnabled == "true" ? true : LevelingEnabled == "false" ? false : null;
 				if (LevelSettings.MainAttribute is not null
@@ -95,11 +96,16 @@ public partial class ControlCenter
 					};
 				}
 			}
-			if(SetPrice)
+			if (SetPrice)
 			{
+				if (SalePrice < h.FloorEstimate * (Bots.Settings.WarnFloorPercentage / 100))
+				{
+					JS.InvokeVoid("alert", $"Not allowed to sell under {(Bots.Settings.WarnFloorPercentage)}% of floor");
+					return;
+				}
 				h.BotSalePrice = SalePrice;
 			}
-			if(SetStampot)
+			if (SetStampot)
 			{
 				h.StaminaPotionUntilLevel = StaminaPotLevel;
 				h.UseStaminaPotionsAmount = StaminaPotAmount;
@@ -107,12 +113,12 @@ public partial class ControlCenter
 			var setting = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
 			if (setting != null)
 			{
-				if(SetStampot)
+				if (SetStampot)
 				{
 					setting.StaminaPotionUntilLevel = StaminaPotLevel;
 					setting.UseStaminaPotionsAmount = StaminaPotAmount;
 				}
-				if(SetLevelup)
+				if (SetLevelup)
 				{
 					setting.LevelingEnabled = LevelingEnabled == "true" ? true : LevelingEnabled == "false" ? false : null;
 					if (LevelSettings.MainAttribute is not null
@@ -131,7 +137,7 @@ public partial class ControlCenter
 				{
 					setting.QuestId = h.Quest?.Id;
 				}
-				if(SetPrice)
+				if (SetPrice)
 				{
 					setting.BotSalePrice = SalePrice;
 				}
@@ -149,7 +155,7 @@ public partial class ControlCenter
 					StaminaPotionUntilLevel = SetStampot ? StaminaPotLevel : null,
 					UseStaminaPotionsAmount = SetStampot ? StaminaPotAmount : null
 				};
-				if(SetLevelup)
+				if (SetLevelup)
 				{
 					if (LevelSettings.MainAttribute is not null
 						&& LevelSettings.SecondaryAttribute is not null
@@ -176,7 +182,7 @@ public partial class ControlCenter
 		await HeroGridReference.ClearSortingAsync();
 	}
 
-    public async void ResetSelection()
+	public async void ResetSelection()
 	{
 		SelectedDFKQuest = null;
 		SelectedKlaytnQuest = null;
@@ -187,7 +193,7 @@ public partial class ControlCenter
 		LevelSettings = new();
 		await HeroGridReference.ClearSelectionAsync();
 	}
-	
+
 	public void ClearAllPreference()
 	{
 		if (!SetQuest && !SetPrice && !SetStampot && !SetLevelup)
@@ -197,20 +203,20 @@ public partial class ControlCenter
 		}
 		foreach (DFKBotHero h in HeroGridReference.SelectedRecords)
 		{
-			if(SetQuest)
+			if (SetQuest)
 			{
 				h.Quest = null;
 			}
-			if(SetLevelup)
+			if (SetLevelup)
 			{
 				h.LevelUpSetting = new();
 				h.LevelingEnabled = null;
 			}
-			if(SetPrice)
+			if (SetPrice)
 			{
 				h.BotSalePrice = null;
 			}
-			if(SetStampot)
+			if (SetStampot)
 			{
 				h.StaminaPotionUntilLevel = null;
 				h.UseStaminaPotionsAmount = null;

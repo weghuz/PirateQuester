@@ -3,13 +3,12 @@ using Microsoft.JSInterop;
 using Nethereum.Web3;
 using PirateQuester.Services;
 using PirateQuester.Utils;
-using System.Text.Json.Serialization;
 using System.Text.Json;
 using Utils;
 
 namespace PirateQuester.Components
 {
-    public partial class AccountView
+	public partial class AccountView
 	{
 		[Inject]
 		public AccountManager Acc { get; set; }
@@ -28,15 +27,15 @@ namespace PirateQuester.Components
 		public bool ShowBuyPQTDialog { get; set; } = false;
 		private bool showConfirmBuyPQTDialog = false;
 		public bool ShowConfirmBuyPQTDialog { get { return showConfirmBuyPQTDialog; } set { showConfirmBuyPQTDialog = value; BoughtPQT = false; } }
-        public bool IsBuying { get; set; }
-        public bool	BoughtPQT { get; set; }
-        public string Password { get; set; } = "";
+		public bool IsBuying { get; set; }
+		public bool BoughtPQT { get; set; }
+		public string Password { get; set; } = "";
 		public string NewAccountName { get; set; } = "";
-        public string ErrorMessage { get; set; }
-        public decimal PQTPrice { get; set; }
+		public string ErrorMessage { get; set; }
+		public decimal PQTPrice { get; set; }
 		public int BuyAmount { get; set; } = 1;
-        public AccountUpdaterService AccountUpdater { get; set; }
-        protected override async void OnInitialized()
+		public AccountUpdaterService AccountUpdater { get; set; }
+		protected override async void OnInitialized()
 		{
 			PQTPrice = Math.Round(Web3.Convert.FromWei(await Accounts[0].PQT.PriceQueryAsync()), 2);
 		}
@@ -54,24 +53,24 @@ namespace PirateQuester.Components
 			}
 			Password = "";
 		}
-		
-        private void RenameAccount()
-        {
-            Acc.AccountNames = Acc.AccountNames.Where(accName => accName != Accounts[0].Name).ToList();
+
+		private void RenameAccount()
+		{
+			Acc.AccountNames = Acc.AccountNames.Where(accName => accName != Accounts[0].Name).ToList();
 			Acc.AccountNames.Add(NewAccountName);
 			var scryptEncodedAccount = JS.Invoke<string>("localStorage.getItem", Accounts[0].Name);
-            JS.InvokeVoid("localStorage.setItem", NewAccountName, scryptEncodedAccount);
-            JS.InvokeVoid("localStorage.setItem", "AccountNames", JsonSerializer.Serialize(Acc.AccountNames));
+			JS.InvokeVoid("localStorage.setItem", NewAccountName, scryptEncodedAccount);
+			JS.InvokeVoid("localStorage.setItem", "AccountNames", JsonSerializer.Serialize(Acc.AccountNames));
 			JS.InvokeVoid("localStorage.removeItem", Accounts[0].Name);
-            JS.InvokeVoid("alert", "Account renamed from " + Accounts[0].Name + " to " + NewAccountName);
-			foreach(DFKAccount acc in Accounts)
+			JS.InvokeVoid("alert", "Account renamed from " + Accounts[0].Name + " to " + NewAccountName);
+			foreach (DFKAccount acc in Accounts)
 			{
-                acc.Name = NewAccountName;
-            }
+				acc.Name = NewAccountName;
+			}
 			ShowRenameAccountDialog = false;
-        }
-		
-        private void CheckPasswordDeleteAccountDialog()
+		}
+
+		private void CheckPasswordDeleteAccountDialog()
 		{
 			if (CheckPassword(Accounts[0].Name, Password))
 			{
@@ -83,7 +82,7 @@ namespace PirateQuester.Components
 			}
 			Password = "";
 		}
-		
+
 		public bool CheckPassword(string accountName, string password)
 		{
 			try

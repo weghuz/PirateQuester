@@ -21,15 +21,15 @@ public partial class Login
 	private LoginViewModel Model { get; set; } = new();
 	public bool LoggingIn { get; set; } = false;
 
-    protected override void OnInitialized()
-    {
-		if(Acc.AccountNames.Count == 0)
+	protected override void OnInitialized()
+	{
+		if (Acc.AccountNames.Count == 0)
 		{
-            Nav.NavigateTo("CreateAccount");
-        }
-    }
+			Nav.NavigateTo("CreateAccount");
+		}
+	}
 
-    async Task LoginAccount()
+	async Task LoginAccount()
 	{
 		LoggingIn = true;
 		if (Model.Password is null || Model.Password.Length < 8)

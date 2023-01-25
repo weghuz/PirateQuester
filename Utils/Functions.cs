@@ -9,7 +9,7 @@ namespace PirateQuester.Utils
 		{
 			return await w3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
 		}
-		
+
 		public static ulong BigIntToLong(BigInteger bigInt)
 		{
 			return ulong.Parse(bigInt.ToString());
@@ -27,7 +27,7 @@ namespace PirateQuester.Utils
 			dateTime = dateTime.AddSeconds(unixTimeStamp);
 			return dateTime;
 		}
-		
+
 		public static string FormatThousndK(int num)
 		{
 			if (num >= 100000)

@@ -7,5 +7,5 @@
 			Amount = amount;
 		}
 		public int Amount { get; set; }
-    }
+	}
 }

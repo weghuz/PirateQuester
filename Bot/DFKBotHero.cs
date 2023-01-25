@@ -5,17 +5,17 @@ using System.Numerics;
 
 namespace PirateQuester.Bot
 {
-    public class DFKBotHero
-    {
-        public DFKBotHero(Hero h, DFKBotSettings settings) 
-        { 
-            Hero = h;
+	public class DFKBotHero
+	{
+		public DFKBotHero(Hero h, DFKBotSettings settings)
+		{
+			Hero = h;
 			Account = h.DFKAccount;
-            ID = new BigInteger(long.Parse(h.id));
-			
+			ID = new BigInteger(long.Parse(h.id));
+
 			var questSettings = settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.id && hqs.ChainIdentifier == Account.Chain.Identifier);
 			var chainQuestSettings = settings.ChainQuestEnabled.FirstOrDefault(cq => cq.Chain.Name == Account.Chain.Name);
-			if(chainQuestSettings.QuestEnabled.All(qe => qe.Enabled is false))
+			if (chainQuestSettings.QuestEnabled.All(qe => qe.Enabled is false))
 			{
 				return;
 			}
@@ -29,7 +29,7 @@ namespace PirateQuester.Bot
 				var lvlSettings = questSettings.LevelupSettings;
 				if (lvlSettings is not null)
 				{
-					if(lvlSettings.PrimaryAttribute.HasValue && lvlSettings.SecondaryAttribute.HasValue && lvlSettings.TertiaryAttribute.HasValue)
+					if (lvlSettings.PrimaryAttribute.HasValue && lvlSettings.SecondaryAttribute.HasValue && lvlSettings.TertiaryAttribute.HasValue)
 					{
 						LevelUpSetting.MainAttribute = Constants.DFKStats[lvlSettings.PrimaryAttribute.Value];
 						LevelUpSetting.SecondaryAttribute = Constants.DFKStats[lvlSettings.SecondaryAttribute.Value];
@@ -65,10 +65,10 @@ namespace PirateQuester.Bot
 			else
 			{
 				SuggestedQuest = chainQuests
-					.FirstOrDefault(q => q.Name.ToLower().Contains(h.profession) 
+					.FirstOrDefault(q => q.Name.ToLower().Contains(h.profession)
 					&& chainQuestSettings.QuestEnabled[q.Id].Enabled);
 
-				if(SuggestedQuest is not null)
+				if (SuggestedQuest is not null)
 				{
 					if (SuggestedQuest.Category == "Mining"
 						&& Account.LockedPowerTokenBalance is not 0
@@ -81,7 +81,7 @@ namespace PirateQuester.Bot
 							SuggestedQuest = lockedMining;
 							return;
 						}
-                    }
+					}
 
 					if (SuggestedQuest.Category == "Gardening")
 					{
@@ -118,16 +118,16 @@ namespace PirateQuester.Bot
 				if (chainQuestSettings.QuestEnabled[8].Enabled && h.mining > 0 && Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 8).Count() < 18)
 				{
 					SuggestedQuest = chainQuests[8];
-                    return;
-                }
+					return;
+				}
 
 				var foragers = Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 11).Count();
 				var fishers = Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 10).Count();
 				if (foragers > fishers && chainQuestSettings.QuestEnabled[10].Enabled)
 				{
 					SuggestedQuest = chainQuests[10];
-                    return;
-                }
+					return;
+				}
 				else if (chainQuestSettings.QuestEnabled[11].Enabled)
 				{
 					SuggestedQuest = chainQuests[11];
@@ -135,25 +135,26 @@ namespace PirateQuester.Bot
 				}
 			}
 		}
-		
-        public BigInteger FloorEstimate { get; set; }
-        public LevelUpSetting LevelUpSetting { get; set; } = new();
+
+		public List<string> FloorEstimateFields { get; set; } = new() { "default" };
+		public decimal FloorEstimate { get; set; } = 99999;
+		public LevelUpSetting LevelUpSetting { get; set; } = new();
 		public int? StaminaPotionUntilLevel { get; set; }
 		public int? UseStaminaPotionsAmount { get; set; }
 		public bool? LevelingEnabled { get; set; }
-        public decimal? BotSalePrice { get; set; }
-        public DFKAccount Account { get; set; }
-        public BigInteger ID { get; set; }
+		public decimal? BotSalePrice { get; set; }
+		public DFKAccount Account { get; set; }
+		public BigInteger ID { get; set; }
 		public Hero Hero { get; set; }
-        public QuestContract GetActiveQuest()
-        {
-            if(Quest is not null)
-            {
-                return Quest;
-            }
-            return SuggestedQuest;
-        }
-        public QuestContract SuggestedQuest { get; set; }
+		public QuestContract GetActiveQuest()
+		{
+			if (Quest is not null)
+			{
+				return Quest;
+			}
+			return SuggestedQuest;
+		}
+		public QuestContract SuggestedQuest { get; set; }
 		private QuestContract quest;
 		public QuestContract Quest { get { return quest; } set { quest = value; } }
 	}

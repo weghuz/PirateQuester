@@ -5,6 +5,8 @@ VisualStudioVersion = 17.5.33103.201
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PirateQuester", "PirateQuester.csproj", "{B92F979C-C5BD-43FC-A4B8-AF17CA0FC6EC}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DFKCSharp", "..\DFKAPI\DFKCSharp.csproj", "{4C7CCE62-5D5E-4804-AD11-42154FF22944}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{B92F979C-C5BD-43FC-A4B8-AF17CA0FC6EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B92F979C-C5BD-43FC-A4B8-AF17CA0FC6EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B92F979C-C5BD-43FC-A4B8-AF17CA0FC6EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C7CCE62-5D5E-4804-AD11-42154FF22944}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C7CCE62-5D5E-4804-AD11-42154FF22944}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C7CCE62-5D5E-4804-AD11-42154FF22944}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C7CCE62-5D5E-4804-AD11-42154FF22944}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,10 +3,10 @@
 namespace PirateQuester.Bot
 {
 	public class DFKBotSettingsDTO
-    {
-        public int ClearLogsInterval { get; set; }
-        public bool DownloadClearedLogs { get; set; }
-        public List<DFKStatAmount> MinTrainingStats { get; set; }
+	{
+		public int ClearLogsInterval { get; set; }
+		public bool DownloadClearedLogs { get; set; }
+		public List<DFKStatAmount> MinTrainingStats { get; set; }
 		public int CancelTxnDelay { get; set; }
 		public int UpdateInterval { get; set; }
 		public int MinStamina { get; set; }

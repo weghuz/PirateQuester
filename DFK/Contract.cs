@@ -1,11 +1,9 @@
-﻿using PirateQuester.DFK.Items;
-
-namespace PirateQuester.DFK;
+﻿namespace PirateQuester.DFK;
 
 public class Contract
 {
 
-    public int Id;
+	public int Id;
 	public string Address { get; set; }
 	public string Name { get; set; }
 }

@@ -1,13 +1,13 @@
 ﻿using PirateQuester.Bot;
 using PirateQuester.Models;
-using System.Text.Json.Serialization;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace PirateQuester.Services
 {
 	public class ClearLogsService
 	{
-        public BotService Bots { get; set; }
+		public BotService Bots { get; set; }
 		public CancellationToken CancellationToken { get; }
 
 		public ClearLogsService(BotService bots, CancellationToken cancellationToken)
@@ -15,14 +15,14 @@ namespace PirateQuester.Services
 			Bots = bots;
 			CancellationToken = cancellationToken;
 		}
-		
+
 		public async void WaitThenClearLogs()
 		{
-			while(CancellationToken.IsCancellationRequested is false)
+			while (CancellationToken.IsCancellationRequested is false)
 			{
 				Console.WriteLine($"Waiting {Bots.Settings.ClearLogsInterval * 1000} seconds then clearing logs.");
 				await Task.Delay(Bots.Settings.ClearLogsInterval * 1000, CancellationToken);
-				if(CancellationToken.IsCancellationRequested is false)
+				if (CancellationToken.IsCancellationRequested is false)
 				{
 					Console.WriteLine($"Clearing logs....");
 					RefreshBots();

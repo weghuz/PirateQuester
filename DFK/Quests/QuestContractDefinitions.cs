@@ -1,4 +1,3 @@
-using Nethereum.Signer;
 using PirateQuester.Utils;
 using PirateQuester.Utils.Chain;
 
@@ -12,28 +11,28 @@ public static partial class QuestContractDefinitions
 			.FirstOrDefault(chainQ => chainQ.Chain.ChainEnum == chain).QuestContracts
 			.FirstOrDefault(quest => quest.Id == questContractId);
 	}
-	
+
 	public static QuestContract GetQuestContract(QuestType questContract, ChainEnum chain)
 	{
 		return DFKQuestContracts
 			.FirstOrDefault(chainQ => chainQ.Chain.ChainEnum == chain).QuestContracts
 			.FirstOrDefault(quest => quest.Id == (int)questContract);
 	}
-	
+
 	public static QuestContract GetQuestContract(string questContractName, ChainEnum chain)
 	{
 		return DFKQuestContracts
 			.FirstOrDefault(chainQ => chainQ.Chain.ChainEnum == chain).QuestContracts
 			.FirstOrDefault(quest => quest.Name == questContractName);
 	}
-	
+
 	public static QuestContract GetQuestContractFromAddress(string questContractAddress)
 	{
 		return DFKQuestContracts
 			.SelectMany(qc => qc.QuestContracts)
 			.FirstOrDefault(quest => quest.Address == questContractAddress);
 	}
-	
+
 	public static readonly string NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 	public static readonly List<ChainQuestContracts> DFKQuestContracts = new()

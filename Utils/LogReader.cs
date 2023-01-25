@@ -2,7 +2,6 @@
 using Nethereum.Contracts;
 using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
-using Nethereum.Web3;
 using System.Numerics;
 
 namespace PirateQuester.Utils
@@ -109,5 +108,5 @@ namespace PirateQuester.Utils
 		{
 			return new BlockParameter(new HexBigInteger(new BigInteger(block)));
 		}
-    }
+	}
 }
