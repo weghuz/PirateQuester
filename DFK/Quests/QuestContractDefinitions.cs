@@ -514,7 +514,7 @@ public static partial class QuestContractDefinitions
 					Level = 0,
 					AvailableAttempts = (hero) => Math.Clamp(hero.profession == "fishing" ? hero.StaminaCurrent()/5 : hero.StaminaCurrent()/7, 0, 5),
 					BlocksPerAttempt = (hero) => 10,
-					MaxHeroesPerQuest = (account) => 6
+					MaxHeroesPerQuest = (account) => 5
 				},
 				new QuestContract
 				{
@@ -527,7 +527,7 @@ public static partial class QuestContractDefinitions
 					Level = 0,
 					AvailableAttempts = (hero) => Math.Clamp(hero.profession == "foraging" ? hero.StaminaCurrent()/5 : hero.StaminaCurrent()/7, 0, 5),
 					BlocksPerAttempt = (hero) => 10,
-					MaxHeroesPerQuest = (account) => 6
+					MaxHeroesPerQuest = (account) => 5
 				},
 				new QuestContract
 				{
