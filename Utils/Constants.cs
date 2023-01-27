@@ -78,7 +78,7 @@ namespace PirateQuester.Utils
             "Bard",
             "Dragoon",
             "Sage",
-            "Spellbow",
+            "SpellBow",
             "DreadKnight"
         };
         public static string GetClass(int id) => id switch
@@ -103,7 +103,7 @@ namespace PirateQuester.Utils
             21 => "Bard",
             24 => "Dragoon",
             25 => "Sage",
-            26 => "Spellbow",
+            26 => "SpellBow",
             28 => "DreadKnight",
             _ => "Warrior"
         };
@@ -129,7 +129,7 @@ namespace PirateQuester.Utils
             "Bard" => 21,
             "Dragoon" => 24,
             "Sage" => 25,
-            "Spellbow" => 26,
+            "SpellBow" => 26,
             "DreadKnight" => 28,
             _ => 0
         };
