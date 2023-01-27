@@ -229,7 +229,7 @@
 								>
 								Refresh Heroes
 							</SfButton>
-							<SfButton OnClick="PricingService.UpdateHeroPrices"
+							<SfButton OnClick="(() => PricingService.UpdateHeroPrices(Acc.Accounts))"
                                       CssClass="e-info"
 								HtmlAttributes="@(new Dictionary<string, object>() { { "type", "button" } })"
 								>
@@ -304,7 +304,15 @@
 				<GridColumn Field="FloorEstimate" HeaderText="Floor Estimate" Width="130">
 					<Template>
 						<div>
-							@(Math.Round((context as DFKBotHero).FloorEstimate, 2))
+							@{
+								var hero = (context as DFKBotHero);
+								@(Math.Round(hero.FloorEstimate, 2))
+								if(hero.FloorEstimateNetwork is not null)
+								{
+									<img src="@(hero.FloorEstimateNetwork == "dfk" ? "Images/Crystal.png" : "Images/Jade.png")"
+										 style="width: 18px; height:18px;margin-left:2px;" />
+								}
+							}
 						</div>
 					</Template>
 				</GridColumn>
@@ -417,7 +425,17 @@
 						</div>
 					</Template>
 				</GridColumn>
-				<GridColumn Field="Hero.network" HeaderText="Chain" Width="100" />
+				<GridColumn Field="Hero.network" HeaderText="Chain" Width="100">
+					<Template>
+						<div>
+							@{
+								var hero = context as DFKBotHero;
+								<img src="@(hero.Hero.network == "dfk" ? "Images/Crystal.png" : "Images/Jade.png")"
+									 style="width: 18px; height:18px;" />
+							}
+						</div>
+					</Template>
+				</GridColumn>
 				<GridColumn Field="Hero.staminaFullAt" HeaderText="Stamina" Width="120">
 					<Template>
 						<div>

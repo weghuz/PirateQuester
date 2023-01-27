@@ -28,7 +28,8 @@ public class DFKBot
 	public bool StopBot { get; set; }
 	public BotService Bots { get; private set; }
 	public bool IsRunning { get; set; } = false;
-	public void Log(string message)
+
+    public void Log(string message)
 	{
 		Console.WriteLine(message);
 		DFKBotLog.Add(new()
@@ -51,7 +52,7 @@ public class DFKBot
 	{
 		Log("Updating Heroes...");
 		await Account.InitializeAccount();
-		Log($"Account updated with {Account.BotHeroes.Count} heroes.");
+        Log($"Account updated with {Account.BotHeroes.Count} heroes.");
 		HeroesUpdated?.Invoke();
 	}
 

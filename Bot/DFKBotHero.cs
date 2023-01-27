@@ -138,7 +138,8 @@ namespace PirateQuester.Bot
 
 		public List<string> FloorEstimateFields { get; set; } = new() { "default" };
 		public decimal FloorEstimate { get; set; } = 99999;
-		public LevelUpSetting LevelUpSetting { get; set; } = new();
+        public string FloorEstimateNetwork { get; set; }
+        public LevelUpSetting LevelUpSetting { get; set; } = new();
 		public int? StaminaPotionUntilLevel { get; set; }
 		public int? UseStaminaPotionsAmount { get; set; }
 		public bool? LevelingEnabled { get; set; }

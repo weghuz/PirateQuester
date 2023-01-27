@@ -26,11 +26,10 @@ namespace PirateQuester
 			builder.Services.AddSingleton<BotService>();
 			builder.Services.AddSingleton<AccountSettings>();
 			builder.Services.AddSingleton<AccountUpdaterService>();
-			builder.Services.AddSingleton<HeroPricingService>();
-			//use static files
+            builder.Services.AddSingleton<HeroPricingService>();
+            //use static files
 
-			builder.Services.AddSyncfusionBlazor();
-
+            builder.Services.AddSyncfusionBlazor();
 			Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("ODg0ODY4QDMyMzAyZTM0MmUzMGR5d2tJMFdZSDNjcEJqSTBXQi9VcFlIVURYdGNPei9DQWhvcHArdWFJbjQ9");
 			await builder.Build().RunAsync();
 		}

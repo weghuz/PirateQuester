@@ -512,7 +512,7 @@ public static partial class QuestContractDefinitions
 					Category = "Fishing",
 					Subcategory = "Fishing",
 					Level = 0,
-					AvailableAttempts = (hero) => hero.profession == "fishing" ? hero.StaminaCurrent()/5 : hero.StaminaCurrent()/7,
+					AvailableAttempts = (hero) => Math.Clamp(hero.profession == "fishing" ? hero.StaminaCurrent()/5 : hero.StaminaCurrent()/7, 0, 5),
 					BlocksPerAttempt = (hero) => 10,
 					MaxHeroesPerQuest = (account) => 6
 				},
@@ -525,7 +525,7 @@ public static partial class QuestContractDefinitions
 					Category = "Foraging",
 					Subcategory = "Foraging",
 					Level = 0,
-					AvailableAttempts = (hero) => hero.profession == "foraging" ? hero.StaminaCurrent()/5 : hero.StaminaCurrent()/7,
+					AvailableAttempts = (hero) => Math.Clamp(hero.profession == "foraging" ? hero.StaminaCurrent()/5 : hero.StaminaCurrent()/7, 0, 5),
 					BlocksPerAttempt = (hero) => 10,
 					MaxHeroesPerQuest = (account) => 6
 				},

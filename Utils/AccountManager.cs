@@ -1,6 +1,7 @@
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using PirateQuester.Bot;
+using PirateQuester.Services;
 using PirateQuester.ViewModels;
 using Utils;
 
@@ -13,10 +14,13 @@ public class AccountManager
 	public List<string> AccountNames { get; set; }
 
 	public static AccountSettings AccSettings;
-	public AccountManager(IJSInProcessRuntime js, AccountSettings accountSettings)
+    private HeroPricingService PricingService { get; set; }
+
+    public AccountManager(IJSInProcessRuntime js, AccountSettings accountSettings, HeroPricingService pricingService)
 	{
 		AccSettings = accountSettings;
-		_js = js;
+        PricingService = pricingService;
+        _js = js;
 		AccountNames = GetAccountNames();
 	}
 
@@ -34,11 +38,12 @@ public class AccountManager
 				string json = _js.Invoke<string>("localStorage.getItem", accountName);
 				foreach (Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled && cs.Name != "Avalanche"))
 				{
-					DFKAccount account = new(accountName, Encrypt.GetAccount(model.Password, json), chain, AccSettings.ChainSettings.First(cs => cs.Name == "Avalanche"), settings);
+					DFKAccount account = new(accountName, Encrypt.GetAccount(model.Password, json), chain, AccSettings.ChainSettings.First(cs => cs.Name == "Avalanche"), settings, PricingService);
 					Accounts.Add(account);
 					await account.InitializeAccount();
 				}
-				model.SelectedAccounts.Remove(accountName);
+
+                model.SelectedAccounts.Remove(accountName);
 
 			}
 			return true;
@@ -93,7 +98,7 @@ public class AccountManager
 
 		foreach (Chain.Chain chain in AccSettings.ChainSettings.Where(cs => cs.Enabled && cs.Name != "Avalanche"))
 		{
-			DFKAccount account = new(model.Name, Encrypt.GetAccount(model.Password, json), chain, AccSettings.ChainSettings.FirstOrDefault(cs => cs.Name == "Avalanche"), settings);
+			DFKAccount account = new(model.Name, Encrypt.GetAccount(model.Password, json), chain, AccSettings.ChainSettings.FirstOrDefault(cs => cs.Name == "Avalanche"), settings, PricingService);
 			Accounts.Add(account);
 			await account.InitializeAccount();
 		}

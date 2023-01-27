@@ -2,6 +2,7 @@
 using DFKContracts.ERC20;
 using DFKContracts.HeroCore;
 using DFKContracts.QuestCore;
+using DFKHeroPricingAPI;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using PirateQuester.Bot;
@@ -10,6 +11,7 @@ using PirateQuester.HeroSale;
 using PirateQuester.ItemConsumer;
 using PirateQuester.PirateQuesterToken;
 using PirateQuester.PowerToken;
+using PirateQuester.Services;
 using System.Numerics;
 
 namespace PirateQuester.Utils
@@ -91,6 +93,7 @@ namespace PirateQuester.Utils
 					}
 				}
 			}
+			
 			BotHeroes = new();
 			foreach (Hero h in Heroes)
 			{
@@ -105,7 +108,15 @@ namespace PirateQuester.Utils
 
 				BotHeroes.Add(new DFKBotHero(h, Settings));
 			}
-			UpdatedAccount?.Invoke();
+			try
+            {
+                await PricingService.UpdateHeroPrices(new() { this });
+            }
+			catch(Exception e)
+			{
+				Console.WriteLine("Couldn't price heroes.");
+			}
+            UpdatedAccount?.Invoke();
 		}
 
 		public async Task APIInitializeHeroes()
@@ -266,10 +277,11 @@ namespace PirateQuester.Utils
 			}
 		}
 
-		public DFKAccount(string name, Account account, Chain.Chain chain, Chain.Chain Avalanche, DFKBotSettings settings)
+		public DFKAccount(string name, Account account, Chain.Chain chain, Chain.Chain Avalanche, DFKBotSettings settings, HeroPricingService pricingService)
 		{
 			Settings = settings;
-			Name = name;
+            PricingService = pricingService;
+            Name = name;
 			Account = account;
 			Chain = chain;
 			AvalancheSigner = new Web3(new Account(account.PrivateKey), Avalanche.RPC);
@@ -286,7 +298,8 @@ namespace PirateQuester.Utils
 		}
 
 		public DFKBotSettings Settings { get; set; }
-		public Chain.Chain Chain { get; set; }
+        public HeroPricingService PricingService { get; }
+        public Chain.Chain Chain { get; set; }
 		private decimal balance;
 		public decimal Balance { get { return Math.Round(balance, 2); } set { balance = value; } }
 		private decimal powerTokenBalance;
