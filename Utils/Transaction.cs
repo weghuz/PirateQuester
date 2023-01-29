@@ -1,17 +1,20 @@
 using DFKContracts.ERC20;
 using DFKContracts.MeditationCircle.ContractDefinition;
 using DFKContracts.QuestCore.ContractDefinition;
+using Nethereum.Signer;
 using Nethereum.Web3;
+using PirateQuester.Bot;
 using PirateQuester.DFK.Contracts;
 using PirateQuester.DFK.Items;
 using PirateQuester.HeroSale.ContractDefinition;
 using PirateQuester.ItemConsumer.ContractDefinition;
 using PirateQuester.PirateQuesterToken.ContractDefinition;
 using PirateQuester.Utils;
+using PirateQuester.Utils.Chain;
 using static Nethereum.Util.UnitConversion;
 using static PirateQuester.DFK.Contracts.QuestContractDefinitions;
 using BigInteger = System.Numerics.BigInteger;
-
+using Chain = PirateQuester.Utils.Chain.Chain;
 namespace Utils;
 
 public static class Transaction
@@ -40,7 +43,7 @@ public static class Transaction
 		return cancelToken;
 	}
 
-	public static async Task<string> CompleteMeditation(DFKAccount account, BigInteger heroId, int maxGasFeeGwei = 200, int cancelDelay = 60000)
+	public static async Task<string> CompleteMeditation(DFKAccount account, BigInteger heroId, DFKBotSettings settings, Chain chain)
 	{
 		TransactionAdded?.Invoke();
 		try
@@ -49,11 +52,11 @@ public static class Transaction
 			var completeMeditationFunc = new CompleteMeditationFunction()
 			{
 				HeroId = heroId,
-				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, EthUnit.Gwei),
-				MaxPriorityFeePerGas = 0
+				MaxFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxGasFeeGwei : settings.MaxGasFeeGweiKlaytn, EthUnit.Gwei),
+				MaxPriorityFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxPriorityFeeGwei : settings.MaxPriorityFeeGweiKlaytn, EthUnit.Gwei)
 			};
 
-			var receipt = await account.Meditation.CompleteMeditationRequestAndWaitForReceiptAsync(completeMeditationFunc, StopAfterDelay(cancelDelay));
+			var receipt = await account.Meditation.CompleteMeditationRequestAndWaitForReceiptAsync(completeMeditationFunc, StopAfterDelay(settings.CancelTxnDelay));
 			Console.WriteLine($"Complete Meditation Txn: Gas: {receipt.GasUsed.Value}");
 			FinishedTransactions.Add(new()
 			{
@@ -86,7 +89,7 @@ public static class Transaction
 		}
 	}
 
-	public static async Task<string> StartMeditation(DFKAccount account, BigInteger heroId, byte stat1, byte stat2, byte stat3, int maxGasFeeGwei = 200, int cancelDelay = 60000)
+	public static async Task<string> StartMeditation(DFKAccount account, BigInteger heroId, byte stat1, byte stat2, byte stat3, DFKBotSettings settings, Chain chain)
 	{
 		TransactionAdded?.Invoke();
 		try
@@ -100,10 +103,10 @@ public static class Transaction
 				{
 					Amount = new BigInteger(1000),
 					Spender = account.Meditation.ContractHandler.ContractAddress,
-					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
-					MaxPriorityFeePerGas = 0
+					MaxFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxGasFeeGwei : settings.MaxGasFeeGweiKlaytn, EthUnit.Gwei),
+					MaxPriorityFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxPriorityFeeGwei : settings.MaxPriorityFeeGweiKlaytn, EthUnit.Gwei)
 				};
-				var allowDFKShvasReceipt = await DFKSHvas.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(cancelDelay));
+				var allowDFKShvasReceipt = await DFKSHvas.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(settings.CancelTxnDelay));
 				Console.WriteLine($"DFKSHvas was approved to be used in the meditation circle\n{allowDFKShvasReceipt.GasUsed} gas was used.");
 			}
 			var DFKMoksha = new Erc20Service(account.Signer, ItemContractDefinitions.InventoryItems.First(item => item.ItemEnum == DFKItemEnum.DFKMOKSHA).Addresses.First(a => a.Chain.Id == account.Chain.Id).Address);
@@ -115,10 +118,10 @@ public static class Transaction
 				{
 					Amount = new BigInteger(1000),
 					Spender = account.Meditation.ContractHandler.ContractAddress,
-					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, EthUnit.Gwei),
-					MaxPriorityFeePerGas = 0
+					MaxFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxGasFeeGwei : settings.MaxGasFeeGweiKlaytn, EthUnit.Gwei),
+					MaxPriorityFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxPriorityFeeGwei : settings.MaxPriorityFeeGweiKlaytn, EthUnit.Gwei)
 				};
-				var allowDFKMokshaReceipt = await DFKMoksha.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(cancelDelay));
+				var allowDFKMokshaReceipt = await DFKMoksha.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(settings.CancelTxnDelay));
 				Console.WriteLine($"DFKMoksha was approved to be used in the meditation circle.\n{allowDFKMokshaReceipt.GasUsed} gas was used.");
 			}
 			var nativeToken = new Erc20Service(account.Signer, account.Chain.NativeToken);
@@ -130,10 +133,10 @@ public static class Transaction
 				{
 					Amount = Web3.Convert.ToWei(9999),
 					Spender = account.Meditation.ContractHandler.ContractAddress,
-					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, EthUnit.Gwei),
-					MaxPriorityFeePerGas = 0
+					MaxFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxGasFeeGwei : settings.MaxGasFeeGweiKlaytn, EthUnit.Gwei),
+					MaxPriorityFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxPriorityFeeGwei : settings.MaxPriorityFeeGweiKlaytn, EthUnit.Gwei)
 				};
-				var alowNativeTokenReceipt = await nativeToken.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(cancelDelay));
+				var alowNativeTokenReceipt = await nativeToken.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(settings.CancelTxnDelay));
 				Console.WriteLine($"Native Token was approved to be used in the meditation circle.\n{alowNativeTokenReceipt.GasUsed} gas was used.");
 			}
 			if (!await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, account.Meditation.ContractHandler.ContractAddress))
@@ -143,11 +146,11 @@ public static class Transaction
 				{
 					Operator = account.Meditation.ContractHandler.ContractAddress,
 					Approved = true,
-					MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, EthUnit.Gwei),
-					MaxPriorityFeePerGas = 0
+					MaxFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxGasFeeGwei : settings.MaxGasFeeGweiKlaytn, EthUnit.Gwei),
+					MaxPriorityFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxPriorityFeeGwei : settings.MaxPriorityFeeGweiKlaytn, EthUnit.Gwei)
 				};
 
-				var approvalReceipt = await account.Hero.SetApprovalForAllRequestAndWaitForReceiptAsync(approvalForAllFunc, StopAfterDelay(cancelDelay));
+				var approvalReceipt = await account.Hero.SetApprovalForAllRequestAndWaitForReceiptAsync(approvalForAllFunc, StopAfterDelay(settings.CancelTxnDelay));
 				Console.WriteLine($"Heroes approved for meditation. {approvalReceipt.TransactionHash}");
 			}
 			var handler = account.Signer.Eth.GetContractTransactionHandler<StartMeditationFunction>();
@@ -213,11 +216,11 @@ public static class Transaction
 				PrimaryStat = fixedStat1,
 				SecondaryStat = fixedStat2,
 				TertiaryStat = fixedStat3,
-				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, EthUnit.Gwei),
-				MaxPriorityFeePerGas = 0
+				MaxFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxGasFeeGwei : settings.MaxGasFeeGweiKlaytn, EthUnit.Gwei),
+				MaxPriorityFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxPriorityFeeGwei : settings.MaxPriorityFeeGweiKlaytn, EthUnit.Gwei)
 			};
 
-			var receipt = await account.Meditation.StartMeditationRequestAndWaitForReceiptAsync(startMeditationFunc, StopAfterDelay(cancelDelay));
+			var receipt = await account.Meditation.StartMeditationRequestAndWaitForReceiptAsync(startMeditationFunc, StopAfterDelay(settings.CancelTxnDelay));
 			Console.WriteLine($"Started Meditation Txn: Gas: {receipt.GasUsed.Value}");
 			FinishedTransactions.Add(new()
 			{
@@ -250,7 +253,7 @@ public static class Transaction
 		}
 	}
 
-	public static async Task<string> CompleteQuest(DFKAccount account, BigInteger heroId, int maxGasFeeGwei = 200, int cancelDelay = 60000)
+	public static async Task<string> CompleteQuest(DFKAccount account, BigInteger heroId, DFKBotSettings settings, Chain chain)
 	{
 		TransactionAdded?.Invoke();
 		try
@@ -260,11 +263,11 @@ public static class Transaction
 			var questCompleteFunc = new CompleteQuestFunction()
 			{
 				HeroId = heroId,
-				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, EthUnit.Gwei),
-				MaxPriorityFeePerGas = 0
+				MaxFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxGasFeeGwei : settings.MaxGasFeeGweiKlaytn, EthUnit.Gwei),
+				MaxPriorityFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxPriorityFeeGwei : settings.MaxPriorityFeeGweiKlaytn, EthUnit.Gwei)
 			};
 
-			var receipt = await account.Quest.CompleteQuestRequestAndWaitForReceiptAsync(questCompleteFunc, StopAfterDelay(cancelDelay));
+			var receipt = await account.Quest.CompleteQuestRequestAndWaitForReceiptAsync(questCompleteFunc, StopAfterDelay(settings.CancelTxnDelay));
 			Console.WriteLine($"Completed Quest Txn: Gas: {receipt.GasUsed.Value}");
 			//var completeQuestEvent = receipt.DecodeAllEvents<QuestCompletedEventDTO>();
 			FinishedTransactions.Add(new()
@@ -299,7 +302,7 @@ public static class Transaction
 		}
 	}
 
-	public static async Task<string> BuyPirateQuesterToken(DFKAccount account, int quantity, int maxGasFeeGwei = 200, int cancelDelay = 60000)
+	public static async Task<string> BuyPirateQuesterToken(DFKAccount account, int quantity, DFKBotSettings settings)
 	{
 		TransactionAdded?.Invoke();
 
@@ -310,10 +313,10 @@ public static class Transaction
 			{
 				AmountToSend = quantity * await account.PQT.PriceQueryAsync(),
 				Quantity = (byte)quantity,
-				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, EthUnit.Gwei),
+				MaxFeePerGas = Web3.Convert.ToWei(200, EthUnit.Gwei),
 				MaxPriorityFeePerGas = 0
 			};
-			var buyRequestResponse = await account.PQT.BuyRequestAndWaitForReceiptAsync(buyFunction, StopAfterDelay(cancelDelay));
+			var buyRequestResponse = await account.PQT.BuyRequestAndWaitForReceiptAsync(buyFunction, StopAfterDelay(settings.CancelTxnDelay));
 			Console.WriteLine($"Started Buy PQT Txn: Gas: {buyRequestResponse.GasUsed.Value}");
 			//var startQuestEvent = questStartResponse.DecodeAllEvents<QuestStartedEventDTO>();
 			FinishedTransactions.Add(new()
@@ -347,7 +350,7 @@ public static class Transaction
 		}
 	}
 
-	public static async Task<string> StartQuest(DFKAccount account, List<BigInteger> selectedHeroes, QuestContract quest, int attempts, int maxGasFeeGwei = 200, int cancelDelay = 60000)
+	public static async Task<string> StartQuest(DFKAccount account, List<BigInteger> selectedHeroes, QuestContract quest, int attempts, DFKBotSettings settings, Chain chain)
 	{
 		TransactionAdded?.Invoke();
 		bool isApproved = await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, quest.Address);
@@ -368,11 +371,11 @@ public static class Transaction
 				QuestAddress = quest.Address,
 				Attempts = (byte)attempts,
 				Level = (byte)quest.Level,
-				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, EthUnit.Gwei),
-				MaxPriorityFeePerGas = 0,
+				MaxFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxGasFeeGwei : settings.MaxGasFeeGweiKlaytn, EthUnit.Gwei),
+				MaxPriorityFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxPriorityFeeGwei : settings.MaxPriorityFeeGweiKlaytn, EthUnit.Gwei)
 			};
 
-			var questStartResponse = await account.Quest.StartQuestRequestAndWaitForReceiptAsync(questStartFunc, StopAfterDelay(cancelDelay));
+			var questStartResponse = await account.Quest.StartQuestRequestAndWaitForReceiptAsync(questStartFunc, StopAfterDelay(settings.CancelTxnDelay));
 			Console.WriteLine($"Started Quest Txn: Gas: {questStartResponse.GasUsed.Value}");
 			//var startQuestEvent = questStartResponse.DecodeAllEvents<QuestStartedEventDTO>();
 			FinishedTransactions.Add(new()
@@ -409,8 +412,8 @@ public static class Transaction
 
 	public static async Task<string> CancelAuction(DFKAccount account,
 		BigInteger heroId,
-		int maxGasFeeGwei = 200,
-		int cancelDelay = 60000)
+		DFKBotSettings settings, 
+		Chain chain)
 	{
 		TransactionAdded?.Invoke();
 		bool isApproved = await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, account.Chain.HeroSale);
@@ -427,13 +430,13 @@ public static class Transaction
 			var handler = account.Signer.Eth.GetContractTransactionHandler<CancelAuctionFunction>();
 			var cancelAuctionFunc = new CancelAuctionFunction()
 			{
-				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, EthUnit.Gwei),
-				MaxPriorityFeePerGas = 0,
 				TokenId = heroId,
-				FromAddress = account.Account.Address
+				FromAddress = account.Account.Address,
+				MaxFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxGasFeeGwei : settings.MaxGasFeeGweiKlaytn, EthUnit.Gwei),
+				MaxPriorityFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxPriorityFeeGwei : settings.MaxPriorityFeeGweiKlaytn, EthUnit.Gwei)
 			};
 
-			var cancelAuctionResponse = await account.Auction.CancelAuctionRequestAndWaitForReceiptAsync(cancelAuctionFunc, StopAfterDelay(cancelDelay));
+			var cancelAuctionResponse = await account.Auction.CancelAuctionRequestAndWaitForReceiptAsync(cancelAuctionFunc, StopAfterDelay(settings.CancelTxnDelay));
 			Console.WriteLine($"Started Auction Txn: {cancelAuctionResponse.TransactionHash} Gas: {cancelAuctionResponse.GasUsed.Value}");
 			//var startQuestEvent = questStartResponse.DecodeAllEvents<QuestStartedEventDTO>();
 			FinishedTransactions.Add(new()
@@ -470,7 +473,8 @@ public static class Transaction
 		}
 	}
 
-	public static async Task<string> StartAuction(DFKAccount account, BigInteger heroId, decimal salePrice, int maxGasFeeGwei = 200, int cancelDelay = 60000)
+	public static async Task<string> StartAuction(DFKAccount account, BigInteger heroId, decimal salePrice, DFKBotSettings settings,
+		Chain chain)
 	{
 		TransactionAdded?.Invoke();
 		bool isApproved = await account.Hero.IsApprovedForAllQueryAsync(account.Account.Address, account.Chain.HeroSale);
@@ -488,15 +492,15 @@ public static class Transaction
 			var startAuctionFunc = new CreateAuctionFunction()
 			{
 				StartingPrice = Web3.Convert.ToWei(salePrice, EthUnit.Ether),
-				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, EthUnit.Gwei),
-				MaxPriorityFeePerGas = 0,
 				TokenId = heroId,
 				EndingPrice = Web3.Convert.ToWei(salePrice, EthUnit.Ether),
 				Duration = 1337,
-				Winner = ""
+				Winner = "",
+				MaxFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxGasFeeGwei : settings.MaxGasFeeGweiKlaytn, EthUnit.Gwei),
+				MaxPriorityFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxPriorityFeeGwei : settings.MaxPriorityFeeGweiKlaytn, EthUnit.Gwei)
 			};
 
-			var startAuctionResponse = await account.Auction.CreateAuctionRequestAndWaitForReceiptAsync(startAuctionFunc, StopAfterDelay(cancelDelay));
+			var startAuctionResponse = await account.Auction.CreateAuctionRequestAndWaitForReceiptAsync(startAuctionFunc, StopAfterDelay(settings.CancelTxnDelay));
 			Console.WriteLine($"Started Auction Txn: {startAuctionResponse.TransactionHash} Gas: {startAuctionResponse.GasUsed.Value}");
 			//var startQuestEvent = questStartResponse.DecodeAllEvents<QuestStartedEventDTO>();
 			FinishedTransactions.Add(new()
@@ -533,7 +537,8 @@ public static class Transaction
 		}
 	}
 
-	public static async Task<string> UseComsumableItem(DFKAccount account, BigInteger heroId, string consumableAddress, int maxGasFeeGwei = 200, int cancelDelay = 60000)
+	public static async Task<string> UseComsumableItem(DFKAccount account, BigInteger heroId, string consumableAddress, DFKBotSettings settings,
+		Chain chain)
 	{
 		TransactionAdded?.Invoke();
 		var consumableItem = ItemContractDefinitions.GetItem(new() { Address = consumableAddress, Chain = account.Chain });
@@ -549,10 +554,10 @@ public static class Transaction
 			{
 				Amount = new BigInteger(10000),
 				Spender = account.Chain.ItemConsumer,
-				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
-				MaxPriorityFeePerGas = 0
+				MaxFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxGasFeeGwei : settings.MaxGasFeeGweiKlaytn, EthUnit.Gwei),
+				MaxPriorityFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxPriorityFeeGwei : settings.MaxPriorityFeeGweiKlaytn, EthUnit.Gwei)
 			};
-			var allowConsumableItemReceipt = await ConsumableItem.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(cancelDelay));
+			var allowConsumableItemReceipt = await ConsumableItem.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(settings.CancelTxnDelay));
 			Console.WriteLine($"{consumableItem.Name} was approved to be used in the meditation circle\n{allowConsumableItemReceipt.GasUsed} gas was used.");
 		}
 
@@ -564,13 +569,13 @@ public static class Transaction
 
 			var consumeFunc = new ConsumeItemFunction()
 			{
-				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, EthUnit.Gwei),
-				MaxPriorityFeePerGas = 0,
 				HeroId = heroId,
-				ConsumableAddress = consumableAddress
+				ConsumableAddress = consumableAddress,
+				MaxFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxGasFeeGwei : settings.MaxGasFeeGweiKlaytn, EthUnit.Gwei),
+				MaxPriorityFeePerGas = Web3.Convert.ToWei(chain.Name == "DFK" ? settings.MaxPriorityFeeGwei : settings.MaxPriorityFeeGweiKlaytn, EthUnit.Gwei)
 			};
 
-			var consumeResponse = await account.ItemConsumer.ConsumeItemRequestAndWaitForReceiptAsync(consumeFunc, StopAfterDelay(cancelDelay));
+			var consumeResponse = await account.ItemConsumer.ConsumeItemRequestAndWaitForReceiptAsync(consumeFunc, StopAfterDelay(settings.CancelTxnDelay));
 			Console.WriteLine($"Started Auction Txn: {consumeResponse.TransactionHash} Gas: {consumeResponse.GasUsed.Value}");
 			//var startQuestEvent = questStartResponse.DecodeAllEvents<QuestStartedEventDTO>();
 			FinishedTransactions.Add(new()

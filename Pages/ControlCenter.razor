@@ -245,6 +245,7 @@
 			DataSource="@TableHeroes"
 			ID="ControlCenterHeroGrid"
 			EnablePersistence="true"
+            EnableStickyHeader="true"
 			AllowTextWrap="true"
 			AllowSelection="true"
 			AllowFiltering="true"
@@ -254,7 +255,8 @@
 			AllowReordering="true"
 			AllowMultiSorting="true"
 			Height="650px">
-			<GridSelectionSettings EnableSimpleMultiRowSelection="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple" AllowDragSelection="true" ></GridSelectionSettings>
+			<GridSelectionSettings EnableSimpleMultiRowSelection="true"
+				Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
 			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
 			<GridPageSettings PageSizes="@(new string[] { "5", "10", "15", "20", "50", "All" })" PageSize="@PageSize"></GridPageSettings>
 			<GridColumns>

@@ -6,7 +6,7 @@ namespace PirateQuester.Utils
     {
         public static string DARK_THEME { get; } = "css/fabric-dark.css";
         public static string THEME { get; } = "css/fabric.css";
-        public static string VERSION { get; } = "2.1.1";
+        public static string VERSION { get; } = "2.1.2";
         public static string PQT_ADDRESS { get; } = "0xAC2b4Ffe04AB34e43e780Dad5C8DEac47B7db775";
         public static List<Chain.Chain> ChainsList { get; } = new()
         {

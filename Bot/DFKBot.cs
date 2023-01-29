@@ -240,7 +240,7 @@ public class DFKBot
 							continue;
 						}
 						Log($"Quest #{q.Id} {q.QuestName} with heroes {string.Join(", ", Account.BotHeroes.Where(bh => q.Heroes.Any(qh => qh == bh.ID)).Select(hero => $"{hero.Hero.id} {hero.Hero.GetRarity()} {hero.Hero.mainClass} {hero.Hero.profession}"))} is ready to complete, completing...");
-						string okMessage = await Transaction.CompleteQuest(Account, q.Heroes.First(), Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+						string okMessage = await Transaction.CompleteQuest(Account, q.Heroes.First(), Settings, Account.Chain);
 
 						Log(okMessage);
 					}
@@ -284,7 +284,7 @@ public class DFKBot
 					Log($"Hero {hero.ID} is ready to complete meditating.\nCompleting Meditation...");
 					try
 					{
-						string okMessage = await Transaction.CompleteMeditation(Account, hero.ID, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+						string okMessage = await Transaction.CompleteMeditation(Account, hero.ID, Settings, Account.Chain);
 						Log($"Hero {hero.ID} {hero.Hero.GetRarity()} {hero.Hero.mainClass} {hero.Hero.profession} Leveled up from {hero.Hero.level} to {hero.Hero.level + 1}!\nUsing these settings:\nMain(+1):{hero.LevelUpSetting.MainAttribute?.Name ?? setting.MainAttribute.Name}\nSecondary(50%+1):{hero.LevelUpSetting.SecondaryAttribute?.Name ?? setting.SecondaryAttribute.Name}\nTertiary(50%+1):{hero.LevelUpSetting.TertiaryAttribute?.Name ?? setting.TertiaryAttribute.Name}!");
 
 						hero.Hero.staminaFullAt = (long)Functions.UnixTime();
@@ -315,7 +315,7 @@ public class DFKBot
 				}
 				try
 				{
-					string okMessage = await Transaction.StartMeditation(Account, h.ID, h.LevelUpSetting.MainAttribute?.Id ?? setting.MainAttribute.Id, h.LevelUpSetting.SecondaryAttribute?.Id ?? setting.SecondaryAttribute.Id, h.LevelUpSetting.TertiaryAttribute?.Id ?? setting.TertiaryAttribute.Id, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+					string okMessage = await Transaction.StartMeditation(Account, h.ID, h.LevelUpSetting.MainAttribute?.Id ?? setting.MainAttribute.Id, h.LevelUpSetting.SecondaryAttribute?.Id ?? setting.SecondaryAttribute.Id, h.LevelUpSetting.TertiaryAttribute?.Id ?? setting.TertiaryAttribute.Id, Settings, Account.Chain);
 					Log($"Hero {h.Hero.GetRarity()} {h.Hero.mainClass} {h.Hero.profession} started meditating with Stat settings: \nMain(+1):{h.LevelUpSetting.MainAttribute?.Name ?? setting.MainAttribute.Name}\nSecondary(50%+1):{h.LevelUpSetting.SecondaryAttribute?.Name ?? setting.SecondaryAttribute.Name}\nTertiary(50%+1):{h.LevelUpSetting.TertiaryAttribute?.Name ?? setting.TertiaryAttribute.Name}!");
 
 					Log(okMessage);
@@ -377,7 +377,7 @@ public class DFKBot
 							Log($"Hero #{h.ID} is level {h.Hero.level} XP: {h.Hero.xp}/{h.Hero.XpToLevelUp()}, need to reach level {h.StaminaPotionUntilLevel} to stop using stamina potions. Hero is at {h.Hero.StaminaCurrent()} stamina, using Potion...");
 							try
 							{
-								string okMessage = await Transaction.UseComsumableItem(Account, h.ID, staminaPotionAddress, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+								string okMessage = await Transaction.UseComsumableItem(Account, h.ID, staminaPotionAddress, Settings, Account.Chain);
 								h.Hero.staminaFullAt -= 30000;
 								h.Hero.StaminaPotioned = true;
 								Account.StaminaPotionBalance--;
@@ -406,7 +406,7 @@ public class DFKBot
 							Log($"Hero #{h.ID} {h.Hero.GetRarity()} {h.Hero.mainClass} {h.Hero.profession} is level {h.Hero.level} XP: {h.Hero.xp}/{h.Hero.XpToLevelUp()} has {h.UseStaminaPotionsAmount} stamina potions left to use. Hero is at {h.Hero.StaminaCurrent()} stamina, using Potion...");
 							try
 							{
-								string okMessage = await Transaction.UseComsumableItem(Account, h.ID, staminaPotionAddress, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+								string okMessage = await Transaction.UseComsumableItem(Account, h.ID, staminaPotionAddress, Settings, Account.Chain);
 								h.Hero.staminaFullAt -= 30000;
 								h.UseStaminaPotionsAmount--;
 								var heroSettings = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
@@ -450,7 +450,7 @@ public class DFKBot
 				Log($"Selling hero #{h.ID} for {h.BotSalePrice} {(Account.Chain.Name == "DFK" ? "Crystal" : "Jade")}...");
 				try
 				{
-					string okMessage = await Transaction.StartAuction(Account, h.ID, h.BotSalePrice.Value, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+					string okMessage = await Transaction.StartAuction(Account, h.ID, h.BotSalePrice.Value, Settings, Account.Chain);
 					h.Hero.salePrice = h.BotSalePrice.Value.ToString();
 					Log(okMessage);
 				}
@@ -471,7 +471,7 @@ public class DFKBot
 				Log($"Cancelling auction for hero #{h.ID}...");
 				try
 				{
-					string okMessage = await Transaction.CancelAuction(Account, h.ID, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+					string okMessage = await Transaction.CancelAuction(Account, h.ID, Settings, Account.Chain);
 					h.Hero.salePrice = null;
 					Log(okMessage);
 				}
@@ -589,7 +589,7 @@ public class DFKBot
 						Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => $"{h.id}: {h.GetRarity()} {h.mainClass} {h.profession} {h.StaminaCurrent(240)}/{h.stamina}"))} with {maxAttempts} attempts.");
 						string okMessage = await Transaction.StartQuest(Account,
 							heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
-							quest, maxAttempts, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+							quest, maxAttempts, Settings, Account.Chain);
 						Log(okMessage);
 					}
 					catch (Exception e)
@@ -664,7 +664,7 @@ public class DFKBot
 						Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => $"{h.id}: {h.GetRarity()} {h.mainClass} {h.profession} {h.StaminaCurrent(240)}/{h.stamina}"))} with {maxAttempts} attempts.");
 						string okMessage = await Transaction.StartQuest(Account,
 							heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
-							quest, maxAttempts, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+							quest, maxAttempts, Settings, Account.Chain);
 						Log(okMessage);
 					}
 					catch (Exception e)

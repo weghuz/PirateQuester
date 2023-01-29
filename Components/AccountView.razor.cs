@@ -102,7 +102,7 @@ namespace PirateQuester.Components
 		{
 			ErrorMessage = null;
 			IsBuying = true;
-			string response = await Transaction.BuyPirateQuesterToken(Accounts[0], BuyAmount, Bots.Settings.MaxGasFeeGwei, Bots.Settings.CancelTxnDelay);
+			string response = await Transaction.BuyPirateQuesterToken(Accounts[0], BuyAmount, Bots.Settings);
 			IsBuying = false;
 			if (response.Contains("failed"))
 			{

@@ -42,13 +42,13 @@
 					}
 				</div>
 				<div class="row">
-					<div class="col-md-6">
+					@*<div class="col-md-6">
 						<label for="UpdateInterval">
-							Download cleared logs
-							<SfCheckBox @bind-Checked=@Bots.Settings.DownloadClearedLogs />
 						</label>
-					</div>
+					</div>*@
 					<div class="col-md-6">
+						Download cleared logs
+						<SfCheckBox @bind-Checked=@Bots.Settings.DownloadClearedLogs />
 						<label for="UpdateInterval" >
 							Clear logs interval (Seconds) (0 to turn off)<br />
 						</label>
@@ -79,16 +79,6 @@
 					</div>
 					
 					<div class="col-md-6">
-						<label for="MaxGasFee" >
-							MaxGasFee (If your Max Fee is too low txns could get stuck during high traffic times.)
-						</label>
-						<SfNumericTextBox name="MaxGasFee"
-							TValue="int"
-							@bind-Value="@Bots.Settings.MaxGasFeeGwei"
-							OnChange="@((val) => {Bots.SaveSettings();})"/>
-					</div>
-
-					<div class="col-md-6">
 						<label for="CancelTxnDelay" >
 							Cancel transaction delay. (Milliseconds)
 						</label>
@@ -98,7 +88,41 @@
 							@bind-Value="@Bots.Settings.CancelTxnDelay"
 							OnChange="@((val) => {Bots.SaveSettings();})" />
 					</div>
-					<div class="col-md-6 text-center mb-1">
+					
+					<div class="col-md-6">
+						<label for="MaxGasFee">
+							Max Gas Fee DFK
+						</label>
+						<SfNumericTextBox name="MaxGasFee"
+										  TValue="int"
+										  @bind-Value="@Bots.Settings.MaxGasFeeGwei"
+										  OnChange="@((val) => {Bots.SaveSettings();})" />
+						<label for="MaxGasFee">
+							Max Priority Fee DFK
+						</label>
+						<SfNumericTextBox name="MaxGasFee"
+										  TValue="int"
+										  @bind-Value="@Bots.Settings.MaxPriorityFeeGwei"
+										  OnChange="@((val) => {Bots.SaveSettings();})" />
+					</div>
+					<div class="col-md-6">
+						<label for="MaxGasFee">
+							Max Gas Fee Klaytn
+						</label>
+						<SfNumericTextBox name="MaxGasFee"
+										  TValue="int"
+										  @bind-Value="@Bots.Settings.MaxGasFeeGweiKlaytn"
+										  OnChange="@((val) => {Bots.SaveSettings();})" />
+						<label for="MaxGasFee">
+							Max Priority Fee Klaytn
+						</label>
+						<SfNumericTextBox name="MaxGasFee"
+										  TValue="int"
+										  @bind-Value="@Bots.Settings.MaxPriorityFeeGweiKlaytn"
+										  OnChange="@((val) => {Bots.SaveSettings();})" />
+					</div>
+					
+					<div class="col-md-3 text-center mb-1">
 						<label>
 							Enable Hero Selling
 							<SfCheckBox
@@ -106,23 +130,25 @@
 								/>
 						</label>
 					</div>
-					<div class="col-md-6 text-center mb-1">
+					<div class="col-md-3 text-center mb-1">
 						<label>
 							Cancel Unpriced Hero Sales
 							<SfCheckBox @bind-Checked=@Bots.Settings.CancelUnpricedHeroSales />
 						</label>
 					</div>
-					<div class="col-md-6 text-center mb-1">
+					<div class="col-md-3 text-center mb-1">
 						<label>
 							Enable Questing
 							<SfCheckBox @bind-Checked=@Bots.Settings.QuestHeroes />
 						</label>
 					</div>
-					<div class="col-md-6 text-center mb-1">
+					<div class="col-md-3 text-center mb-1">
 						<label>
 							Use Stamina Potions
 							<SfCheckBox @bind-Checked=@Bots.Settings.UseStaminaPotions />
 						</label>
+					</div>
+					<div class="col-md-3 text-center mb-1">
 						<label>
 							Force Stamina Potions On Full XP
 							<SfCheckBox @bind-Checked=@Bots.Settings.ForceStampotOnFullXP />
@@ -238,14 +264,7 @@
 						{
 							<div class="row">
 								@foreach (string mainClass in Constants.Classes)
-								{
-									var valueAttribute = Bots.Settings.LevelUpSettings.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower());
-							
-									if(valueAttribute is null)
-									{
-										valueAttribute = Bots.Settings.SuggestedLevelUpSettings.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower());
-									}
-									
+								{									
 									<h6 class="text-center">@(mainClass) Levelup settings</h6>
 									<div class="col-md-4">
 										<SfCard CssClass="m-2">
@@ -256,7 +275,8 @@
 												<SfDropDownList TItem="DFKStat"
 													TValue="byte"
 													DataSource="@Constants.DFKStats"
-													@bind-value="valueAttribute.MainAttribute.Id">
+													@bind-value="Bots.Settings.LevelUpSettings
+														.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower()).MainAttribute.Id">
 													<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
 												</SfDropDownList>
 											</CardContent>
@@ -271,7 +291,8 @@
 												<SfDropDownList TItem="DFKStat"
 													TValue="byte"
 													DataSource="@Constants.DFKStats"
-													@bind-Value=@valueAttribute.SecondaryAttribute.Id>
+													@bind-value="Bots.Settings.LevelUpSettings
+														.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower()).SecondaryAttribute.Id">
 													<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
 												</SfDropDownList>
 											</CardContent>
@@ -286,7 +307,8 @@
 												<SfDropDownList TItem="DFKStat"
 													TValue="byte"
 													DataSource="@Constants.DFKStats"
-													@bind-Value=@valueAttribute.TertiaryAttribute.Id>
+													@bind-value="Bots.Settings.LevelUpSettings
+														.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower()).TertiaryAttribute.Id">
 													<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
 												</SfDropDownList>
 											</CardContent>
