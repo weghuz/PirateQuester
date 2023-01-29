@@ -7,6 +7,8 @@ namespace PirateQuester.Bot
 		public int ClearLogsInterval { get; set; }
 		public bool DownloadClearedLogs { get; set; }
 		public List<DFKStatAmount> MinTrainingStats { get; set; }
+		public bool CancelUnpricedHeroSales { get; set; }
+		public bool SellHeroes { get; set; } = true;
 		public int CancelTxnDelay { get; set; }
 		public int UpdateInterval { get; set; }
 		public int MinStamina { get; set; }
