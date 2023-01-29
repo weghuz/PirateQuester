@@ -263,9 +263,9 @@
 						@if(Bots.Settings.LevelUp)
 						{
 							<div class="row">
-								@foreach (string mainClass in Constants.Classes)
+								@foreach (LevelUpSetting levelSetting in Bots.Settings.LevelUpSettings)
 								{									
-									<h6 class="text-center">@(mainClass) Levelup settings</h6>
+									<h6 class="text-center">@(levelSetting.HeroClass) Levelup settings</h6>
 									<div class="col-md-4">
 										<SfCard CssClass="m-2">
 											<CardHeader>
@@ -275,8 +275,7 @@
 												<SfDropDownList TItem="DFKStat"
 													TValue="byte"
 													DataSource="@Constants.DFKStats"
-													@bind-value="Bots.Settings.LevelUpSettings
-														.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower()).MainAttribute.Id">
+													@bind-value="levelSetting.MainAttribute.Id">
 													<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
 												</SfDropDownList>
 											</CardContent>
@@ -291,8 +290,7 @@
 												<SfDropDownList TItem="DFKStat"
 													TValue="byte"
 													DataSource="@Constants.DFKStats"
-													@bind-value="Bots.Settings.LevelUpSettings
-														.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower()).SecondaryAttribute.Id">
+														@bind-value="levelSetting.SecondaryAttribute.Id">
 													<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
 												</SfDropDownList>
 											</CardContent>
@@ -307,8 +305,7 @@
 												<SfDropDownList TItem="DFKStat"
 													TValue="byte"
 													DataSource="@Constants.DFKStats"
-													@bind-value="Bots.Settings.LevelUpSettings
-														.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower()).TertiaryAttribute.Id">
+													@bind-value="levelSetting.TertiaryAttribute.Id">
 													<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
 												</SfDropDownList>
 											</CardContent>
