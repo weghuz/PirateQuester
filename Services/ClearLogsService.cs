@@ -21,7 +21,14 @@ namespace PirateQuester.Services
 			while (CancellationToken.IsCancellationRequested is false)
 			{
 				Console.WriteLine($"Waiting {Bots.Settings.ClearLogsInterval * 1000} seconds then clearing logs.");
-				await Task.Delay(Bots.Settings.ClearLogsInterval * 1000, CancellationToken);
+				try
+				{
+					await Task.Delay(Bots.Settings.ClearLogsInterval * 1000, CancellationToken);
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex.ToString());
+				}
 				if (CancellationToken.IsCancellationRequested is false)
 				{
 					Console.WriteLine($"Clearing logs....");

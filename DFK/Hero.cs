@@ -193,7 +193,6 @@ public class Hero
 		}
 	}
 
-	public bool StaminaPotioned { get; set; } = false;
 	public DFKAccount DFKAccount { get; set; }
 	public string id { get; set; }
 	public string numberId { get; set; }

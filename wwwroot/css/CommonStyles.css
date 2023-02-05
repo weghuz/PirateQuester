@@ -11,6 +11,10 @@
     font-size: 13px;
 }
 
+div.w100-tooltip>div.e-tooltip {
+    width: 100%;
+}
+
 h1:focus {
     outline: none;
 }

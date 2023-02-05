@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PirateQuester.Services;
 using PirateQuester.Utils;
+using System.Timers;
 
 namespace PirateQuester.Pages;
 
@@ -10,13 +11,11 @@ public partial class Accounts
 	AccountManager Acc { get; set; }
 	[Inject]
 	NavigationManager Nav { get; set; }
-	[Inject]
-	public AccountUpdaterService AccountUpdater { get; set; }
-	public CancellationTokenSource cancelWorkToken { get; set; }
+	private System.Timers.Timer timer = new(10000);
 	public string Password { get; set; }
-
-
-
+	public static CancellationTokenSource CancelSource { get; set; } = new();
+	public static event Action UpdateAccountsAction;
+	public static bool Initiated { get; set; } = false;
 	protected override async Task OnInitializedAsync()
 	{
 		if (Acc.Accounts.Count == 0)
@@ -30,22 +29,20 @@ public partial class Accounts
 				Nav.NavigateTo("CreateAccount");
 			}
 		}
-		foreach (DFKAccount acc in Acc.Accounts)
+		if(Initiated is false)
 		{
-			await acc.UpdateBalance();
+			Initiated = true;
+			UpdateAccountsAction = async () =>
+			{
+				await Task.Delay(10000);
+				foreach (DFKAccount acc in Acc.Accounts)
+				{
+					await acc.UpdateBalance();
+				}
+				StateHasChanged();
+				UpdateAccountsAction?.Invoke();
+			};
+			UpdateAccountsAction?.Invoke();
 		}
-		cancelWorkToken = new();
-		AccountUpdater.DoWorkAsync(cancelWorkToken.Token, () =>
-		{
-			StateHasChanged();
-		});
-		StateHasChanged();
 	}
-
-	//Implement Dispose and Cancel cancelWorkToken
-	public void Dispose()
-	{
-		cancelWorkToken.Cancel();
-	}
-
 }

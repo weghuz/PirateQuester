@@ -313,7 +313,7 @@ public static class Transaction
 			{
 				AmountToSend = quantity * await account.PQT.PriceQueryAsync(),
 				Quantity = (byte)quantity,
-				MaxFeePerGas = Web3.Convert.ToWei(200, EthUnit.Gwei),
+				MaxFeePerGas = Web3.Convert.ToWei(settings.MaxGasFeeGwei, EthUnit.Gwei),
 				MaxPriorityFeePerGas = 0
 			};
 			var buyRequestResponse = await account.PQT.BuyRequestAndWaitForReceiptAsync(buyFunction, StopAfterDelay(settings.CancelTxnDelay));

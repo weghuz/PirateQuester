@@ -75,7 +75,7 @@ namespace PirateQuester.Bot
 						&& chainQuestSettings.QuestEnabled.First(qe => qe.QuestId == 9).Enabled)
 					{
 						var lockedMining = chainQuests.First(qc => qc.Id == 9);
-						int lockedMiners = Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 9).Count();
+						int lockedMiners = Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 9).Count();
 						if (lockedMiners < lockedMining.MaxHeroesPerQuest(Account) * 3)
 						{
 							SuggestedQuest = lockedMining;
@@ -89,22 +89,29 @@ namespace PirateQuester.Bot
 							.Where(q => q.Category == "Gardening"
 							&& chainQuestSettings.QuestEnabled[q.Id].Enabled).ToList();
 
-						int minAssigned = gardeningQuests.Min(gq => Hero.DFKAccount.BotHeroes.Where(botHero => botHero.SuggestedQuest.Id == gq.Id).Count());
+						int minAssigned = gardeningQuests.Min(gq => Hero.DFKAccount.BotHeroes.Where(botHero => (botHero.SuggestedQuest?.Id ?? 0) == gq.Id).Count());
 
-						SuggestedQuest = gardeningQuests.FirstOrDefault(gq => Hero.DFKAccount.BotHeroes.Where(botHero => botHero.SuggestedQuest.Id == gq.Id).Count() == minAssigned);
+						SuggestedQuest = gardeningQuests.FirstOrDefault(gq => Hero.DFKAccount.BotHeroes.Where(botHero => (botHero.SuggestedQuest?.Id ?? 0) == gq.Id).Count() == minAssigned);
 					}
 					return;
 				}
-
 				if (Account.LockedPowerTokenBalance is not 0
 					&& chainQuestSettings.QuestEnabled[9].Enabled)
 				{
 					var lockedMining = chainQuests[9];
-					int lockedMiners = Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 9).Count();
-					if (lockedMiners < lockedMining.MaxHeroesPerQuest(Account) * 3)
+					try
 					{
-						SuggestedQuest = lockedMining;
-						return;
+
+						int lockedMiners = Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 9).Count();
+						if (lockedMiners < lockedMining.MaxHeroesPerQuest(Account) * 3)
+						{
+							SuggestedQuest = lockedMining;
+							return;
+						}
+					}
+					catch(Exception e)
+					{
+
 					}
 				}
 				for (int i = 0; i < 8; ++i)
@@ -115,14 +122,16 @@ namespace PirateQuester.Bot
 						return;
 					}
 				}
-				if (chainQuestSettings.QuestEnabled[8].Enabled && h.mining > 0 && Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 8).Count() < 18)
+				if (chainQuestSettings.QuestEnabled[8].Enabled && h.mining > 0 && Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 8).Count() < 18)
 				{
 					SuggestedQuest = chainQuests[8];
 					return;
 				}
+				int foragers = 0;
 
-				var foragers = Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 11).Count();
-				var fishers = Account.BotHeroes.Where(bh => bh.SuggestedQuest.Id == 10).Count();
+				foragers = Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 11).Count();
+
+				var fishers = Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 10).Count();
 				if (foragers > fishers && chainQuestSettings.QuestEnabled[10].Enabled)
 				{
 					SuggestedQuest = chainQuests[10];
@@ -155,6 +164,20 @@ namespace PirateQuester.Bot
 			}
 			return SuggestedQuest;
 		}
+
+		internal bool GetActiveQuestEquals(int id)
+		{
+			if (Quest is not null)
+			{
+				return Quest.Id == id;
+			}
+			if (SuggestedQuest is not null)
+			{
+				return SuggestedQuest.Id == id;
+			}
+			return false;
+		}
+
 		public QuestContract SuggestedQuest { get; set; }
 		private QuestContract quest;
 		public QuestContract Quest { get { return quest; } set { quest = value; } }

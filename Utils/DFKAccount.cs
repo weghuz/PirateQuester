@@ -2,7 +2,6 @@
 using DFKContracts.ERC20;
 using DFKContracts.HeroCore;
 using DFKContracts.QuestCore;
-using DFKHeroPricingAPI;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using PirateQuester.Bot;
@@ -37,7 +36,8 @@ namespace PirateQuester.Utils
 					StaminaPotionBalance = int.Parse((await ConsumableItem.BalanceOfQueryAsync(Account.Address)).ToString());
 					PowerTokenBalance = Web3.Convert.FromWei(await PowerTokenService.BalanceOfQueryAsync(Account.Address));
 					LockedPowerTokenBalance = Web3.Convert.FromWei(await PowerTokenService.LockOfQueryAsync(Account.Address));
-					AvaxBalance = Web3.Convert.FromWei(await AvalancheSigner.Eth.GetBalance.SendRequestAsync(Account.Address));
+                    Console.WriteLine($"{Account.Address} {Chain.Name}: {LockedPowerTokenBalance} Locked");
+                    AvaxBalance = Web3.Convert.FromWei(await AvalancheSigner.Eth.GetBalance.SendRequestAsync(Account.Address));
 					PQTBalance = Web3.Convert.FromWei(await PQT.BalanceOfQueryAsync(Account.Address));
 					retry = false;
 				}

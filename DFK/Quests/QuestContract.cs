@@ -12,7 +12,7 @@ public class QuestContract : Contract
 	public MaxHeroesPerQuestFunction MaxHeroesPerQuest { get; set; }
 	public delegate int MaxHeroesPerQuestFunction(DFKAccount account);
 	public AvailableAttemptsFunction AvailableAttempts { get; set; }
-	public delegate int AvailableAttemptsFunction(Hero h);
+	public delegate int AvailableAttemptsFunction(Hero h, int? stamina = null);
 	public BlocksPerAttemptFunction BlocksPerAttempt { get; set; }
 	public delegate ulong BlocksPerAttemptFunction(Hero h);
 }

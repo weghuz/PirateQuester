@@ -15,12 +15,24 @@ namespace PirateQuester.Bot
 				new()
 				{
 					Chain = Constants.ChainsList[0],
-					QuestEnabled = Enumerable.Range(0, 25).Select(i => new QuestEnabled() { Enabled = true, QuestId = i, QuestEagerly = eagerQuests.Contains(i) }).ToList()
+					QuestEnabled = Enumerable.Range(0, 25).Select(i => 
+					new QuestEnabled() 
+					{ 
+						Enabled = true, 
+						QuestId = i, 
+						QuestEagerly = eagerQuests.Contains(i)
+					}).ToList()
 				},
 				new ()
 				{
 					Chain = Constants.ChainsList[1],
-					QuestEnabled = Enumerable.Range(0, 23).Select(i => new QuestEnabled() { Enabled = true, QuestId = i, QuestEagerly = eagerQuests.Contains(i) }).ToList()
+					QuestEnabled = Enumerable.Range(0, 23).Select(i => 
+					new QuestEnabled() 
+					{ 
+						Enabled = true, 
+						QuestId = i, 
+						QuestEagerly = eagerQuests.Contains(i) 
+					}).ToList()
 				}
 			};
 		}
@@ -29,10 +41,10 @@ namespace PirateQuester.Bot
 		public int CancelTxnDelay { get; set; } = 60000;
 		public int UpdateInterval { get; set; } = 180;
 		public int MinStamina { get; set; } = 20;
-        public int MaxGasFeeGwei { get; set; } = 200;
-        public int MaxGasFeeGweiKlaytn { get; set; } = 40;
-        public int MaxPriorityFeeGwei { get; set; } = 0;
-        public int MaxPriorityFeeGweiKlaytn { get; set; } = 0;
+        public decimal MaxGasFeeGwei { get; set; } = 200;
+        public decimal MaxGasFeeGweiKlaytn { get; set; } = 40;
+        public decimal MaxPriorityFeeGwei { get; set; } = 0;
+        public decimal MaxPriorityFeeGweiKlaytn { get; set; } = 0;
         public decimal WarnFloorPercentage { get; set; } = 90;
 		public bool LevelUp { get; set; } = true;
 		public bool UseStaminaPotions { get; set; } = true;
