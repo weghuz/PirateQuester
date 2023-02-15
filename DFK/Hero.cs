@@ -39,8 +39,6 @@ public class Hero
 		mainClass = Constants.GetClass(decodedGenes[3]);
 		subClass = Constants.GetClass(decodedGenes[7]);
 		profession = Constants.GetProfession(decodedGenes[11]);
-		statBoost1 = Constants.GetStatBoost(decodedGenes[31]);
-		statBoost2 = Constants.GetStatBoost(decodedGenes[35]);
 	}
 
 	public static byte[] DecodeRecessiveGenes(BigInteger genesBigInt)
@@ -268,10 +266,8 @@ public class Hero
 	public string passive2 { get; set; }
 	public string active1 { get; set; }
 	public string active2 { get; set; }
-	public string statBoost1 { get; set; }
-	public string statBoost1StrDeprecated { get; set; }
-	public string statBoost2 { get; set; }
-	public string statBoost2StrDeprecated { get; set; }
+	public int statBoost1 { get; set; }
+	public int statBoost2 { get; set; }
 	public string statsUnknown1 { get; set; }
 	public string statsUnknown2 { get; set; }
 	public string element { get; set; }

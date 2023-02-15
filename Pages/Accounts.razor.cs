@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
-using PirateQuester.Services;
 using PirateQuester.Utils;
-using System.Timers;
 
 namespace PirateQuester.Pages;
 
@@ -11,12 +9,11 @@ public partial class Accounts
 	AccountManager Acc { get; set; }
 	[Inject]
 	NavigationManager Nav { get; set; }
-	private System.Timers.Timer timer = new(10000);
 	public string Password { get; set; }
 	public static CancellationTokenSource CancelSource { get; set; } = new();
 	public static event Action UpdateAccountsAction;
 	public static bool Initiated { get; set; } = false;
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
 		if (Acc.Accounts.Count == 0)
 		{
