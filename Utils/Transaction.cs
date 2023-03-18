@@ -549,7 +549,7 @@ public static class Transaction
 			{
 				Amount = new BigInteger(10000),
 				Spender = account.Chain.ItemConsumer,
-				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, Nethereum.Util.UnitConversion.EthUnit.Gwei),
+				MaxFeePerGas = Web3.Convert.ToWei(maxGasFeeGwei, EthUnit.Gwei),
 				MaxPriorityFeePerGas = 0
 			};
 			var allowConsumableItemReceipt = await ConsumableItem.ApproveRequestAndWaitForReceiptAsync(approveERC20Function, StopAfterDelay(cancelDelay));

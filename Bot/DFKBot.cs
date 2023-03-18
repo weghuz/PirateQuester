@@ -229,6 +229,7 @@ public class DFKBot
 						List<BigInteger> onSaleHeroIds = new();
 						foreach (DFKBotHero h in Account.BotHeroes.Where(bh => q.Heroes.Any(qh => qh == bh.ID)))
 						{
+							h.StaminaPotionedLast = null;
 							if (h.Hero.salePrice is not null)
 							{
 								onSaleHeroIds.Add(h.ID);
@@ -348,13 +349,19 @@ public class DFKBot
 			var staminaPotionHeroes = Account.BotHeroes.Where(hero =>
 				(hero.UseStaminaPotionsAmount is not null
 				|| hero.StaminaPotionUntilLevel is not null)
-				&& hero.Hero.StaminaCurrent() <= hero.Hero.stamina - 20
+				&& (hero.StaminaPotionedLast != null ? hero.StaminaPotionedLast > DateTime.UtcNow.AddMinutes(-5) : true)
+                && hero.Hero.StaminaCurrent() <= hero.Hero.stamina - 20
 				&& (Settings.ForceStampotOnFullXP ? true : hero.Hero.xp != hero.Hero.XpToLevelUp())
 				&& !activeMeditations.Any(med => med.HeroId.ToString() == hero.Hero.id)).ToList();
 
+			var StaminaPotionHeroesWaiting = Account.BotHeroes.Where(hero => hero.UseStaminaPotionsAmount is not null
+													   || hero.StaminaPotionUntilLevel is not null).ToList();
+
+			Log($"Heroes queued to be potioned: {staminaPotionHeroes.Count} Stamina: {string.Join(", ", StaminaPotionHeroesWaiting.Select((hero) => $"{hero.Hero.StaminaCurrent()}/{hero.Hero.stamina}"))}");
+
 			string staminaPotionAddress = ItemContractDefinitions.InventoryItems.First(item => item.Name == "Stamina Potion").Addresses.First(a => a.Chain.Name == Account.Chain.Name).Address;
 			Log($"Heroes ready to be stamina potioned: {string.Join(", ", staminaPotionHeroes.Select(h => h.ID))}");
-			if (Account.StaminaPotionBalance == 0 && staminaPotionHeroes.Count > 0)
+			if (Account.StaminaPotionBalance == 0 && staminaPotionHeroes.Count() > 0)
 			{
 				Log($"The account is completely out of stamina potions.");
 			}
@@ -381,6 +388,7 @@ public class DFKBot
 								h.Hero.staminaFullAt -= 30000;
 								h.Hero.StaminaPotioned = true;
 								Account.StaminaPotionBalance--;
+								h.StaminaPotionedLast = DateTime.UtcNow;
 								Log(okMessage);
 							}
 							catch (Exception e)
@@ -412,8 +420,8 @@ public class DFKBot
 								var heroSettings = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
 								heroSettings.UseStaminaPotionsAmount = h.UseStaminaPotionsAmount;
 								Account.StaminaPotionBalance -= 1;
-								h.Hero.StaminaPotioned = true;
-								Log(okMessage);
+                                h.StaminaPotionedLast = DateTime.UtcNow;
+                                Log(okMessage);
 							}
 							catch (Exception e)
 							{

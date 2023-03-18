@@ -142,7 +142,8 @@ namespace PirateQuester.Bot
         public LevelUpSetting LevelUpSetting { get; set; } = new();
 		public int? StaminaPotionUntilLevel { get; set; }
 		public int? UseStaminaPotionsAmount { get; set; }
-		public bool? LevelingEnabled { get; set; }
+		public DateTime? StaminaPotionedLast { get; set; }
+        public bool? LevelingEnabled { get; set; }
 		public decimal? BotSalePrice { get; set; }
 		public DFKAccount Account { get; set; }
 		public BigInteger ID { get; set; }

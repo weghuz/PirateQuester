@@ -93,7 +93,7 @@ namespace PirateQuester.Utils
 					}
 				}
 			}
-			
+			var oldHeroes = BotHeroes;
 			BotHeroes = new();
 			foreach (Hero h in Heroes)
 			{
@@ -105,9 +105,17 @@ namespace PirateQuester.Utils
 						Id = Account.Address
 					};
 				}
-
-				BotHeroes.Add(new DFKBotHero(h, Settings));
-			}
+				var newHero = new DFKBotHero(h, Settings);
+                BotHeroes.Add(newHero);
+                if(oldHeroes is not null)
+                {
+                    var oldHero = oldHeroes.FirstOrDefault(old => old.ID == newHero.ID);
+                    if (oldHero is not null)
+                    {
+                        newHero.StaminaPotionedLast = oldHero.StaminaPotionedLast;
+                    }
+                }
+            }
 			try
             {
                 await PricingService.UpdateHeroPrices(new() { this });
