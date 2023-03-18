@@ -359,15 +359,13 @@ public class DFKBot
 			var staminaPotionHeroes = Account.BotHeroes.Where(hero =>
 				(hero.UseStaminaPotionsAmount is not null
 				|| hero.StaminaPotionUntilLevel is not null)
-				&& (hero.StaminaPotionedLast != null ? hero.StaminaPotionedLast > DateTime.UtcNow.AddMinutes(-5) : true)
+				&& (hero.StaminaPotionedLast != null ? hero.StaminaPotionedLast < DateTime.UtcNow.AddMinutes(-5) : true)
                 && hero.Hero.StaminaCurrent() <= hero.Hero.stamina - 20
 				&& (Settings.ForceStampotOnFullXP ? true : hero.Hero.xp != hero.Hero.XpToLevelUp())
 				&& !activeMeditations.Any(med => med.HeroId.ToString() == hero.Hero.id)).ToList();
 
 			var StaminaPotionHeroesWaiting = Account.BotHeroes.Where(hero => hero.UseStaminaPotionsAmount is not null
 													   || hero.StaminaPotionUntilLevel is not null).ToList();
-
-			Log($"Heroes queued to be potioned: {staminaPotionHeroes.Count} Stamina: {string.Join(", ", StaminaPotionHeroesWaiting.Select((hero) => $"{hero.Hero.StaminaCurrent()}/{hero.Hero.stamina}"))}");
 
 			string staminaPotionAddress = ItemContractDefinitions.InventoryItems.First(item => item.Name == "Stamina Potion").Addresses.First(a => a.Chain.Name == Account.Chain.Name).Address;
 			Log($"Heroes ready to be stamina potioned: {string.Join(", ", staminaPotionHeroes.Select(h => h.ID))}");
@@ -387,7 +385,10 @@ public class DFKBot
 						heroSettings.StaminaPotionUntilLevel = h.StaminaPotionUntilLevel;
 						continue;
 					}
-					else if (h.StaminaPotionUntilLevel is not null && Account.StaminaPotionBalance > 0 && h.Hero.StaminaCurrent() <= h.Hero.stamina - 20)
+					else if (h.StaminaPotionUntilLevel is not null 
+						&& h.Hero.level < h.StaminaPotionUntilLevel 
+						&& Account.StaminaPotionBalance > 0 
+						&& h.Hero.StaminaCurrent() <= h.Hero.stamina - 20)
 					{
 						if (h.Hero.level < h.StaminaPotionUntilLevel.Value)
 						{
@@ -409,13 +410,17 @@ public class DFKBot
 							Log($"Hero #{h.ID} reached level {h.Hero.level}, no longer using stamina potions.");
 						}
 					}
-					else if (h.UseStaminaPotionsAmount is not null && h.UseStaminaPotionsAmount <= 0)
+					else if (h.UseStaminaPotionsAmount is not null 
+						&& h.UseStaminaPotionsAmount <= 0)
 					{
 						Log($"Hero #{h.ID} has no stamina potions left.");
 						h.UseStaminaPotionsAmount = null;
 						continue;
 					}
-					else if (h.UseStaminaPotionsAmount is not null && Account.StaminaPotionBalance > 0 && h.Hero.StaminaCurrent() <= h.Hero.stamina - 20)
+					else if (h.UseStaminaPotionsAmount is not null 
+						&& h.UseStaminaPotionsAmount > 0 
+						&& Account.StaminaPotionBalance > 0 
+						&& h.Hero.StaminaCurrent() <= h.Hero.stamina - 20)
 					{
 						if (h.UseStaminaPotionsAmount.Value > 0)
 						{
@@ -461,7 +466,7 @@ public class DFKBot
 				.Where(h => h.BotSalePrice is not null
 					&& h.Hero.salePrice is null
 					&& RunningQuests.Any(rq => rq.Heroes.Contains(h.ID)) is false
-					&& h.Hero.StaminaCurrent() < GetMinStaminaBotHero(h)
+					&& h.Hero.StaminaCurrent(240) < GetMinStaminaBotHero(h)
 					&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
 				.ToList();
 			Log($"There are {heroesToSell.Count} heroes to sell.");
@@ -512,15 +517,96 @@ public class DFKBot
 			Log($"QuestHeroes disabled. Not questing heroes.");
 		}
 		else
-		{
+        {
+			var enabledQuests = Settings.ChainQuestEnabled.Find(cqe => cqe.Chain.Name == Account.Chain.Name).QuestEnabled.Where(q => q.Enabled).ToList();
+
+            List<DFKBotHero> staminaPotHeroes = Account.BotHeroes
+                .Where(h => h.Hero.StaminaCurrent(240) >= 5
+				&& h.Hero.StaminaCurrent(240) <= GetMinStaminaBotHero(h)
+                && RunningQuests.SelectMany(rq => rq.Heroes).Contains(h.ID) is false
+                && h.Hero.salePrice is null
+                && !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id)
+                && (h.StaminaPotionUntilLevel is not null
+                || h.UseStaminaPotionsAmount is not null))
+                .ToList();
+
+            if (Settings.UseStaminaPotions)
+			{
+
+				Log($"{staminaPotHeroes.Count} are in a stamina pot loop. Questing them fast to use stamina.");
+				foreach (QuestContract quest in staminaPotHeroes
+					.Select(r => r.GetActiveQuest())
+					.DistinctBy(q => q.Id)
+					.Where(q => enabledQuests.Select(qe => qe.QuestId).Contains(q.Id)))
+				{
+					var questsOfType = RunningQuests.Where(rq => quest.Address == rq.QuestAddress);
+
+					if (questsOfType.Any(rq => rq.CompleteDateTime >= DateTime.UtcNow.AddHours(4)) && questsOfType.Count() >= 10)
+					{
+						Log("There are too many quests of this kind running to start more.");
+						continue;
+					}
+
+					List<DFKBotHero> readyStaminaQuestHeroes = staminaPotHeroes.Where(h =>
+						h.GetActiveQuestEquals(quest.Id)
+						&& (quest.Category.ToLower() == "training"
+						|| h.Hero.profession == quest.Category.ToLower()))
+							.ToList();
+
+					Log($"Found {readyStaminaQuestHeroes.Count} profession stamina pot loop heroes ready to start {quest.Name}.");
+					for (int i = 0; i <= readyStaminaQuestHeroes.Count; i += quest.MaxHeroesPerQuest(Account))
+					{
+						List<DFKBotHero> heroBatch = readyStaminaQuestHeroes.Skip(i).Take(quest.MaxHeroesPerQuest(Account)).ToList();
+
+						int heroesSetForQuest = Account.BotHeroes.Where(h =>
+							h.GetActiveQuestEquals(quest.Id)
+							&& h.Hero.profession == quest.Category.ToLower()
+							&& (h.Hero.salePrice == null || Settings.CancelUnpricedHeroSales))
+							.Count();
+
+						if (heroBatch is null || heroBatch.Count == 0)
+						{
+							continue;
+						}
+						Log("Stamina pot heroes in loop always quest instantly.");
+						//Order for optimal mining if mining
+						if (quest.Category == "Mining")
+						{
+							heroBatch = heroBatch.OrderByDescending(h => h.Hero.mining + h.Hero.strength + h.Hero.endurance).ToList();
+						}
+
+						int maxAttempts = heroBatch.Select(h => quest.AvailableAttempts(h.Hero, null)).Min();
+
+						try
+						{
+							Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => $"{h.Hero.id}: {h.Hero.GetRarity()} {h.Hero.mainClass} {h.Hero.profession} {h.Hero.StaminaCurrent(240)}/{h.Hero.stamina}"))} with {maxAttempts} attempts.");
+							string okMessage = await Transaction.StartQuest(Account,
+								heroBatch.Select(h => h.ID).ToList(),
+								quest, maxAttempts, Settings, Account.Chain);
+							Log(okMessage);
+						}
+						catch (Exception e)
+						{
+							Log(e.Message);
+						}
+
+						if (StopBot)
+						{
+							return;
+						}
+
+					}
+				}
+			}
+
 			List<DFKBotHero> readyHeroes = Account.BotHeroes
 				.Where(h => h.Hero.StaminaCurrent(240) >= GetMinStaminaBotHero(h)
 				&& RunningQuests.SelectMany(rq => rq.Heroes).Contains(h.ID) is false
 				&& h.Hero.salePrice is null
-				&& !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
+				&& !staminaPotHeroes.Select(stp => stp.ID).Contains(h.ID)
+                && !activeMeditations.Any(med => med.HeroId.ToString() == h.Hero.id))
 				.ToList();
 			Log($"{readyHeroes.Count} heroes ready to quest");
-			var enabledQuests = Settings.ChainQuestEnabled.Find(cqe => cqe.Chain.Name == Account.Chain.Name).QuestEnabled.Where(q => q.Enabled).ToList();
 			foreach (QuestContract quest in readyHeroes
 				.Select(r => r.GetActiveQuest())
 				.DistinctBy(q => q.Id)
@@ -529,8 +615,9 @@ public class DFKBot
 				var questsOfType = RunningQuests.Where(rq => quest.Address == rq.QuestAddress);
 				QuestEnabled questSettings = enabledQuests.FirstOrDefault(qe => qe.QuestId == quest.Id);
 				if (questsOfType.Any(rq => rq.CompleteDateTime >= DateTime.UtcNow.AddHours(4)) && questsOfType.Count() >= 10)
-				{
-					continue;
+                {
+                    Log("There are too many quests of this kind running to start more.");
+                    continue;
 				}
 				List<DFKBotHero> readyQuestHeroes = readyHeroes.Where(h =>
 					h.GetActiveQuestEquals(quest.Id)
