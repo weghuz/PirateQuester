@@ -43,20 +43,15 @@
 				</div>
 				<div class="row">
 					<div class="col-md-6">
-						<label for="UpdateInterval">
-							Download cleared logs
-							<SfCheckBox @bind-Checked=@Bots.Settings.DownloadClearedLogs />
-						</label>
-					</div>
-					<div class="col-md-6">
+						Download cleared logs
+						<SfCheckBox @bind-Checked=@Bots.Settings.DownloadClearedLogs />
 						<label for="UpdateInterval" >
 							Clear logs interval (Seconds) (0 to turn off)<br />
 						</label>
 						<SfNumericTextBox name="UpdateInterval"
 							TValue="int"
 							@bind-Value="@Bots.Settings.ClearLogsInterval"
-							OnChange="@((val) => {Bots.SaveSettings();})"
-								/>
+							OnChange="@((val) => {Bots.SaveSettings();})" />
 					</div>
 					<div class="col-md-6">
 						<label for="UpdateInterval" >
@@ -79,16 +74,6 @@
 					</div>
 					
 					<div class="col-md-6">
-						<label for="MaxGasFee" >
-							MaxGasFee (If your Max Fee is too low txns could get stuck during high traffic times.)
-						</label>
-						<SfNumericTextBox name="MaxGasFee"
-							TValue="int"
-							@bind-Value="@Bots.Settings.MaxGasFeeGwei"
-							OnChange="@((val) => {Bots.SaveSettings();})"/>
-					</div>
-
-					<div class="col-md-6">
 						<label for="CancelTxnDelay" >
 							Cancel transaction delay. (Milliseconds)
 						</label>
@@ -98,7 +83,55 @@
 							@bind-Value="@Bots.Settings.CancelTxnDelay"
 							OnChange="@((val) => {Bots.SaveSettings();})" />
 					</div>
-					<div class="col-md-6 text-center mb-1">
+					
+					<div class="col-md-6 w100-tooltip">
+						<label for="MaxGasFee">
+							Max Gas Fee DFK
+						</label>
+						<SfNumericTextBox name="MaxGasFee"
+										  TValue="decimal"
+										  @bind-Value="@Bots.Settings.MaxGasFeeGwei"
+										  OnChange="@((val) => {Bots.SaveSettings();})" />
+						<SfTooltip ID="tooltip"
+							IsSticky="false"
+							CloseDelay="500"
+							Target="#target"
+							Content="@($"Be careful about setting Priority fee too high, it will quickly drain your gas. Recommended range is between 0 and 1. If your transactions are failing increase priority fees a bit and restart the bot.")">
+						<label for="MaxPriorityFee" id="target">
+							Max Priority Fee DFK
+						</label>
+						<SfNumericTextBox name="MaxPriorityFee"
+										  TValue="decimal"
+										  @bind-Value="@Bots.Settings.MaxPriorityFeeGwei"
+										  OnChange="@((val) => {Bots.SaveSettings();})" />
+						</SfTooltip>
+					</div>
+					<div class="col-md-6 w100-tooltip">
+						<label for="MaxGasFeeKlaytn">
+							Max Gas Fee Klaytn
+						</label>
+						<SfNumericTextBox name="MaxGasFeeKlaytn"
+										  TValue="decimal"
+										  @bind-Value="@Bots.Settings.MaxGasFeeGweiKlaytn"
+										  OnChange="@((val) => {Bots.SaveSettings();})" />
+						<SfTooltip ID="tooltip"
+							IsSticky="false"
+							CloseDelay="500"
+							Target="#target"
+							Content="@($"Be careful about setting Priority fee too high, it will quickly drain your gas. Recommended range is between 0 and 1. If your transactions are failing increase priority fees a bit and restart the bot.")">
+							<label for="MaxPriorityFeeKlaytn" id="target">
+								Max Priority Fee Klaytn
+							</label>
+							<SfNumericTextBox name="MaxPriorityFeeKlaytn"
+											  TValue="decimal"
+											  Min="0"
+											  Max="999"
+											  @bind-Value="@Bots.Settings.MaxPriorityFeeGweiKlaytn"
+											  OnChange="@((val) => {Bots.SaveSettings();})" />
+						</SfTooltip>
+					</div>
+					
+					<div class="col-md-3 text-center mb-1">
 						<label>
 							Enable Hero Selling
 							<SfCheckBox
@@ -106,25 +139,27 @@
 								/>
 						</label>
 					</div>
-					<div class="col-md-6 text-center mb-1">
+					<div class="col-md-3 text-center mb-1">
 						<label>
 							Cancel Unpriced Hero Sales
 							<SfCheckBox @bind-Checked=@Bots.Settings.CancelUnpricedHeroSales />
 						</label>
 					</div>
-					<div class="col-md-6 text-center mb-1">
+					<div class="col-md-3 text-center mb-1">
 						<label>
 							Enable Questing
 							<SfCheckBox @bind-Checked=@Bots.Settings.QuestHeroes />
 						</label>
 					</div>
-					<div class="col-md-6 text-center mb-1">
+					<div class="col-md-3 text-center mb-1">
 						<label>
-							Use Stamina Potions
+							Use Stampots
 							<SfCheckBox @bind-Checked=@Bots.Settings.UseStaminaPotions />
 						</label>
+					</div>
+					<div class="col-md-3 text-center mb-1">
 						<label>
-							Force Stamina Potions On Full XP
+							Force Stampots On Full XP
 							<SfCheckBox @bind-Checked=@Bots.Settings.ForceStampotOnFullXP />
 						</label>
 					</div>
@@ -170,17 +205,39 @@
 															Enabled
 															<SfCheckBox @bind-Checked=@questEnabled.Enabled />
 														</label>
-														<br />
-														<label class="d-inline-block">
-															Quest Eagerly
-															<SfCheckBox @bind-Checked=@questEnabled.QuestEagerly />
+														<SfTooltip ID="tooltip"
+															IsSticky="false"
+															CloseDelay="500"
+															Target="#questEagerlyTooltip"
+															Content="@($"Quest Eagerly means the bot will quest your heroes when one hero reached maximum stamina. Cannot be enabled with Quest Instantly.")">
+															<label class="d-inline-block" id="questEagerlyTooltip">
+																Quest Eagerly
+																<SfCheckBox @bind-Checked=@questEnabled.QuestEagerly />
+															</label>
+														</SfTooltip>
+														<SfTooltip ID="tooltip"
+															IsSticky="false"
+															CloseDelay="500"
+															Target="#questInstantlyTooltip"
+															Content="@($"Quest Instantly means the bot will send your heroes asap when they're above minimum stamina. Cannot be enabled with Quest Eagerly.")">
+															<label class="d-inline-block" id="questInstantlyTooltip">
+															Quest Instantly
+															<SfCheckBox @bind-Checked=@questEnabled.QuestInstantly />
 														</label>
-														<label for="@($"ProfessionEnabled{chain.Name}{quest.Id}")">
-															@($"Min Stamina:")
-														</label>
+														</SfTooltip>
+														<SfTooltip ID="tooltip"
+														   IsSticky="false"
+														   CloseDelay="500"
+														   Target="#capAttemptsTooltip"
+														   Content="@($"Cap attempts means that the bot will never maximize the # of attempts for the current stamina of a hero. It will use the attempts available with the set Minimum Stamina Amount.")">
+															<label class="d-inline-block" id="capAttemptsTooltip">
+																Cap attempts
+																<SfCheckBox @bind-Checked=@questEnabled.CapAttempts />
+															</label>
+														</SfTooltip>
 														<SfNumericTextBox name="@($"MinStam{chain.Name}{quest.Id}")"
 															TValue="int?"
-															Placeholder="@(Bots.Settings.MinStamina.ToString())"
+															Placeholder="@($"Min Stam: {Bots.Settings.MinStamina.ToString()}")"
 														@bind-Value="@questEnabled.MinStamina" />
 													</div>
 												}
@@ -200,21 +257,45 @@
 															Enabled
 															<SfCheckBox @bind-Checked=@TQ.Enabled />
 														</label>
-														<label class="d-inline-block">
-															Quest Eagerly
-															<SfCheckBox @bind-Checked=@TQ.QuestEagerly />
-														</label>
-														<label for="@($"ProfessionEnabled{chain.Name}{Bots.Settings.MinTrainingStats.IndexOf(stat)}")">
-															@($"Min Stamina:")
-														</label>
+														
+														<SfTooltip ID="tooltip"
+														   IsSticky="false"
+														   CloseDelay="500"
+														   Target="#questEagerlyTooltip"
+														   Content="@($"Quest Eagerly means the bot will quest your heroes when one hero reached maximum stamina. Cannot be enabled with Quest Instantly.")">
+															<label class="d-inline-block" id="questEagerlyTooltip">
+																Quest Eagerly
+																<SfCheckBox @bind-Checked=@TQ.QuestEagerly />
+															</label>
+														</SfTooltip>
 
+														<SfTooltip ID="tooltip"
+														   IsSticky="false"
+														   CloseDelay="500"
+														   Target="#questInstantlyTooltip"
+														   Content="@($"Quest Instantly means the bot will send your heroes asap when they're above minimum stamina. Cannot be enabled with Quest Eagerly.")">
+															<label class="d-inline-block" id="questInstantlyTooltip">
+																Quest Instantly
+																<SfCheckBox @bind-Checked=@TQ.QuestInstantly />
+															</label>
+														</SfTooltip>
+														<SfTooltip ID="tooltip"
+															IsSticky="false"
+															CloseDelay="500"
+															Target="#capAttemptsTooltip"
+															Content="@($"Cap attempts means that the bot will never maximize the # of attempts for the current stamina of a hero. It will use the attempts available with the set Minimum Stamina Amount.")">
+															<label class="d-inline-block" id="capAttemptsTooltip">
+																Cap attempts
+																<SfCheckBox @bind-Checked=@TQ.CapAttempts />
+															</label>
+														</SfTooltip>
 														<SfNumericTextBox name="@($"MinStam{chain.Name}{Bots.Settings.MinTrainingStats.IndexOf(stat)}")"
 															TValue="int?"
 															@bind-Value="@TQ.MinStamina"
-															Placeholder="@(Bots.Settings.MinStamina.ToString())" />
+															Placeholder="@($"Min Stam: {Bots.Settings.MinStamina.ToString()}")" />
 														<br>
 														<label for="@($"Training{stat.Id}")">
-															@($"Min Value")
+															@($"Min Stat To Train")
 														</label>
 														<SfNumericTextBox Name="@($"Training{stat.Id}")" @bind-Value=@stat.Amount />
 													</div>
@@ -237,16 +318,9 @@
 						@if(Bots.Settings.LevelUp)
 						{
 							<div class="row">
-								@foreach (string mainClass in Constants.Classes)
-								{
-									var valueAttribute = Bots.Settings.LevelUpSettings.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower());
-							
-									if(valueAttribute is null)
-									{
-										valueAttribute = Bots.Settings.SuggestedLevelUpSettings.FirstOrDefault(setting => setting.HeroClass == mainClass.ToLower());
-									}
-									
-									<h6 class="text-center">@(mainClass) Levelup settings</h6>
+								@foreach (LevelUpSetting levelSetting in Bots.Settings.LevelUpSettings)
+								{									
+									<h6 class="text-center">@(levelSetting.HeroClass) Levelup settings</h6>
 									<div class="col-md-4">
 										<SfCard CssClass="m-2">
 											<CardHeader>
@@ -256,7 +330,7 @@
 												<SfDropDownList TItem="DFKStat"
 													TValue="byte"
 													DataSource="@Constants.DFKStats"
-													@bind-value="valueAttribute.MainAttribute.Id">
+													@bind-value="levelSetting.MainAttribute.Id">
 													<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
 												</SfDropDownList>
 											</CardContent>
@@ -271,7 +345,7 @@
 												<SfDropDownList TItem="DFKStat"
 													TValue="byte"
 													DataSource="@Constants.DFKStats"
-													@bind-Value=@valueAttribute.SecondaryAttribute.Id>
+														@bind-value="levelSetting.SecondaryAttribute.Id">
 													<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
 												</SfDropDownList>
 											</CardContent>
@@ -286,7 +360,7 @@
 												<SfDropDownList TItem="DFKStat"
 													TValue="byte"
 													DataSource="@Constants.DFKStats"
-													@bind-Value=@valueAttribute.TertiaryAttribute.Id>
+													@bind-value="levelSetting.TertiaryAttribute.Id">
 													<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
 												</SfDropDownList>
 											</CardContent>

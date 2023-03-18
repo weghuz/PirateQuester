@@ -34,7 +34,6 @@ namespace PirateQuester.Components
 		public string ErrorMessage { get; set; }
 		public decimal PQTPrice { get; set; }
 		public int BuyAmount { get; set; } = 1;
-		public AccountUpdaterService AccountUpdater { get; set; }
 		protected override async void OnInitialized()
 		{
 			PQTPrice = Math.Round(Web3.Convert.FromWei(await Accounts[0].PQT.PriceQueryAsync()), 2);
@@ -102,7 +101,7 @@ namespace PirateQuester.Components
 		{
 			ErrorMessage = null;
 			IsBuying = true;
-			string response = await Transaction.BuyPirateQuesterToken(Accounts[0], BuyAmount, Bots.Settings.MaxGasFeeGwei, Bots.Settings.CancelTxnDelay);
+			string response = await Transaction.BuyPirateQuesterToken(Accounts[0], BuyAmount, Bots.Settings);
 			IsBuying = false;
 			if (response.Contains("failed"))
 			{

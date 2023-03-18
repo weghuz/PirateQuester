@@ -245,6 +245,7 @@
 			DataSource="@TableHeroes"
 			ID="ControlCenterHeroGrid"
 			EnablePersistence="true"
+            EnableStickyHeader="true"
 			AllowTextWrap="true"
 			AllowSelection="true"
 			AllowFiltering="true"
@@ -254,7 +255,8 @@
 			AllowReordering="true"
 			AllowMultiSorting="true"
 			Height="650px">
-			<GridSelectionSettings EnableSimpleMultiRowSelection="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple" AllowDragSelection="true" ></GridSelectionSettings>
+			<GridSelectionSettings EnableSimpleMultiRowSelection="true"
+				Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
 			<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
 			<GridPageSettings PageSizes="@(new string[] { "5", "10", "15", "20", "50", "All" })" PageSize="@PageSize"></GridPageSettings>
 			<GridColumns>
@@ -450,8 +452,26 @@
 				<GridColumn Field="Hero.gardening" HeaderText="Gardening" Width="130"></GridColumn>
 				<GridColumn Field="Hero.foraging" HeaderText="Foraging" Width="120"></GridColumn>
 				<GridColumn Field="Hero.fishing" HeaderText="Fishing" Width="120"></GridColumn>
-				<GridColumn Field="Hero.statBoost1" HeaderText="SB1" Width="90"></GridColumn>
-				<GridColumn Field="Hero.statBoost2" HeaderText="SB2" Width="90"></GridColumn>
+				<GridColumn Field="Hero.statBoost1" HeaderText="SB1" Width="90">
+					<Template>
+						<div>
+							@{
+								var hero = context as DFKBotHero;
+								@Constants.GetStatBoost(hero.Hero.statBoost1)
+							}
+						</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="Hero.statBoost2" HeaderText="SB2" Width="90">
+					<Template>
+						<div>
+							@{
+								var hero = context as DFKBotHero;
+								@Constants.GetStatBoost(hero.Hero.statBoost2)
+							}
+						</div>
+					</Template>
+				</GridColumn>
 				<GridColumn Field="Hero.strength" HeaderText="STR" Width="90"></GridColumn>
 				<GridColumn Field="Hero.dexterity" HeaderText="DEX" Width="90"></GridColumn>
 				<GridColumn Field="Hero.agility" HeaderText="AGI" Width="90"></GridColumn>

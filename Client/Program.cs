@@ -25,7 +25,6 @@ namespace PirateQuester
 			builder.Services.AddSingleton<DFKBot>();
 			builder.Services.AddSingleton<BotService>();
 			builder.Services.AddSingleton<AccountSettings>();
-			builder.Services.AddSingleton<AccountUpdaterService>();
             builder.Services.AddSingleton<HeroPricingService>();
             //use static files
 

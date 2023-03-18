@@ -59,6 +59,11 @@ namespace PirateQuester.Services
 					Settings.ForceStampotOnFullXP = settings.ForceStampotOnFullXP;
 					Settings.ClearLogsInterval = settings.ClearLogsInterval;
 					Settings.DownloadClearedLogs = settings.DownloadClearedLogs;
+					Settings.SellHeroes = settings.SellHeroes;
+					Settings.CancelUnpricedHeroSales = settings.CancelUnpricedHeroSales;
+					Settings.MaxGasFeeGweiKlaytn = settings.MaxGasFeeGweiKlaytn;
+					Settings.MaxPriorityFeeGwei = settings.MaxPriorityFeeGwei;
+					Settings.MaxPriorityFeeGweiKlaytn = settings.MaxPriorityFeeGweiKlaytn;
 				}
 				catch (Exception e)
 				{
@@ -71,6 +76,12 @@ namespace PirateQuester.Services
 		public void SaveSettings()
 		{
 			DFKBotSettingsDTO dto = new();
+
+			dto.MaxGasFeeGweiKlaytn = Settings.MaxGasFeeGweiKlaytn;
+			dto.MaxPriorityFeeGweiKlaytn = Settings.MaxPriorityFeeGweiKlaytn;
+			dto.MaxPriorityFeeGwei = Settings.MaxPriorityFeeGwei;
+			dto.CancelUnpricedHeroSales = Settings.CancelUnpricedHeroSales;
+			dto.SellHeroes = Settings.SellHeroes;
 			dto.ClearLogsInterval = Settings.ClearLogsInterval;
 			dto.DownloadClearedLogs = Settings.DownloadClearedLogs;
 			dto.CancelTxnDelay = Settings.CancelTxnDelay;

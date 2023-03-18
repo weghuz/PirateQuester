@@ -6,7 +6,7 @@ namespace PirateQuester.Utils
     {
         public static string DARK_THEME { get; } = "css/fabric-dark.css";
         public static string THEME { get; } = "css/fabric.css";
-        public static string VERSION { get; } = "2.1.0";
+        public static string VERSION { get; } = "2.1.4";
         public static string PQT_ADDRESS { get; } = "0xAC2b4Ffe04AB34e43e780Dad5C8DEac47B7db775";
         public static List<Chain.Chain> ChainsList { get; } = new()
         {
@@ -78,7 +78,7 @@ namespace PirateQuester.Utils
             "Bard",
             "Dragoon",
             "Sage",
-            "Spellbow",
+            "SpellBow",
             "DreadKnight"
         };
         public static string GetClass(int id) => id switch
@@ -103,7 +103,7 @@ namespace PirateQuester.Utils
             21 => "Bard",
             24 => "Dragoon",
             25 => "Sage",
-            26 => "Spellbow",
+            26 => "SpellBow",
             28 => "DreadKnight",
             _ => "Warrior"
         };
@@ -129,7 +129,7 @@ namespace PirateQuester.Utils
             "Bard" => 21,
             "Dragoon" => 24,
             "Sage" => 25,
-            "Spellbow" => 26,
+            "SpellBow" => 26,
             "DreadKnight" => 28,
             _ => 0
         };

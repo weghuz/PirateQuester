@@ -241,7 +241,7 @@ public class DFKBot
 							continue;
 						}
 						Log($"Quest #{q.Id} {q.QuestName} with heroes {string.Join(", ", Account.BotHeroes.Where(bh => q.Heroes.Any(qh => qh == bh.ID)).Select(hero => $"{hero.Hero.id} {hero.Hero.GetRarity()} {hero.Hero.mainClass} {hero.Hero.profession}"))} is ready to complete, completing...");
-						string okMessage = await Transaction.CompleteQuest(Account, q.Heroes.First(), Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+						string okMessage = await Transaction.CompleteQuest(Account, q.Heroes.First(), Settings, Account.Chain);
 
 						Log(okMessage);
 					}
@@ -251,12 +251,12 @@ public class DFKBot
 					}
 				}
 				await Task.Delay(1);
+				
+				if (StopBot)
+				{
+					return;
+				}
 			}
-		}
-
-		if (StopBot)
-		{
-			return;
 		}
 
 		List<Meditation> activeMeditations = (await Account.Meditation.GetActiveMeditationsQueryAsync(Account.Account.Address)).ReturnValue1;
@@ -285,7 +285,7 @@ public class DFKBot
 					Log($"Hero {hero.ID} is ready to complete meditating.\nCompleting Meditation...");
 					try
 					{
-						string okMessage = await Transaction.CompleteMeditation(Account, hero.ID, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+						string okMessage = await Transaction.CompleteMeditation(Account, hero.ID, Settings, Account.Chain);
 						Log($"Hero {hero.ID} {hero.Hero.GetRarity()} {hero.Hero.mainClass} {hero.Hero.profession} Leveled up from {hero.Hero.level} to {hero.Hero.level + 1}!\nUsing these settings:\nMain(+1):{hero.LevelUpSetting.MainAttribute?.Name ?? setting.MainAttribute.Name}\nSecondary(50%+1):{hero.LevelUpSetting.SecondaryAttribute?.Name ?? setting.SecondaryAttribute.Name}\nTertiary(50%+1):{hero.LevelUpSetting.TertiaryAttribute?.Name ?? setting.TertiaryAttribute.Name}!");
 
 						hero.Hero.staminaFullAt = (long)Functions.UnixTime();
@@ -300,6 +300,11 @@ public class DFKBot
 					catch (Exception e)
 					{
 						Log(e.Message);
+					}
+					
+					if (StopBot)
+					{
+						return;
 					}
 				}
 			}
@@ -316,7 +321,7 @@ public class DFKBot
 				}
 				try
 				{
-					string okMessage = await Transaction.StartMeditation(Account, h.ID, h.LevelUpSetting.MainAttribute?.Id ?? setting.MainAttribute.Id, h.LevelUpSetting.SecondaryAttribute?.Id ?? setting.SecondaryAttribute.Id, h.LevelUpSetting.TertiaryAttribute?.Id ?? setting.TertiaryAttribute.Id, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+					string okMessage = await Transaction.StartMeditation(Account, h.ID, h.LevelUpSetting.MainAttribute?.Id ?? setting.MainAttribute.Id, h.LevelUpSetting.SecondaryAttribute?.Id ?? setting.SecondaryAttribute.Id, h.LevelUpSetting.TertiaryAttribute?.Id ?? setting.TertiaryAttribute.Id, Settings, Account.Chain);
 					Log($"Hero {h.Hero.GetRarity()} {h.Hero.mainClass} {h.Hero.profession} started meditating with Stat settings: \nMain(+1):{h.LevelUpSetting.MainAttribute?.Name ?? setting.MainAttribute.Name}\nSecondary(50%+1):{h.LevelUpSetting.SecondaryAttribute?.Name ?? setting.SecondaryAttribute.Name}\nTertiary(50%+1):{h.LevelUpSetting.TertiaryAttribute?.Name ?? setting.TertiaryAttribute.Name}!");
 
 					Log(okMessage);
@@ -328,6 +333,11 @@ public class DFKBot
 					{
 						break;
 					}
+				}
+				
+				if (StopBot)
+				{
+					return;
 				}
 			}
 			await Task.Delay(1);
@@ -377,16 +387,14 @@ public class DFKBot
 						heroSettings.StaminaPotionUntilLevel = h.StaminaPotionUntilLevel;
 						continue;
 					}
-					else if (h.StaminaPotionUntilLevel is not null && Account.StaminaPotionBalance > 0 && h.Hero.StaminaCurrent() <= 5)
+					else if (h.StaminaPotionUntilLevel is not null && Account.StaminaPotionBalance > 0 && h.Hero.StaminaCurrent() <= h.Hero.stamina - 20)
 					{
 						if (h.Hero.level < h.StaminaPotionUntilLevel.Value)
 						{
 							Log($"Hero #{h.ID} is level {h.Hero.level} XP: {h.Hero.xp}/{h.Hero.XpToLevelUp()}, need to reach level {h.StaminaPotionUntilLevel} to stop using stamina potions. Hero is at {h.Hero.StaminaCurrent()} stamina, using Potion...");
 							try
 							{
-								string okMessage = await Transaction.UseComsumableItem(Account, h.ID, staminaPotionAddress, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
-								h.Hero.staminaFullAt -= 30000;
-								h.Hero.StaminaPotioned = true;
+								string okMessage = await Transaction.UseComsumableItem(Account, h.ID, staminaPotionAddress, Settings, Account.Chain);
 								Account.StaminaPotionBalance--;
 								h.StaminaPotionedLast = DateTime.UtcNow;
 								Log(okMessage);
@@ -401,21 +409,20 @@ public class DFKBot
 							Log($"Hero #{h.ID} reached level {h.Hero.level}, no longer using stamina potions.");
 						}
 					}
-					if (h.UseStaminaPotionsAmount is not null && h.UseStaminaPotionsAmount <= 0)
+					else if (h.UseStaminaPotionsAmount is not null && h.UseStaminaPotionsAmount <= 0)
 					{
 						Log($"Hero #{h.ID} has no stamina potions left.");
 						h.UseStaminaPotionsAmount = null;
 						continue;
 					}
-					else if (h.UseStaminaPotionsAmount is not null && Account.StaminaPotionBalance > 0 && h.Hero.StaminaCurrent() <= 5)
+					else if (h.UseStaminaPotionsAmount is not null && Account.StaminaPotionBalance > 0 && h.Hero.StaminaCurrent() <= h.Hero.stamina - 20)
 					{
 						if (h.UseStaminaPotionsAmount.Value > 0)
 						{
 							Log($"Hero #{h.ID} {h.Hero.GetRarity()} {h.Hero.mainClass} {h.Hero.profession} is level {h.Hero.level} XP: {h.Hero.xp}/{h.Hero.XpToLevelUp()} has {h.UseStaminaPotionsAmount} stamina potions left to use. Hero is at {h.Hero.StaminaCurrent()} stamina, using Potion...");
 							try
 							{
-								string okMessage = await Transaction.UseComsumableItem(Account, h.ID, staminaPotionAddress, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
-								h.Hero.staminaFullAt -= 30000;
+								string okMessage = await Transaction.UseComsumableItem(Account, h.ID, staminaPotionAddress, Settings, Account.Chain);
 								h.UseStaminaPotionsAmount--;
 								var heroSettings = Bots.Settings.HeroQuestSettings.FirstOrDefault(hqs => hqs.HeroId == h.ID.ToString());
 								heroSettings.UseStaminaPotionsAmount = h.UseStaminaPotionsAmount;
@@ -432,6 +439,11 @@ public class DFKBot
 						{
 							Log($"Used all stamina potions for hero #{h.ID}.");
 						}
+					}
+					
+					if (StopBot)
+					{
+						return;
 					}
 				}
 			}
@@ -458,7 +470,7 @@ public class DFKBot
 				Log($"Selling hero #{h.ID} for {h.BotSalePrice} {(Account.Chain.Name == "DFK" ? "Crystal" : "Jade")}...");
 				try
 				{
-					string okMessage = await Transaction.StartAuction(Account, h.ID, h.BotSalePrice.Value, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+					string okMessage = await Transaction.StartAuction(Account, h.ID, h.BotSalePrice.Value, Settings, Account.Chain);
 					h.Hero.salePrice = h.BotSalePrice.Value.ToString();
 					Log(okMessage);
 				}
@@ -479,7 +491,7 @@ public class DFKBot
 				Log($"Cancelling auction for hero #{h.ID}...");
 				try
 				{
-					string okMessage = await Transaction.CancelAuction(Account, h.ID, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+					string okMessage = await Transaction.CancelAuction(Account, h.ID, Settings, Account.Chain);
 					h.Hero.salePrice = null;
 					Log(okMessage);
 				}
@@ -516,43 +528,44 @@ public class DFKBot
 			{
 				var questsOfType = RunningQuests.Where(rq => quest.Address == rq.QuestAddress);
 				QuestEnabled questSettings = enabledQuests.FirstOrDefault(qe => qe.QuestId == quest.Id);
-				if (questsOfType.Any(rq => rq.CompleteDateTime >= DateTime.UtcNow.AddHours(12)) || questsOfType.Count() >= 10)
+				if (questsOfType.Any(rq => rq.CompleteDateTime >= DateTime.UtcNow.AddHours(4)) && questsOfType.Count() >= 10)
 				{
 					continue;
 				}
-				List<Hero> readyQuestHeroes = readyHeroes.Where(h =>
-					h.GetActiveQuest().Id == quest.Id
+				List<DFKBotHero> readyQuestHeroes = readyHeroes.Where(h =>
+					h.GetActiveQuestEquals(quest.Id)
 					&& (quest.Category.ToLower() == "training"
 					|| h.Hero.profession == quest.Category.ToLower()))
-						.Select(h => h.Hero).ToList();
-				List<Hero> readyQuestUnalignedHeroes = readyHeroes.Where(h =>
-					h.GetActiveQuest().Id == quest.Id
+						.ToList();
+				
+				List<DFKBotHero> readyQuestUnalignedHeroes = readyHeroes.Where(h =>
+					h.GetActiveQuestEquals(quest.Id)
 					&& h.Hero.profession != quest.Category.ToLower()
 					&& quest.Category.ToLower() != "training")
-						.Select(h => h.Hero).ToList();
+						.ToList();
 
 				Log($"Found {readyQuestHeroes.Count} profession aligned heroes ready to start {quest.Name}.");
 				for (int i = 0; i <= readyQuestHeroes.Count; i += quest.MaxHeroesPerQuest(Account))
 				{
-					List<Hero> heroBatch = readyQuestHeroes.Skip(i).Take(quest.MaxHeroesPerQuest(Account)).ToList();
+					List<DFKBotHero> heroBatch = readyQuestHeroes.Skip(i).Take(quest.MaxHeroesPerQuest(Account)).ToList();
 
 					int heroesSetForQuest = Account.BotHeroes.Where(h =>
-						h.GetActiveQuest().Id == quest.Id
+						h.GetActiveQuestEquals(quest.Id)
 						&& h.Hero.profession == quest.Category.ToLower()
 						&& (h.Hero.salePrice == null || Settings.CancelUnpricedHeroSales))
 						.Count();
 
 					if (heroBatch.Count < quest.MaxHeroesPerQuest(Account) && heroBatch.Count < heroesSetForQuest)
 					{
-						if (enabledQuests.FirstOrDefault(qe => qe.QuestId == quest.Id).QuestEagerly is false)
+						if (questSettings.QuestEagerly is false && questSettings.QuestInstantly is false)
 						{
 							Log($"Not enough heroes to start {quest.Name}. {heroBatch.Count} heroes {(heroBatch.Count == 1 ? "is" : "are")} ready, {quest.MaxHeroesPerQuest(Account)} are needed.");
 							continue;
 						}
-						else
+						else if(questSettings.QuestInstantly is false)
 						{
 							List<Hero> heroesCatchingUp = Account.BotHeroes.Where(h =>
-								h.GetActiveQuest().Id == quest.Id
+								h.GetActiveQuestEquals(quest.Id)
 								&& h.Hero.StaminaCurrent(240) > GetMinStaminaBotHero(h) - 5
 								&& h.Hero.StaminaCurrent(240) < GetMinStaminaBotHero(h)
 								&& RunningQuests.SelectMany(rq => rq.Heroes).Contains(h.ID) is false
@@ -561,17 +574,29 @@ public class DFKBot
 								.ToList();
 							if (heroesCatchingUp.Count > 0)
 							{
-								Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.id))} to make a full squad for {quest.Name}.");
-								var checkBatch = heroBatch.Where(h => h.StaminaCurrent(240) == h.stamina || h.StaminaPotioned).ToList();
+								Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.ID))} to make a full squad for {quest.Name}.");
+								var checkBatch = heroBatch.Where(h => h.Hero.StaminaCurrent(240) == h.Hero.stamina || CheckStaminaPotioned(h)).ToList();
 								if (checkBatch.Count > 0)
 								{
-									Log($"{string.Join(", ", heroBatch.Select(h => h.id))} are so energetic they don't care.");
+									if (checkBatch.Any(CheckStaminaPotioned))
+									{
+										var staminaPotionedHeroes = checkBatch.Where(CheckStaminaPotioned).ToList();
+										Log($"{string.Join(", ", staminaPotionedHeroes.Select(h => h.ID))} are stamina potioned recently, questing immediately. Questing batch of heroes {string.Join(", ", checkBatch.Select(h => h.ID))}");
+									}
+									else
+									{
+										Log($"{string.Join(", ", heroBatch.Select(h => h.ID))} are so energetic they don't care.");
+									}
 								}
 								else
 								{
 									continue;
 								}
 							}
+						}
+						if(questSettings.QuestInstantly)
+						{
+							Log($"Quest Instantly is enabled. Questing heroes");
 						}
 					}
 					if (heroBatch is null || heroBatch.Count == 0)
@@ -582,11 +607,15 @@ public class DFKBot
 					//Order for optimal mining if mining
 					if (quest.Category == "Mining")
 					{
-						heroBatch = heroBatch.OrderByDescending(h => h.mining + h.strength + h.endurance).ToList();
+						heroBatch = heroBatch.OrderByDescending(h => h.Hero.mining + h.Hero.strength + h.Hero.endurance).ToList();
 					}
+					
+					int maxAttempts = heroBatch.Select(h => quest.AvailableAttempts(h.Hero, questSettings.CapAttempts ? GetMinStaminaBotHero(h) : null)).Min();
 
-					int maxAttempts = heroBatch.Select(h => quest.AvailableAttempts(h)).Min();
-
+					if (questSettings.CapAttempts)
+					{
+						Log($"Cap attempts is enabled. Using {maxAttempts} for {quest.Name} from minimum stamina {GetMinStaminaBotHero(heroBatch.First())}");
+					}
 					if (maxAttempts == 0)
 					{
 						Log("Available attempts too low.");
@@ -594,40 +623,44 @@ public class DFKBot
 					}
 					try
 					{
-						Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => $"{h.id}: {h.GetRarity()} {h.mainClass} {h.profession} {h.StaminaCurrent(240)}/{h.stamina}"))} with {maxAttempts} attempts.");
+						Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => $"{h.Hero.id}: {h.Hero.GetRarity()} {h.Hero.mainClass} {h.Hero.profession} {h.Hero.StaminaCurrent(240)}/{h.Hero.stamina}"))} with {maxAttempts} attempts.");
 						string okMessage = await Transaction.StartQuest(Account,
-							heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
-							quest, maxAttempts, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+							heroBatch.Select(h => h.ID).ToList(),
+							quest, maxAttempts, Settings, Account.Chain);
 						Log(okMessage);
 					}
 					catch (Exception e)
 					{
 						Log(e.Message);
 					}
+
+					if (StopBot)
+					{
+						return;
+					}
 				}
 
 				Log($"Found {readyQuestUnalignedHeroes.Count} profession unaligned heroes ready to start {quest.Name}.");
 				for (int i = 0; i <= readyQuestUnalignedHeroes.Count; i += quest.MaxHeroesPerQuest(Account))
 				{
-					List<Hero> heroBatch = readyQuestUnalignedHeroes.Skip(i).Take(quest.MaxHeroesPerQuest(Account)).ToList();
+					List<DFKBotHero> heroBatch = readyQuestUnalignedHeroes.Skip(i).Take(quest.MaxHeroesPerQuest(Account)).ToList();
 
 					int heroesSetForQuest = Account.BotHeroes.Where(h =>
-						h.GetActiveQuest().Id == quest.Id
+						h.GetActiveQuestEquals(quest.Id)
 						&& h.Hero.profession != quest.Category.ToLower()
 						&& (h.Hero.salePrice == null || Settings.CancelUnpricedHeroSales))
 						.Count();
 
 					if (heroBatch.Count < quest.MaxHeroesPerQuest(Account) && heroBatch.Count < heroesSetForQuest)
 					{
-						if (enabledQuests.FirstOrDefault(qe => qe.QuestId == quest.Id).QuestEagerly is false)
+						if (questSettings.QuestEagerly is false && questSettings.QuestInstantly is false)
 						{
-							Log($"Not enough heroes to start {quest.Name}. {heroBatch.Count} heroes {(heroBatch.Count == 1 ? "is" : "are")} ready, {quest.MaxHeroesPerQuest(Account)} are needed.");
 							continue;
 						}
-						else
+						else if (questSettings.QuestInstantly is false)
 						{
 							List<Hero> heroesCatchingUp = Account.BotHeroes.Where(h =>
-								h.GetActiveQuest().Id == quest.Id
+								h.GetActiveQuestEquals(quest.Id)
 								&& h.Hero.profession != quest.Category.ToLower()
 								&& h.Hero.StaminaCurrent(240) > GetMinStaminaBotHero(h) - 5
 								&& h.Hero.StaminaCurrent(240) < GetMinStaminaBotHero(h)
@@ -636,11 +669,19 @@ public class DFKBot
 								.ToList();
 							if (heroesCatchingUp.Count > 0)
 							{
-								Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.id))} to make a full squad for {quest.Name}.");
-								var checkBatch = heroBatch.Where(h => h.StaminaCurrent(240) == h.stamina || h.StaminaPotioned).ToList();
+								Log($"Heroes are catching up to {string.Join(", ", heroBatch.Select(h => h.ID))} to make a full squad for {quest.Name}.");
+								var checkBatch = heroBatch.Where(h => h.Hero.StaminaCurrent(240) == h.Hero.stamina || CheckStaminaPotioned(h)).ToList();
 								if (checkBatch.Count > 0)
 								{
-									Log($"{string.Join(", ", heroBatch.Select(h => h.id))} are so energetic they don't care.");
+									if (checkBatch.Any(CheckStaminaPotioned))
+									{
+										var staminaPotionedHeroes = checkBatch.Where(CheckStaminaPotioned).ToList();
+										Log($"{string.Join(", ", staminaPotionedHeroes.Select(h => h.ID))} are stamina potioned recently, questing immediately. Questing batch of heroes {string.Join(", ", checkBatch.Select(h => h.ID))}");
+									}
+									else
+									{
+										Log($"{string.Join(", ", heroBatch.Select(h => h.ID))} are so energetic they don't care.");
+									}
 								}
 								else
 								{
@@ -657,11 +698,12 @@ public class DFKBot
 					//Order for optimal mining if mining
 					if (quest.Category == "Mining")
 					{
-						heroBatch = heroBatch.OrderByDescending(h => h.mining + h.strength + h.endurance).ToList();
+						heroBatch = heroBatch.OrderByDescending(h => h.Hero.mining + h.Hero.strength + h.Hero.endurance).ToList();
 					}
 
-					int maxAttempts = heroBatch.Select(h => quest.AvailableAttempts(h)).Min();
-
+					int maxAttempts = heroBatch.Select(h => quest.AvailableAttempts(h.Hero, 
+						questSettings.CapAttempts ? GetMinStaminaBotHero(h) : null)).Min();
+					
 					if (maxAttempts == 0)
 					{
 						Log("Available attempts too low.");
@@ -669,15 +711,20 @@ public class DFKBot
 					}
 					try
 					{
-						Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => $"{h.id}: {h.GetRarity()} {h.mainClass} {h.profession} {h.StaminaCurrent(240)}/{h.stamina}"))} with {maxAttempts} attempts.");
+						Log($"Starting {quest.Name} for {string.Join(", ", heroBatch.Select(h => $"{h.ID}: {h.Hero.GetRarity()} {h.Hero.mainClass} {h.Hero.profession} {h.Hero.StaminaCurrent(240)}/{h.Hero.stamina}"))} with {maxAttempts} attempts.");
 						string okMessage = await Transaction.StartQuest(Account,
-							heroBatch.Select(h => new BigInteger(long.Parse(h.id))).ToList(),
-							quest, maxAttempts, Settings.MaxGasFeeGwei, Settings.CancelTxnDelay);
+							heroBatch.Select(h => h.ID).ToList(),
+							quest, maxAttempts, Settings, Account.Chain);
 						Log(okMessage);
 					}
 					catch (Exception e)
 					{
 						Log(e.Message);
+					}
+
+					if (StopBot)
+					{
+						return;
 					}
 				}
 			}
@@ -687,4 +734,8 @@ public class DFKBot
 		Log($"Iteration complete");
 	}
 
+	private bool CheckStaminaPotioned(DFKBotHero h)
+	{
+		return (h.StaminaPotionUntilLevel.HasValue || h.UseStaminaPotionsAmount.HasValue) && h.Hero.StaminaCurrent() > h.Hero.stamina - 20;
+	}
 }
