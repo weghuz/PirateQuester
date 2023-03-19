@@ -121,8 +121,9 @@ namespace PirateQuester.Utils
                 await PricingService.UpdateHeroPrices(new() { this });
             }
 			catch(Exception e)
-			{
-				Console.WriteLine("Couldn't price heroes.");
+            {
+                Console.WriteLine($"Error: {e.Message}");
+                Console.WriteLine("Couldn't price heroes.");
 			}
             UpdatedAccount?.Invoke();
 		}

@@ -111,7 +111,7 @@ namespace PirateQuester.Bot
 					}
 					catch(Exception e)
 					{
-
+						Console.WriteLine($"Error: {e.Message}");
 					}
 				}
 				for (int i = 0; i < 8; ++i)

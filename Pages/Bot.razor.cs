@@ -16,7 +16,7 @@ public partial class Bot
 	[Inject]
 	IJSInProcessRuntime JS { get; set; }
 	public List<DFKAccount> AccountsMissingPQT { get; set; }
-	public static bool ShowDFKQuests { get; set; }
+	public static bool ShowDFKQuests { get; set; } = true;
 
 	protected override void OnInitialized()
 	{
