@@ -541,7 +541,7 @@ public class DFKBot
 				{
 					var questsOfType = RunningQuests.Where(rq => quest.Address == rq.QuestAddress);
 
-					if (questsOfType.Any(rq => rq.CompleteDateTime >= DateTime.UtcNow.AddHours(4)) && questsOfType.Count() >= 10)
+					if (questsOfType.Any(rq => rq.CompleteDateTime >= DateTime.UtcNow.AddHours(4)) || questsOfType.Count() >= 5)
 					{
 						Log("There are too many quests of this kind running to start more.");
 						continue;
@@ -614,7 +614,7 @@ public class DFKBot
 			{
 				var questsOfType = RunningQuests.Where(rq => quest.Address == rq.QuestAddress);
 				QuestEnabled questSettings = enabledQuests.FirstOrDefault(qe => qe.QuestId == quest.Id);
-				if (questsOfType.Any(rq => rq.CompleteDateTime >= DateTime.UtcNow.AddHours(4)) && questsOfType.Count() >= 10)
+				if (questsOfType.Any(rq => rq.CompleteDateTime >= DateTime.UtcNow.AddHours(4)) || questsOfType.Count() >= 5)
                 {
                     Log("There are too many quests of this kind running to start more.");
                     continue;
