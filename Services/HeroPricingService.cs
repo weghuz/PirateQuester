@@ -30,7 +30,7 @@ public class HeroPricingService
         {
             using HttpClient client = new HttpClient();
             
-            var uri = new Uri("https://dfkheropricer.azurewebsites.net/priceHeroes");
+            var uri = new Uri("https://pricingapi.piratequester.com/priceHeroes");
             var heroes = accountsToUpdate.SelectMany(acc => acc.Heroes).Select(hero => new
             {
                 hero.id,
