@@ -2,6 +2,6 @@
 
 public class LoginViewModel
 {
-	public string Password { get; set; }
-	public List<string> SelectedAccounts { get; set; }
+    public string Password { get; set; }
+    public List<string> SelectedAccounts { get; set; }
 }

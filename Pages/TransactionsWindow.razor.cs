@@ -6,15 +6,15 @@ namespace PirateQuester.Pages;
 
 public partial class TransactionsWindow
 {
-	[Inject]
-	public AccountManager Acc { get; set; }
-	[Inject]
-	public NavigationManager Nav { get; set; }
-	[Inject]
-	public IJSInProcessRuntime JS { get; set; }
+    [Inject]
+    public AccountManager Acc { get; set; }
+    [Inject]
+    public NavigationManager Nav { get; set; }
+    [Inject]
+    public IJSInProcessRuntime JS { get; set; }
 
-	public TransactionsWindow()
-	{
+    public TransactionsWindow()
+    {
 
-	}
+    }
 }

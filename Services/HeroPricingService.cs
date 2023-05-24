@@ -14,8 +14,8 @@ public class HeroPricingService
 {
     public IJSInProcessRuntime JS { get; }
     public List<Hero> AuctionData { get; set; }
-	public HeroPricingService(IJSInProcessRuntime js)
-	{
+    public HeroPricingService(IJSInProcessRuntime js)
+    {
         JS = js;
     }
 
@@ -25,11 +25,11 @@ public class HeroPricingService
         var retryPolicy = Policy
         .Handle<Exception>()
         .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
-        
+
         await retryPolicy.ExecuteAsync(async () =>
         {
             using HttpClient client = new HttpClient();
-            
+
             var uri = new Uri("https://pricingapi.piratequester.com/priceHeroes");
             var heroes = accountsToUpdate.SelectMany(acc => acc.Heroes).Select(hero => new
             {
@@ -49,7 +49,7 @@ public class HeroPricingService
                 var data = await response.Content.ReadAsStringAsync();
 
                 var pricedHeroes = JsonSerializer.Deserialize<List<PricedHero>>(data);
-                
+
                 foreach (DFKBotHero botHero in accountsToUpdate.SelectMany(acc => acc.BotHeroes))
                 {
                     var pricedHero = pricedHeroes.FirstOrDefault(ph => ph.Id.ToString() == botHero.ID.ToString());
@@ -72,7 +72,7 @@ public class HeroPricingService
                 foreach (DFKBotHero botHero in accountsToUpdate.SelectMany(acc => acc.BotHeroes))
                 {
                     botHero.FloorEstimate = 999999;
-                    botHero.FloorEstimateFields = new() { "Failed to fetch price"};
+                    botHero.FloorEstimateFields = new() { "Failed to fetch price" };
                 }
             }
         });

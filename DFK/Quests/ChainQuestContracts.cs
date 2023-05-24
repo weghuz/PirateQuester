@@ -2,9 +2,9 @@
 
 namespace PirateQuester.DFK.Contracts
 {
-	public class ChainQuestContracts
-	{
-		public List<QuestContract> QuestContracts { get; set; }
-		public Chain Chain { get; set; }
-	}
+    public class ChainQuestContracts
+    {
+        public List<QuestContract> QuestContracts { get; set; }
+        public Chain Chain { get; set; }
+    }
 }

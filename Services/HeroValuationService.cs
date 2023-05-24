@@ -1,6 +1,6 @@
 ﻿namespace PirateQuester.Services
 {
-	public class HeroValuationService
-	{
-	}
+    public class HeroValuationService
+    {
+    }
 }
