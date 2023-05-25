@@ -58,6 +58,10 @@ namespace PirateQuester.Bot
             int highestStat = stats.Max();
 
             if (highestStat >= settings.MinTrainingStats[stats.IndexOf(highestStat)].Amount
+                // When higher level training quests are out,
+                // rewrite this to use the highest level quest available
+                && highestStat < 50
+                && NoSkillOverLevel10(h)
                 && chainQuestSettings.QuestEnabled[stats.IndexOf(highestStat)].Enabled)
             {
                 SuggestedQuest = chainQuests[stats.IndexOf(highestStat)];
@@ -67,7 +71,20 @@ namespace PirateQuester.Bot
                 SuggestedQuest = chainQuests
                     .FirstOrDefault(q => q.Name.ToLower().Contains(h.profession)
                     && chainQuestSettings.QuestEnabled[q.Id].Enabled);
-
+                if(SuggestedQuest.QuestInstanceId == 1 && Hero.fishing >= 100)
+                {
+                    SuggestedQuest = chainQuests
+                        .FirstOrDefault(q => q.QuestInstanceId == 1
+                        && chainQuestSettings.QuestEnabled[q.Id].Enabled
+                        && q.Level == 10);
+                }
+                else if (SuggestedQuest.QuestInstanceId == 2 && Hero.foraging >= 100)
+                {
+                    SuggestedQuest = chainQuests
+                        .FirstOrDefault(q => q.QuestInstanceId == 2
+                        && chainQuestSettings.QuestEnabled[q.Id].Enabled
+                        && q.Level == 10);
+                }
                 if (SuggestedQuest is not null)
                 {
                     if (SuggestedQuest.Category == "Mining"
@@ -91,7 +108,9 @@ namespace PirateQuester.Bot
 
                         int minAssigned = gardeningQuests.Min(gq => Hero.DFKAccount.BotHeroes.Where(botHero => (botHero.SuggestedQuest?.Id ?? 0) == gq.Id).Count());
 
-                        SuggestedQuest = gardeningQuests.FirstOrDefault(gq => Hero.DFKAccount.BotHeroes.Where(botHero => (botHero.SuggestedQuest?.Id ?? 0) == gq.Id).Count() == minAssigned);
+                        SuggestedQuest = gardeningQuests.FirstOrDefault(gq => 
+                            Hero.DFKAccount.BotHeroes.Where(botHero => (botHero.SuggestedQuest?.Id ?? 0) == gq.Id).Count() == minAssigned
+                            && (h.gardening >= 100 ? gq.Level == 10 : gq.Level == 1));
                     }
                     return;
                 }
@@ -114,19 +133,23 @@ namespace PirateQuester.Bot
                         Console.WriteLine($"Error: {e.Message}");
                     }
                 }
-                for (int i = 0; i < 8; ++i)
+
+                if (h.fishing >= 100)
                 {
-                    if (stats[i] > settings.MinTrainingStats[i].Amount && chainQuestSettings.QuestEnabled[i].Enabled)
-                    {
-                        SuggestedQuest = chainQuests[i];
-                        return;
-                    }
+                    SuggestedQuest = chainQuests
+                        .FirstOrDefault(q => q.QuestInstanceId == 1
+                            && chainQuestSettings.QuestEnabled[q.Id].Enabled
+                            && q.Level == 10);
                 }
-                if (chainQuestSettings.QuestEnabled[8].Enabled && h.mining > 0 && Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 8).Count() < 18)
+
+                if (h.foraging >= 100)
                 {
-                    SuggestedQuest = chainQuests[8];
-                    return;
+                    SuggestedQuest = chainQuests
+                        .FirstOrDefault(q => q.QuestInstanceId == 2
+                            && chainQuestSettings.QuestEnabled[q.Id].Enabled
+                            && q.Level == 10);
                 }
+
                 int foragers = 0;
 
                 foragers = Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 11).Count();
@@ -142,7 +165,25 @@ namespace PirateQuester.Bot
                     SuggestedQuest = chainQuests[11];
                     return;
                 }
+                if (chainQuestSettings.QuestEnabled[8].Enabled && h.mining > 0 && Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 8).Count() < 18)
+                {
+                    SuggestedQuest = chainQuests[8];
+                    return;
+                }
+                for (int i = 0; i < 8; ++i)
+                {
+                    if (stats[i] > settings.MinTrainingStats[i].Amount && chainQuestSettings.QuestEnabled[i].Enabled)
+                    {
+                        SuggestedQuest = chainQuests[i];
+                        return;
+                    }
+                }
             }
+        }
+
+        static bool NoSkillOverLevel10(Hero h)
+        {
+            return h.fishing < 100 && h.foraging < 100 && h.gardening < 100;
         }
 
         public List<string> FloorEstimateFields { get; set; } = new() { "default" };

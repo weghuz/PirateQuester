@@ -15,7 +15,7 @@ namespace PirateQuester.Bot
                 new()
                 {
                     Chain = Constants.ChainsList[0],
-                    QuestEnabled = Enumerable.Range(0, 25).Select(i =>
+                    QuestEnabled = Enumerable.Range(0, 40).Select(i =>
                     new QuestEnabled()
                     {
                         Enabled = true,
@@ -26,7 +26,7 @@ namespace PirateQuester.Bot
                 new ()
                 {
                     Chain = Constants.ChainsList[1],
-                    QuestEnabled = Enumerable.Range(0, 23).Select(i =>
+                    QuestEnabled = Enumerable.Range(0, 35).Select(i =>
                     new QuestEnabled()
                     {
                         Enabled = true,

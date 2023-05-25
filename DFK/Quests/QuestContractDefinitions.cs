@@ -425,6 +425,231 @@ public static partial class QuestContractDefinitions
                     QuestInstanceId = 5,
                     QuestType = 13
                 },
+                new QuestContract
+                {
+                    Id = 25,
+                    Address = "0x407ab39B3675f29A719476af6eb3B9E5d93969E6",
+                    Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    Name = "FISHING (Skill 10)",
+                    Category = "Fishing",
+                    Subcategory = "Fishing",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => hero.profession == "fishing" ? (stamina.HasValue ? stamina.Value / 5 : hero.StaminaCurrent() / 5) : hero.StaminaCurrent()/7,
+                    BlocksPerAttempt = (hero) => 10,
+                    MaxHeroesPerQuest = (account) => 6,
+                    QuestInstanceId = 1,
+                    QuestType = 0
+                },
+                new QuestContract
+                {
+                    Id = 26,
+                    Address = "0xAd51199B453075C73FA106aFcAAD59f705EF7872",
+                    Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    Name = "FORAGING (Skill 10)",
+                    Category = "Foraging",
+                    Subcategory = "Foraging",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => hero.profession == "foraging" ? (stamina.HasValue ? stamina.Value / 5 : hero.StaminaCurrent() / 5) : hero.StaminaCurrent()/7,
+                    BlocksPerAttempt = (hero) => 10,
+                    MaxHeroesPerQuest = (account) => 6,
+                    QuestInstanceId = 2,
+                    QuestType = 0
+                },
+                new QuestContract
+                {
+                    Id = 27,
+                    Address = "0x8eDA0ceA7a90E794B33708Cc0768727A1A612f3d",
+                    Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    Name = "GARDENING_CRYSTAL-AVAX (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "Crystal-Avax",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 1
+                },
+                new QuestContract
+                {
+                    Id = 28,
+                    Address = "0xC4839Fb9A5466878168EaE3fD58c647B71475b61",
+                    Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    Name = "GARDENING_CRYSTAL-wJEWEL (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "Crystal-wJewel",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 2
+                },
+                new QuestContract
+                {
+                    Id = 29,
+                    Address = "0x6FEF23498877bC4c3940ebE121dd7D138BdA4e11",
+                    Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    Name = "GARDENING_CRYSTAL-USDC (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "Crystal-USDC",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 3
+                },
+                new QuestContract
+                {
+                    Id = 30,
+                    Address = "0xdeF7cBeE7d0B62037616ee26BCAc1C8364f53476",
+                    Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    Name = "GARDENING_ETH-USDC (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "Eth-USDC",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 4
+                },
+                new QuestContract
+                {
+                    Id = 31,
+                    Address = "0xaac3933Faa3B668304C9276d10CA88853463BD42",
+                    Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    Name = "GARDENING_wJEWEL-USDC (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "wJewel-USDC",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 5
+                },
+                new QuestContract
+                {
+                    Id = 32,
+                    Address = "0x810e1fF51fDd58c474c66A31013713D1A17BF458",
+                    Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    Name = "GARDENING_CRYSTAL-ETH (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "Crystal-Eth",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 6
+                },
+                new QuestContract
+                {
+                    Id = 33,
+                    Address = "0x706916dbC3b66d89632708CC193080ea05E0534A",
+                    Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    Name = "GARDENING_CRYSTAL-BTC.b (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "Crystal-Btc.b",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 7
+                },
+                new QuestContract
+                {
+                    Id = 34,
+                    Address = "0x1fCc67a01525fd715A67bCcbF73665Fb3dBE76c7",
+                    Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    Name = "GARDENING_CRYSTAL-KLAY (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "Crystal-Klay",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 8
+                },
+                new QuestContract
+                {
+                    Id = 35,
+                    Address = "0x2A70aA48f9dBF859239ae5E7f98fe95aE27A6CD4",
+                    Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    Name = "GARDENING_JEWEL-KLAY (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "Jewel-Klay",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 9
+                },
+                new QuestContract
+                {
+                    Id = 36,
+                    Address = "0xA0d17554F09047d65E0ae0e76CD8923A9525183c",
+                    Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    Name = "GARDENING_JEWEL-AVAX (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "Jewel-Avax",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 10
+                },
+                new QuestContract
+                {
+                    Id = 37,
+                    Address = "0x3391B9384AC66C7Aa3BF4A75A4f441942B1dCf30",
+                    Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    Name = "GARDENING_JEWEL-BTC.b (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "Jewel-Btc.b",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 11
+                },
+                new QuestContract
+                {
+                    Id = 38,
+                    Address = "0xbaEc39Dd81b964B57bc5fa5f5421Cd82185409E6",
+                    Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    Name = "GARDENING_JEWEL-ETH (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "Jewel-Eth",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 12
+                },
+                new QuestContract
+                {
+                    Id = 39,
+                    Address = "0x045838dBfb8026520E872c8298F4Ed542B81Eaca",
+                    Chain = Constants.ChainsList[(int)ChainEnum.DFK],
+                    Name = "GARDENING_BTC.b-USDC (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "Btc.b-USDC",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 13
+                },
             }
         },
         new()
@@ -772,6 +997,201 @@ public static partial class QuestContractDefinitions
                     Category = "Gardening",
                     Subcategory = "JEWEL-oETH",
                     Level = 0,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 10
+                },
+                new QuestContract
+                {
+                    Id = 23,
+                    Address = "0x0E7a8b035eF2FA0183a2680458818256424Bd60B",
+                    Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
+                    Name = "FISHING (Skill 10)",
+                    Category = "Fishing",
+                    Subcategory = "Fishing",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => Math.Clamp(hero.profession == "fishing" ? (stamina.HasValue ? stamina.Value / 5 : hero.StaminaCurrent() / 5) : hero.StaminaCurrent()/7, 0, 5),
+                    BlocksPerAttempt = (hero) => 10,
+                    MaxHeroesPerQuest = (account) => 5,
+                    QuestInstanceId = 1,
+                    QuestType = 0
+                },
+                new QuestContract
+                {
+                    Id = 24,
+                    Address = "0x54DaD24dDc2cC6E7616438816DE0EeFCad79B625",
+                    Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
+                    Name = "FORAGING (Skill 10)",
+                    Category = "Foraging",
+                    Subcategory = "Foraging",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => Math.Clamp(hero.profession == "foraging" ? (stamina.HasValue ? stamina.Value / 5 : hero.StaminaCurrent() / 5) : hero.StaminaCurrent()/7, 0, 5),
+                    BlocksPerAttempt = (hero) => 10,
+                    MaxHeroesPerQuest = (account) => 5,
+                    QuestInstanceId = 2,
+                    QuestType = 0
+                },
+                new QuestContract
+                {
+                    Id = 25,
+                    Address = "0x3837612f3A14C92Da8E0186AB398A753fe169dc1",
+                    Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
+                    Name = "GARDENING_JADE-JEWEL (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "JADE-JEWEL",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 0
+                },
+                new QuestContract
+                {
+                    Id = 26,
+                    Address = "0xc1C01a860B841F47f8191026D9Ca8eE2F1f37ab3",
+                    Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
+                    Name = "GARDENING_JADE-wKLAY (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "JADE-wKLAY",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 1
+                },
+                new QuestContract
+                {
+                    Id = 27,
+                    Address = "0x7643ADB5AaF129A424390CB055d6e23231fFd690",
+                    Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
+                    Name = "GARDENING_JADE-AVAX (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "JADE-AVAX",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 2
+                },
+                new QuestContract
+                {
+                    Id = 28,
+                    Address = "0x177D9F3A92630CB8C46F169b1F99a12A7a326c45",
+                    Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
+                    Name = "GARDENING_JADE-oUSDT (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "JADE-oUSDT",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 3
+                },
+                new QuestContract
+                {
+                    Id = 29,
+                    Address = "0x05305c97e9A2FDC0F5Ea23824c1348DEeD9Aff04",
+                    Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
+                    Name = "GARDENING_JADE-oBTC (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "JADE-oBTC",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 4
+                },
+                new QuestContract
+                {
+                    Id = 30,
+                    Address = "0xb911F5D6F9129365d1a415DD3CBa17F0240CFA70",
+                    Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
+                    Name = "GARDENING_JADE-oETH (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "JADE-oETH",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 5
+                },
+                new QuestContract
+                {
+                    Id = 31,
+                    Address = "0x3198f51A1c8cFC5f1FeaD58feaa19E6dFc8e9737",
+                    Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
+                    Name = "GARDENING_JEWEL-wKLAY (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "JEWEL-wKLAY",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 6
+                },
+                new QuestContract
+                {
+                    Id = 32,
+                    Address = "0xDAd93871e42a11aD577E4DCa02c7C426800A47D5",
+                    Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
+                    Name = "GARDENING_JEWEL-AVAX (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "JEWEL-AVAX",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 7
+                },
+                new QuestContract
+                {
+                    Id = 33,
+                    Address = "0x0831f733870e847263907F32B3367De2f47CeAf0",
+                    Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
+                    Name = "GARDENING_JEWEL-oUSDT (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "JEWEL-oUSDT",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 8
+                },
+                new QuestContract
+                {
+                    Id = 34,
+                    Address = "0x85106b1aF8B0337CB39a9aacDa87849B882a3170",
+                    Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
+                    Name = "GARDENING_JEWEL-oBTC (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "JEWEL-oBTC",
+                    Level = 10,
+                    AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
+                    BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
+                    MaxHeroesPerQuest = (account) => 2,
+                    QuestInstanceId = 5,
+                    QuestType = 9
+                },
+                new QuestContract
+                {
+                    Id = 35,
+                    Address = "0x7038F49cAA6e2f26677D237A2A40EC6354bA1eA5",
+                    Chain = Constants.ChainsList[(int)ChainEnum.Klaytn],
+                    Name = "GARDENING_JEWEL-oETH (Skill 10)",
+                    Category = "Gardening",
+                    Subcategory = "JEWEL-oETH",
+                    Level = 10,
                     AvailableAttempts = (hero, stamina) => stamina.HasValue ? stamina.Value : hero.StaminaCurrent(),
                     BlocksPerAttempt = (hero) => (ulong)(hero.profession == "gardening" ? hero.StaminaCurrent() * 300 : hero.StaminaCurrent() * 360),
                     MaxHeroesPerQuest = (account) => 2,
