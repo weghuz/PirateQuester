@@ -71,22 +71,22 @@ namespace PirateQuester.Bot
                 SuggestedQuest = chainQuests
                     .FirstOrDefault(q => q.Name.ToLower().Contains(h.profession)
                     && chainQuestSettings.QuestEnabled[q.Id].Enabled);
-                if(SuggestedQuest.QuestInstanceId == 1 && Hero.fishing >= 100)
-                {
-                    SuggestedQuest = chainQuests
-                        .FirstOrDefault(q => q.QuestInstanceId == 1
-                        && chainQuestSettings.QuestEnabled[q.Id].Enabled
-                        && q.Level == 10);
-                }
-                else if (SuggestedQuest.QuestInstanceId == 2 && Hero.foraging >= 100)
-                {
-                    SuggestedQuest = chainQuests
-                        .FirstOrDefault(q => q.QuestInstanceId == 2
-                        && chainQuestSettings.QuestEnabled[q.Id].Enabled
-                        && q.Level == 10);
-                }
                 if (SuggestedQuest is not null)
                 {
+                    if (SuggestedQuest.QuestInstanceId == 1 && Hero.fishing >= 100)
+                    {
+                        SuggestedQuest = chainQuests
+                            .FirstOrDefault(q => q.QuestInstanceId == 1
+                            && chainQuestSettings.QuestEnabled[q.Id].Enabled
+                            && q.Level == 10);
+                    }
+                    else if (SuggestedQuest.QuestInstanceId == 2 && Hero.foraging >= 100)
+                    {
+                        SuggestedQuest = chainQuests
+                            .FirstOrDefault(q => q.QuestInstanceId == 2
+                            && chainQuestSettings.QuestEnabled[q.Id].Enabled
+                            && q.Level == 10);
+                    }
                     if (SuggestedQuest.Category == "Mining"
                         && Account.LockedPowerTokenBalance is not 0
                         && chainQuestSettings.QuestEnabled.First(qe => qe.QuestId == 9).Enabled)

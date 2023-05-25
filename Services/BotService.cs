@@ -39,12 +39,12 @@ namespace PirateQuester.Services
                         new()
                         {
                             Chain = Constants.ChainsList[0],
-                            QuestEnabled = Enumerable.Range(0, 25).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList()
+                            QuestEnabled = Enumerable.Range(0, 40).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList()
                         },
                         new ()
                         {
                             Chain = Constants.ChainsList[1],
-                            QuestEnabled = Enumerable.Range(0, 23).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList()
+                            QuestEnabled = Enumerable.Range(0, 36).Select(i => new QuestEnabled() { Enabled = true, QuestId = i }).ToList()
                         }
                     };
                     Settings.UpdateInterval = settings.UpdateInterval;

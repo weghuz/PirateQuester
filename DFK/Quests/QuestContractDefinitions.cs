@@ -13,20 +13,6 @@ public static partial class QuestContractDefinitions
             .FirstOrDefault(quest => quest.Id == questContractId);
     }
 
-    public static QuestContract GetQuestContract(QuestType questContract, ChainEnum chain)
-    {
-        return DFKQuestContracts
-            .FirstOrDefault(chainQ => chainQ.Chain.ChainEnum == chain).QuestContracts
-            .FirstOrDefault(quest => quest.Id == (int)questContract);
-    }
-
-    public static QuestContract GetQuestContract(string questContractName, ChainEnum chain)
-    {
-        return DFKQuestContracts
-            .FirstOrDefault(chainQ => chainQ.Chain.ChainEnum == chain).QuestContracts
-            .FirstOrDefault(quest => quest.Name == questContractName);
-    }
-
     public static QuestContract GetQuestContractFromAddress(string questContractAddress)
     {
         return DFKQuestContracts
