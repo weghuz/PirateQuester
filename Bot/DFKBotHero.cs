@@ -43,143 +43,150 @@ namespace PirateQuester.Bot
                     Quest = chainQuests[questSettings.QuestId.Value];
                 }
             }
-            List<int> stats = new()
+            try
             {
-                h.strength + (h.statBoost1 == 0 ? 1 : 0) + (h.statBoost2 == 0 ? 2 : 0),
-                h.dexterity + (h.statBoost1 == 14 ? 1 : 0) + (h.statBoost2 == 14 ? 2 : 0),
-                h.agility + (h.statBoost1 == 2 ? 1 : 0) + (h.statBoost2 == 2 ? 2 : 0),
-                h.vitality + (h.statBoost1 == 10 ? 1 : 0) + (h.statBoost2 == 10 ? 2 : 0),
-                h.endurance + (h.statBoost1 == 12 ? 1 : 0) + (h.statBoost2 == 12 ? 2 : 0),
-                h.intelligence + (h.statBoost1 == 4 ? 1 : 0) + (h.statBoost2 == 4 ? 2 : 0),
-                h.wisdom + (h.statBoost1 == 6 ? 1 : 0) + (h.statBoost2 == 6 ? 2 : 0),
-                h.luck + (h.statBoost1 == 8 ? 1 : 0) + (h.statBoost2 == 8 ? 2 : 0),
-            };
-
-            int highestStat = stats.Max();
-
-            if (highestStat >= settings.MinTrainingStats[stats.IndexOf(highestStat)].Amount
-                // When higher level training quests are out,
-                // rewrite this to use the highest level quest available
-                && highestStat < 50
-                && NoSkillOverLevel10(h)
-                && chainQuestSettings.QuestEnabled[stats.IndexOf(highestStat)].Enabled)
-            {
-                SuggestedQuest = chainQuests[stats.IndexOf(highestStat)];
-            }
-            else
-            {
-                SuggestedQuest = chainQuests
-                    .FirstOrDefault(q => q.Name.ToLower().Contains(h.profession)
-                    && chainQuestSettings.QuestEnabled[q.Id].Enabled);
-                if (SuggestedQuest is not null)
+                List<int> stats = new()
                 {
-                    if (SuggestedQuest.QuestInstanceId == 1 && Hero.fishing >= 100)
+                    h.strength + (h.statBoost1 == 0 ? 1 : 0) + (h.statBoost2 == 0 ? 2 : 0),
+                    h.dexterity + (h.statBoost1 == 14 ? 1 : 0) + (h.statBoost2 == 14 ? 2 : 0),
+                    h.agility + (h.statBoost1 == 2 ? 1 : 0) + (h.statBoost2 == 2 ? 2 : 0),
+                    h.vitality + (h.statBoost1 == 10 ? 1 : 0) + (h.statBoost2 == 10 ? 2 : 0),
+                    h.endurance + (h.statBoost1 == 12 ? 1 : 0) + (h.statBoost2 == 12 ? 2 : 0),
+                    h.intelligence + (h.statBoost1 == 4 ? 1 : 0) + (h.statBoost2 == 4 ? 2 : 0),
+                    h.wisdom + (h.statBoost1 == 6 ? 1 : 0) + (h.statBoost2 == 6 ? 2 : 0),
+                    h.luck + (h.statBoost1 == 8 ? 1 : 0) + (h.statBoost2 == 8 ? 2 : 0),
+                };
+
+                int highestStat = stats.Max();
+
+                if (highestStat >= settings.MinTrainingStats[stats.IndexOf(highestStat)].Amount
+                    // When higher level training quests are out,
+                    // rewrite this to use the highest level quest available
+                    && highestStat < 50
+                    && NoSkillOverLevel10(h)
+                    && chainQuestSettings.QuestEnabled[stats.IndexOf(highestStat)].Enabled)
+                {
+                    SuggestedQuest = chainQuests[stats.IndexOf(highestStat)];
+                }
+                else
+                {
+                    SuggestedQuest = chainQuests
+                        .FirstOrDefault(q => q.Name.ToLower().Contains(h.profession)
+                        && chainQuestSettings.QuestEnabled[q.Id].Enabled);
+                    if (SuggestedQuest is not null)
+                    {
+                        if (SuggestedQuest.QuestInstanceId == 1 && Hero.fishing >= 100)
+                        {
+                            SuggestedQuest = chainQuests
+                                .FirstOrDefault(q => q.QuestInstanceId == 1
+                                && chainQuestSettings.QuestEnabled[q.Id].Enabled
+                                && q.Level == 10);
+                        }
+                        else if (SuggestedQuest.QuestInstanceId == 2 && Hero.foraging >= 100)
+                        {
+                            SuggestedQuest = chainQuests
+                                .FirstOrDefault(q => q.QuestInstanceId == 2
+                                && chainQuestSettings.QuestEnabled[q.Id].Enabled
+                                && q.Level == 10);
+                        }
+                        if (SuggestedQuest.Category == "Mining"
+                            && Account.LockedPowerTokenBalance is not 0
+                            && chainQuestSettings.QuestEnabled.First(qe => qe.QuestId == 9).Enabled)
+                        {
+                            var lockedMining = chainQuests.First(qc => qc.Id == 9);
+                            int lockedMiners = Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 9).Count();
+                            if (lockedMiners < lockedMining.MaxHeroesPerQuest(Account) * 3)
+                            {
+                                SuggestedQuest = lockedMining;
+                                return;
+                            }
+                        }
+
+                        if (SuggestedQuest.Category == "Gardening")
+                        {
+                            var gardeningQuests = chainQuests
+                                .Where(q => q.Category == "Gardening"
+                                && chainQuestSettings.QuestEnabled[q.Id].Enabled).ToList();
+
+                            int minAssigned = gardeningQuests.Min(gq => Hero.DFKAccount.BotHeroes.Where(botHero => (botHero.SuggestedQuest?.Id ?? 0) == gq.Id).Count());
+
+                            SuggestedQuest = gardeningQuests.FirstOrDefault(gq => 
+                                Hero.DFKAccount.BotHeroes.Where(botHero => (botHero.SuggestedQuest?.Id ?? 0) == gq.Id).Count() == minAssigned
+                                && (h.gardening >= 100 ? gq.Level == 10 : gq.Level == 1));
+                        }
+                        return;
+                    }
+                    if (Account.LockedPowerTokenBalance is not 0
+                        && chainQuestSettings.QuestEnabled[9].Enabled)
+                    {
+                        var lockedMining = chainQuests[9];
+                        try
+                        {
+
+                            int lockedMiners = Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 9).Count();
+                            if (lockedMiners < lockedMining.MaxHeroesPerQuest(Account) * 3)
+                            {
+                                SuggestedQuest = lockedMining;
+                                return;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"Error: {e.Message}");
+                        }
+                    }
+
+                    if (h.fishing >= 100)
                     {
                         SuggestedQuest = chainQuests
                             .FirstOrDefault(q => q.QuestInstanceId == 1
-                            && chainQuestSettings.QuestEnabled[q.Id].Enabled
-                            && q.Level == 10);
+                                && chainQuestSettings.QuestEnabled[q.Id].Enabled
+                                && q.Level == 10);
                     }
-                    else if (SuggestedQuest.QuestInstanceId == 2 && Hero.foraging >= 100)
+
+                    if (h.foraging >= 100)
                     {
                         SuggestedQuest = chainQuests
                             .FirstOrDefault(q => q.QuestInstanceId == 2
-                            && chainQuestSettings.QuestEnabled[q.Id].Enabled
-                            && q.Level == 10);
-                    }
-                    if (SuggestedQuest.Category == "Mining"
-                        && Account.LockedPowerTokenBalance is not 0
-                        && chainQuestSettings.QuestEnabled.First(qe => qe.QuestId == 9).Enabled)
-                    {
-                        var lockedMining = chainQuests.First(qc => qc.Id == 9);
-                        int lockedMiners = Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 9).Count();
-                        if (lockedMiners < lockedMining.MaxHeroesPerQuest(Account) * 3)
-                        {
-                            SuggestedQuest = lockedMining;
-                            return;
-                        }
+                                && chainQuestSettings.QuestEnabled[q.Id].Enabled
+                                && q.Level == 10);
                     }
 
-                    if (SuggestedQuest.Category == "Gardening")
+                    int foragers = 0;
+
+                    foragers = Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 11).Count();
+
+                    var fishers = Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 10).Count();
+                    if (foragers > fishers && chainQuestSettings.QuestEnabled[10].Enabled)
                     {
-                        var gardeningQuests = chainQuests
-                            .Where(q => q.Category == "Gardening"
-                            && chainQuestSettings.QuestEnabled[q.Id].Enabled).ToList();
-
-                        int minAssigned = gardeningQuests.Min(gq => Hero.DFKAccount.BotHeroes.Where(botHero => (botHero.SuggestedQuest?.Id ?? 0) == gq.Id).Count());
-
-                        SuggestedQuest = gardeningQuests.FirstOrDefault(gq => 
-                            Hero.DFKAccount.BotHeroes.Where(botHero => (botHero.SuggestedQuest?.Id ?? 0) == gq.Id).Count() == minAssigned
-                            && (h.gardening >= 100 ? gq.Level == 10 : gq.Level == 1));
-                    }
-                    return;
-                }
-                if (Account.LockedPowerTokenBalance is not 0
-                    && chainQuestSettings.QuestEnabled[9].Enabled)
-                {
-                    var lockedMining = chainQuests[9];
-                    try
-                    {
-
-                        int lockedMiners = Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 9).Count();
-                        if (lockedMiners < lockedMining.MaxHeroesPerQuest(Account) * 3)
-                        {
-                            SuggestedQuest = lockedMining;
-                            return;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"Error: {e.Message}");
-                    }
-                }
-
-                if (h.fishing >= 100)
-                {
-                    SuggestedQuest = chainQuests
-                        .FirstOrDefault(q => q.QuestInstanceId == 1
-                            && chainQuestSettings.QuestEnabled[q.Id].Enabled
-                            && q.Level == 10);
-                }
-
-                if (h.foraging >= 100)
-                {
-                    SuggestedQuest = chainQuests
-                        .FirstOrDefault(q => q.QuestInstanceId == 2
-                            && chainQuestSettings.QuestEnabled[q.Id].Enabled
-                            && q.Level == 10);
-                }
-
-                int foragers = 0;
-
-                foragers = Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 11).Count();
-
-                var fishers = Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 10).Count();
-                if (foragers > fishers && chainQuestSettings.QuestEnabled[10].Enabled)
-                {
-                    SuggestedQuest = chainQuests[10];
-                    return;
-                }
-                else if (chainQuestSettings.QuestEnabled[11].Enabled)
-                {
-                    SuggestedQuest = chainQuests[11];
-                    return;
-                }
-                if (chainQuestSettings.QuestEnabled[8].Enabled && h.mining > 0 && Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 8).Count() < 18)
-                {
-                    SuggestedQuest = chainQuests[8];
-                    return;
-                }
-                for (int i = 0; i < 8; ++i)
-                {
-                    if (stats[i] > settings.MinTrainingStats[i].Amount && chainQuestSettings.QuestEnabled[i].Enabled)
-                    {
-                        SuggestedQuest = chainQuests[i];
+                        SuggestedQuest = chainQuests[10];
                         return;
                     }
-                }
+                    else if (chainQuestSettings.QuestEnabled[11].Enabled)
+                    {
+                        SuggestedQuest = chainQuests[11];
+                        return;
+                    }
+                    if (chainQuestSettings.QuestEnabled[8].Enabled && h.mining > 0 && Account.BotHeroes.Where(bh => (bh.SuggestedQuest?.Id ?? 0) == 8).Count() < 18)
+                    {
+                        SuggestedQuest = chainQuests[8];
+                        return;
+                    }
+                    for (int i = 0; i < 8; ++i)
+                    {
+                        if (stats[i] > settings.MinTrainingStats[i].Amount && chainQuestSettings.QuestEnabled[i].Enabled)
+                        {
+                            SuggestedQuest = chainQuests[i];
+                            return;
+                        }
+					}
+				}
+			}
+			catch (Exception e)
+			{
+                Console.WriteLine($"Something went wrong suggesting quest for hero: {h.FullName()} class:{h.mainClass} sub:{h.subClass} rarity:{h.GetRarity()} level{h.level} Error: {e.Message}");
             }
-        }
+		}
 
         static bool NoSkillOverLevel10(Hero h)
         {
