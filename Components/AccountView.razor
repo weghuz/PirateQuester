@@ -10,53 +10,50 @@
 					@Accounts[0].Name
 				</h5>
 			</div>
-			@if (Accounts[0].PQTBalance > 0)
+			@foreach(DFKAccount acc in Accounts)
 			{
-				@foreach(DFKAccount acc in Accounts)
-				{
-					<div class="col-md-3">
-						<h6>
-							@acc.Chain.Name
-						</h6>
-					</div>
-					<div class="col-md-3">
-						<h6>
-							<span class="">
-								<img src="@(acc.Chain.Name == "DFK" ? "Images/Jewel.png" : "Images/Klay.png")"
-										style="width: 18px; height:18px;" />
-								@acc.Balance
-							</span>
-						</h6>
-					</div>
-					<div class="col-md-2">
-						<h6>
-							<span class="">
-								<img src="@(acc.Chain.Name == "DFK" ? "Images/Crystal.png" : "Images/Jade.png")"
-										style="width: 18px; height:18px;" />
-								@acc.PowerTokenBalance
-							</span>
-						</h6>
-					</div>
-					<div class="col-md-2">
-						<h6>
-							<span class="">
-								<div style="position:relative;width:0;height:0;">
-									<img src="@("Images/Lock.png")"
-											style="width: 14px; height:18px; position: relative; top: 6px; left: -8px;" />
-								</div>
-								<img src="@(acc.Chain.Name == "DFK" ? "Images/Crystal.png" : "Images/Jade.png")"
-										style="width: 18px; height:18px;" />
-								@acc.LockedPowerTokenBalance
-							</span>
-						</h6>
-					</div>
-					<div class="col-md-2">
-						<h6>
-							<img src="@("Images/Items/stamina-potion.png")" style="width: 18px; height:18px;" />
-							@acc.StaminaPotionBalance
-						</h6>
-					</div>
-				}
+				<div class="col-md-3">
+					<h6>
+						@acc.Chain.Name
+					</h6>
+				</div>
+				<div class="col-md-3">
+					<h6>
+						<span class="">
+							<img src="@(acc.Chain.Name == "DFK" ? "Images/Jewel.png" : "Images/Klay.png")"
+									style="width: 18px; height:18px;" />
+							@acc.Balance
+						</span>
+					</h6>
+				</div>
+				<div class="col-md-2">
+					<h6>
+						<span class="">
+							<img src="@(acc.Chain.Name == "DFK" ? "Images/Crystal.png" : "Images/Jade.png")"
+									style="width: 18px; height:18px;" />
+							@acc.PowerTokenBalance
+						</span>
+					</h6>
+				</div>
+				<div class="col-md-2">
+					<h6>
+						<span class="">
+							<div style="position:relative;width:0;height:0;">
+								<img src="@("Images/Lock.png")"
+										style="width: 14px; height:18px; position: relative; top: 6px; left: -8px;" />
+							</div>
+							<img src="@(acc.Chain.Name == "DFK" ? "Images/Crystal.png" : "Images/Jade.png")"
+									style="width: 18px; height:18px;" />
+							@acc.LockedPowerTokenBalance
+						</span>
+					</h6>
+				</div>
+				<div class="col-md-2">
+					<h6>
+						<img src="@("Images/Items/stamina-potion.png")" style="width: 18px; height:18px;" />
+						@acc.StaminaPotionBalance
+					</h6>
+				</div>
 			}
 			<div class="col-12 pb-2">
 				<div class="row">
@@ -73,30 +70,20 @@
 							</span>
 						</h6>
 					</div>
+
 					<div class="col-md-3">
 						<h6>
 							<span class=""><img src="@("Images/PirateQuesterToken.png")" style="width: 32px; height:32px;" title="PQT" /> @Accounts[0].PQTBalance</span>
 						</h6>
 					</div>
-					@if (Accounts[0].PQTBalance < 1)
-					{
-						<div class="col-md-3">
-							<h6 class="text-warning d-inline">
-								No Pirate Quester Token to run the bot
-							</h6>
-							<SfButton CssClass="e-success d-inline" OnClick="@(() => ShowBuyPQTDialog = true)">
-								Buy <img src="@("Images/PirateQuesterToken.png")" style="width: 32px; height:32px;" title="PQT" />
-							</SfButton>
-						</div>
-					}
-					else
-					{
-						<div class="col-md-3">
-							<SfButton CssClass="e-success" OnClick="@(() => ShowBuyPQTDialog = true)">
-								Buy <img src="@("Images/PirateQuesterToken.png")" style="width: 32px; height:32px;" title="PQT" />
-							</SfButton>
-						</div>
-					}
+					<div class="col-md-3">
+						<h6>
+							You can still buy Pirate Quester Token to support PirateQuester but it is not required to run the bot.
+						</h6>
+						<SfButton CssClass="e-success" OnClick="@(() => ShowBuyPQTDialog = true)">
+							Buy <img src="@("Images/PirateQuesterToken.png")" style="width: 32px; height:32px;" title="PQT" />
+						</SfButton>
+					</div>
 					
 					<SfDialog ShowCloseIcon="true" IsModal="true" @bind-Visible=@ShowConfirmBuyPQTDialog>
 						<DialogTemplates>

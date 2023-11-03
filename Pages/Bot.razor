@@ -16,30 +16,18 @@
 			<EditForm Model="@Bots.Settings">
 				<DataAnnotationsValidator />
 				<div class="my-1 text-center">
-					@if (Acc.Accounts.Any(acc => acc.PQTBalance > 0))
-					{
-						<SfButton CssClass="e-success mx-1" Disabled="Bots.CheckRunning()" OnClick="@Bots.RunBots">
-							Run Bots
-						</SfButton>
-						<SfButton CssClass="e-danger mx-1" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" OnClick="@Bots.StopBots" >
-							Stop Bots
-						</SfButton>
-						<SfButton CssClass="e-primary mx-1" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" OnClick="RefreshBots">
-							Clear Logs
-						</SfButton>
-						<SfButton CssClass="e-primary mx-1" HtmlAttributes="@(new(){{"type", "button"}})" OnClick="@Bots.SaveSettings">
-							Save Settings
-						</SfButton>
-					}
-					else
-					{
-						<h4 class="text-danger">
-							You don't have PQT on any of your accounts.
-						</h4>
-						<h4 class="text-danger">
-							Visit the <SfButton OnClick=@(() => Nav.NavigateTo("Accounts"))>Accounts</SfButton> page to add an account with PQT.
-						</h4>
-					}
+					<SfButton CssClass="e-success mx-1" Disabled="Bots.CheckRunning()" OnClick="@Bots.RunBots">
+						Run Bots
+					</SfButton>
+					<SfButton CssClass="e-danger mx-1" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" OnClick="@Bots.StopBots" >
+						Stop Bots
+					</SfButton>
+					<SfButton CssClass="e-primary mx-1" Disabled="Bots.RunningBots.All(bot => bot.StopBot)" OnClick="RefreshBots">
+						Clear Logs
+					</SfButton>
+					<SfButton CssClass="e-primary mx-1" HtmlAttributes="@(new(){{"type", "button"}})" OnClick="@Bots.SaveSettings">
+						Save Settings
+					</SfButton>
 				</div>
 				<div class="row">
 					<div class="col-md-6">

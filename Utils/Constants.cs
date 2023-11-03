@@ -6,7 +6,7 @@ namespace PirateQuester.Utils
     {
         public static string DARK_THEME { get; } = "css/fabric-dark.css";
         public static string THEME { get; } = "css/fabric.css";
-        public static string VERSION { get; } = "2.2.2";
+        public static string VERSION { get; } = "2.3 FREE";
         public static string PQT_ADDRESS { get; } = "0xAC2b4Ffe04AB34e43e780Dad5C8DEac47B7db775";
         public static List<Chain.Chain> ChainsList { get; } = new()
         {
@@ -42,8 +42,17 @@ namespace PirateQuester.Utils
                 HeroSale = "0x7F2B66DB2D02f642a9eb8d13Bc998d441DDe17A8",
                 NativeToken = "0xB3F5867E277798b50ba7A71C0b24FDcA03045eDF",
             },
-
-        };
+			new()
+			{
+				Id = 2,
+				ChainId = 43114,
+				Name = "Avalanche",
+				Identifier = "ava",
+				RPC = "https://api.avax.network/ext/bc/C/rpc",
+				ChainEnum = ChainEnum.Avalanche,
+				Enabled = true
+			}
+		};
 
         public static List<DFKStat> DFKStats { get; } = new()
         {

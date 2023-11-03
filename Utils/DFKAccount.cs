@@ -117,15 +117,19 @@ namespace PirateQuester.Utils
                     }
                 }
             }
-            try
-            {
-                await PricingService.UpdateHeroPrices(new() { this });
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Error: {e.Message}");
-                Console.WriteLine("Couldn't price heroes.");
-            }
+            // TODO: Add back in when pricing is fixed
+            // try
+            // {
+            //     if(PricingService != null)
+            //     {
+            //         await PricingService.UpdateHeroPrices(new() { this });
+            //     }
+            // }
+            // catch (Exception e)
+            // {
+            //     Console.WriteLine($"Error: {e.Message}");
+            //     Console.WriteLine("Couldn't price heroes.");
+            // }
             UpdatedAccount?.Invoke();
         }
 

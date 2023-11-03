@@ -72,13 +72,7 @@ public class DFKBot
             try
             {
                 await account.UpdateBalance();
-                Console.WriteLine($"PQT Balance: {account.PQTBalance} {account.Account.Address}");
-                if (account.PQTBalance < 1)
-                {
-                    Log("No PQT Balance, stopping bot.");
-                    StopBot = true;
-                    break;
-                }
+
                 await UpdateHeroes();
 
                 await Update();

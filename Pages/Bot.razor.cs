@@ -24,10 +24,6 @@ public partial class Bot
         {
             Nav.NavigateTo("Login");
         }
-        else if (Acc.Accounts.Any(acc => acc.PQTBalance < 1))
-        {
-            AccountsMissingPQT = Acc.Accounts.Where(acc => acc.PQTBalance < 1).ToList();
-        }
 
         Bots.UpdatedBot += StateHasChanged;
     }

@@ -185,6 +185,8 @@ namespace PirateQuester.Bot
 			catch (Exception e)
 			{
                 Console.WriteLine($"Something went wrong suggesting quest for hero: {h.FullName()} class:{h.mainClass} sub:{h.subClass} rarity:{h.GetRarity()} level{h.level} Error: {e.Message}");
+                // Print where the error occured
+                Console.WriteLine(e.StackTrace);
             }
 		}
 

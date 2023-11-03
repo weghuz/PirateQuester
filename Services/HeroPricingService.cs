@@ -19,7 +19,6 @@ public class HeroPricingService
         JS = js;
     }
 
-
     public async Task UpdateHeroPrices(List<DFKAccount> accountsToUpdate)
     {
         var retryPolicy = Policy

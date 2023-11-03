@@ -1103,7 +1103,7 @@ namespace PirateQuester.DFK.Items
             }
         };
 
-        internal static DFKItem GetItem(ChainContract contract)
+        public static DFKItem GetItem(ChainContract contract)
         {
             return InventoryItems.FirstOrDefault(item => item.Addresses.Any(a => a.Address == contract.Address && a.Chain.Id == contract.Chain.Id));
         }
