@@ -7,9 +7,6 @@ services:
       - .:/app
     environment:
       - URLS=http://+:5000
-      - DOTNET_USE_POLLING_FILE_WATCHER=true
-      - DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER=true
-      - DOTNET_WATCH_RESTART_ON_RUDE_EDIT=true
     ports:
       - "5000:5000"
-    command: dotnet run --urls=http://+:5000
+    command: dotnet run
