@@ -190,18 +190,18 @@ public class DFKBot
         return new();
     }
 
-    public int GetMinStaminaBotHero(DFKBotHero h)
-    {
-        if (h.Quest is null && h.SuggestedQuest is null)
-        {
-            return 999;
-        }
-        int stam = ChainQuestSettings.FirstOrDefault(qs => qs.QuestId == (h.Quest?.Id ?? h.SuggestedQuest.Id))?.MinStamina ?? Settings.MinStamina;
+	public int GetMinStaminaBotHero(DFKBotHero h)
+	{
+		if (h.Quest is null && (Settings.EnableNotQuestingWithoutPreferredQuest || h.SuggestedQuest is null))
+		{
+			return 999;
+		}
+		int stam = ChainQuestSettings.FirstOrDefault(qs => qs.QuestId == (h.Quest?.Id ?? h.SuggestedQuest.Id))?.MinStamina ?? Settings.MinStamina;
 
-        return stam;
-    }
+		return stam;
+	}
 
-    public async Task Update()
+	public async Task Update()
     {
         ChainQuestSettings = Settings.ChainQuestEnabled.Find(cqe => cqe.Chain.Name == Account.Chain.Name).QuestEnabled;
         await UpdateCurrentBlock();
