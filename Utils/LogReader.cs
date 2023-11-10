@@ -22,7 +22,7 @@ namespace PirateQuester.Utils
                     questEvents = await questRewardEvent
                         .GetAllChangesAsync(questRewardEvent.CreateFilterInput(null,
                             new[] { acc.Account.Address },
-                            LongToBlock(long.Parse(block.ToString()) - 2048),
+                            LongToBlock(long.Parse(block.ToString()) - 2000),
                             new BlockParameter(block.ToHexBigInteger())));
                     retry = false;
                 }
